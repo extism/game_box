@@ -1,0 +1,19 @@
+.board {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.cell {
+    padding: 60px;
+    margin: 5px;
+    border: dotted;
+    width: 200px;
+    height: 200px;
+    font-size: 45px;
+}

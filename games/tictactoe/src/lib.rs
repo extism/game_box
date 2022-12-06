@@ -1,26 +1,6 @@
 use extism_pdk::*;
 use serde::{Serialize, Deserialize};
 
-const BOARD_CSS: &str = "
-  .board {
-    display: flex;
-    flex-direction: column;
-  }
-  .row {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-  }
-  .cell {
-    padding: 60px;
-    margin: 5px;
-    border: dotted;
-    width: 200px;
-    height: 200px;
-    font-size: 45px;
-  }
-";
-
 #[derive(Serialize, Deserialize)]
 enum State {
     StartedGame,
@@ -37,6 +17,7 @@ struct GameState {
 }
 
 //static board_tmpl: &[u8] = include_bytes!("templates/board.html");
+static APP_CSS: &[u8] = include_bytes!("templates/app.css");
 
 impl GameState {
     pub fn new() -> Self {
@@ -77,7 +58,7 @@ impl GameState {
     pub fn render_board(&self, assigns: Assigns) -> String {
         let mut items: Vec<String> = vec![
             "<style>".into(),
-            BOARD_CSS.into(),
+            std::str::from_utf8(APP_CSS).unwrap().into(),
             "</style>".into(),
             format!("<h3>Current Player is {}</h3>", self.current_player),
             format!("<h3>You are player: {}<h3>", assigns.player_id),

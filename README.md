@@ -31,7 +31,10 @@ iex -S mix phx.server
 To load and initialize a game at a specific 4 letter room code, run this in the iex repl:
 
 ```
-# loads the game process and registers as code ABCD
+# registers code name and starts process
+GameBox.Arena.Server.start_link("ABCD") 
+
+# loads the game process
 GameBox.Arena.load_game("ABCD", "/Users/ben/d/game_box/games/tictactoe/target/wasm32-unknown-unknown/debug/tictactoe_rs.wasm")
 
 # Calls the init_game function on the arena initializing the game and memory

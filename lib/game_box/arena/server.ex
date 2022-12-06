@@ -25,8 +25,6 @@ defmodule GameBox.Arena.Server do
   def init(_init_arg) do
     ctx = Extism.Context.new()
     # as our state we will store a {Context, Plugin} tuple
-    IO.puts "Context"
-    IO.inspect(ctx)
     {:ok, {ctx, nil}}
   end
 
@@ -39,8 +37,6 @@ defmodule GameBox.Arena.Server do
     end
     # Load a new plugin given the manifest and store it in the new state
     {:ok, plugin}  = Extism.Context.new_plugin(ctx, manifest, wasi)
-    IO.puts "Context"
-    IO.inspect(ctx)
     {:reply, {:ok, plugin}, {ctx, plugin}}
   end
 
@@ -50,8 +46,6 @@ defmodule GameBox.Arena.Server do
   @impl true
   def handle_call(call_details, _from, {ctx, plugin}) do
     [func_name | args] = Tuple.to_list(call_details)
-    IO.puts "Context"
-    IO.inspect(ctx)
     response = apply(Extism.Plugin, func_name, [plugin | args])
     {:reply, response, {ctx, plugin}}
   end
