@@ -1,5 +1,6 @@
 use extism_pdk::*;
 use serde::{Serialize, Deserialize};
+use tera::Tera;
 
 #[derive(Serialize, Deserialize)]
 enum State {
@@ -16,8 +17,8 @@ struct GameState {
     pub version: i32,
 }
 
-//static board_tmpl: &[u8] = include_bytes!("templates/board.html");
 static APP_CSS: &[u8] = include_bytes!("templates/app.css");
+static APP_HTML: &[u8] = include_bytes!("templates/app.html");
 
 impl GameState {
     pub fn new() -> Self {
@@ -56,27 +57,12 @@ impl GameState {
     }
 
     pub fn render_board(&self, assigns: Assigns) -> String {
-        let mut items: Vec<String> = vec![
-            "<style>".into(),
-            std::str::from_utf8(APP_CSS).unwrap().into(),
-            "</style>".into(),
-            format!("<h3>Current Player is {}</h3>", self.current_player),
-            format!("<h3>You are player: {}<h3>", assigns.player_id),
-            format!("<h3>It is {}your turn<h3>", if self.current_player == assigns.player_id {""} else {"not "}),
-            "<div class=\"board\">".into(),
-        ];
-        for row in 0..3 {
-            items.push("<div class=\"row\">".into());
-            for col in 0..3 {
-                let idx = col + (row * 3);
-                let char = self.board[idx].clone();
-                let button = format!("<button phx-click=\"cell-clicked\" phx-value-cell=\"{}\" class=\"cell\">{}</button>", idx, char);
-                items.push(button);
-            }
-            items.push("</div>".into());
-        }
-        items.push("</div>".into());
-        items.join("")
+        let mut context = tera::Context::new();
+        context.insert("css", std::str::from_utf8(APP_CSS).unwrap());
+        context.insert("current_player", self.current_player.as_str());
+        context.insert("player_id", assigns.player_id.as_str());
+        context.insert("board", &self.board);
+        Tera::one_off(std::str::from_utf8(APP_HTML).unwrap(), &context, false).unwrap()
     }
 
     pub fn current_player_character(&self) -> String {

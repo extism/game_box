@@ -1,0 +1,14 @@
+<style>{{ css }}</style>
+<h3>Current Player is {{ current_player }}</h3>
+<h3>You are player: {{ player_id }}</h3>
+<div class="board">
+   {% for row in range(end=3) %}
+      <div class="row">
+      {% for col in range(end=3) %}
+         {% set idx = col + row * 3 %}
+         {% set value = board[idx] %}
+         <button phx-click="cell-clicked" phx-value-cell="{{ idx }}" class="cell">{{ value }}</button>
+      {% endfor %}
+      </div>
+   {% endfor %}
+</div>
