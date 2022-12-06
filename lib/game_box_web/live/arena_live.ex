@@ -2,59 +2,46 @@ defmodule GameBoxWeb.ArenaLive do
   use Phoenix.LiveView
 
   def render(assigns) do
-    IO.puts "Render"
-    IO.inspect assigns
-    board = assigns[:board]
-    #{:ok, board} = GameBox.Arena.Server.call(code, {:call, "render", ""})
-
-    ~H"<%= Phoenix.HTML.raw board %>"
+    input = JSON.encode!(%{
+      player_id: assigns[:player_id],
+      code: assigns[:code],
+    })
+    {:ok, content} = GameBox.Arena.Server.call(assigns[:code], {:call, "render", input})
+    ~H"<%= Phoenix.HTML.raw content %>"
   end
 
-  def mount(%{ "code" => code } = _params, _session, socket) do
-    IO.puts "Code: "
-    {:ok, board} = GameBox.Arena.Server.call(code, {:call, "render", ""})
-    {:ok, assign(socket, board: board, code: code)}
+  def mount(%{ "code" => code } = _params, session, socket) do
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(GameBox.PubSub, "arena:" <> code)
+    end
+    # TODO: assign a unique session to the player. the player should have a unique name
+    # as well that they enter on the lobby join room
+    new_player_id = :crypto.strong_rand_bytes(16) |> Base.encode64 |> binary_part(0, 16)
+    {:ok, assign(socket, version: "0", code: code, player_id: socket.assigns[:player_id] || new_player_id)}
   end
-
   def mount(params, session, socket) do
-    # IO.inspect params
-    # IO.inspect session
-    # IO.inspect socket
-
     {:ok, socket}
   end
 
   def handle_event(event_name, value, socket) do
     code = socket.assigns[:code]
+
     input = JSON.encode!(%{
        "code" => code,
        "event_name" => event_name,
-       "player_id" => "player1",
+       "player_id" => socket.assigns[:player_id],
        "value" => value,
     })
-    IO.puts "Handle Event"
-    IO.inspect(input)
-    result = GameBox.Arena.Server.call(code, {:call, "handle_event", input})
-    IO.inspect(result)
-    {:ok, board} = GameBox.Arena.Server.call(code, {:call, "render", ""})
-    {:noreply, assign(socket, :board, board)}
+    {:ok, version} = GameBox.Arena.Server.call(code, {:call, "handle_event", input})
+    broadcast_change(code, version)
+    {:noreply, assign(socket, :version, version)}
   end
 
-  # def mount(_params, %{"current_user_id" => user_id}, socket) do
-  #   if connected?(socket), do: Process.send_after(self(), :update, 30000)
+  def handle_info({version}, socket) do
+    {:noreply, assign(socket, :version, version)}
+  end
 
-  #   # case Thermostat.get_user_reading(user_id) do
-  #   #   {:ok, temperature} ->
-  #   #     {:ok, assign(socket, temperature: temperature, user_id: user_id)}
-
-  #   #   {:error, _reason} ->
-  #   #     {:ok, redirect(socket, to: "/error")}
-  #   # end
-  # end
-
-  # def handle_info(:update, socket) do
-  #   Process.send_after(self(), :update, 30000)
-  #   {:ok, temperature} = Thermostat.get_reading(socket.assigns.user_id)
-  #   {:noreply, assign(socket, :temperature, temperature)}
-  # end
+  defp broadcast_change(code, version) do
+    Phoenix.PubSub.broadcast(GameBox.PubSub, "arena:" <> code, {version})
+  end
 end

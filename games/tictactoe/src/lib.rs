@@ -23,9 +23,8 @@ const BOARD_CSS: &str = "
 
 #[derive(Serialize, Deserialize)]
 enum State {
-    WAITING_FOR_PLAYERS,
-    STARTED_GAME,
-    ENDED_GAME,
+    StartedGame,
+    EndedGame,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,7 +33,10 @@ struct GameState {
     pub player_ids: Vec<String>,
     pub board: Vec<String>,
     pub state: State,
+    pub version: i32,
 }
+
+//static board_tmpl: &[u8] = include_bytes!("templates/board.html");
 
 impl GameState {
     pub fn new() -> Self {
@@ -46,8 +48,9 @@ impl GameState {
         return GameState {
            player_ids: vec!["player1".into(), "player2".into()],
            board: board,
-           current_player: "player1".into(),
-           state: State::STARTED_GAME,
+           current_player: "".into(),
+           state: State::StartedGame,
+           version: 0,
         }
     }
 
@@ -64,33 +67,21 @@ impl GameState {
         Ok(())
     }
 
-    pub fn render(&self) -> String {
+    pub fn render(&self, assigns: Assigns) -> String {
         match self.state {
-            State::WAITING_FOR_PLAYERS => self.render_join(),
-            State::STARTED_GAME => self.render_board(),
-            State::ENDED_GAME => self.render_board(),
+            State::StartedGame => self.render_board(assigns),
+            State::EndedGame => self.render_board(assigns),
         }
     }
 
-    pub fn render_join(&self) -> String {
-        let items: Vec<String> = vec![
-            // "<style>".into(),
-            // BOARD_CSS.into(),
-            // "</style>".into(),
-            "<form>".into(),
-            "<p>Name</p>".into(),
-            "<input type=\"text\" />".into(),
-            "<input id=\"join-submit\" type=\"submit\" value=\"Join\"/>".into(),
-            "</form>".into(),
-        ];
-        items.join("")
-    }
-
-    pub fn render_board(&self) -> String {
+    pub fn render_board(&self, assigns: Assigns) -> String {
         let mut items: Vec<String> = vec![
             "<style>".into(),
             BOARD_CSS.into(),
             "</style>".into(),
+            format!("<h3>Current Player is {}</h3>", self.current_player),
+            format!("<h3>You are player: {}<h3>", assigns.player_id),
+            format!("<h3>It is {}your turn<h3>", if self.current_player == assigns.player_id {""} else {"not "}),
             "<div class=\"board\">".into(),
         ];
         for row in 0..3 {
@@ -127,7 +118,7 @@ impl GameState {
 pub fn init_game(_: ()) -> FnResult<String> {
     let game_state = GameState::new();
     game_state.save()?;
-    Ok(game_state.render())
+    Ok(game_state.render(Assigns { player_id: "".to_string()}))
 }
 
 #[derive(Deserialize)]
@@ -156,13 +147,18 @@ pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<String> {
         game_state.moved();
     }
 
+    game_state.version = game_state.version + 1;
     game_state.save()?;
+    Ok(game_state.version.to_string())
+}
 
-    Ok(game_state.render())
+#[derive(Deserialize)]
+struct Assigns {
+    player_id: String,
 }
 
 #[plugin_fn]
-pub fn render(_: ()) -> FnResult<String> {
+pub fn render(Json(assigns): Json<Assigns>) -> FnResult<String> {
     let game_state = GameState::load()?;
-    Ok(game_state.render())
+    Ok(game_state.render(assigns))
 }
