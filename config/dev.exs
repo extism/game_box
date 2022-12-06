@@ -2,8 +2,8 @@ import Config
 
 # Configure your database
 config :game_box, GameBox.Repo,
-  username: "ben",
-  password: "",
+  username: "postgres",
+  password: "postgres",
   hostname: "localhost",
   database: "game_box_dev",
   stacktrace: true,
@@ -73,3 +73,7 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+if File.exists?(Path.join([__DIR__, "dev.secret.exs"])) do
+  import_config "dev.secret.exs"
+end

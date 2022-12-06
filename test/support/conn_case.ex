@@ -23,6 +23,7 @@ defmodule GameBoxWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import GameBoxWeb.ConnCase
+      import Phoenix.LiveViewTest
 
       alias GameBoxWeb.Router.Helpers, as: Routes
 
@@ -33,6 +34,11 @@ defmodule GameBoxWeb.ConnCase do
 
   setup tags do
     GameBox.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+
+    username = Ecto.UUID.generate()
+
+    conn = Plug.Test.init_test_session(Phoenix.ConnTest.build_conn(), %{"username" => username})
+
+    %{conn: conn}
   end
 end
