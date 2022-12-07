@@ -15,7 +15,7 @@ defmodule GameBox.Arena.Server do
     GenServer.call(via_tuple(code), {:new, manifest, wasi})
   end
 
-  def call(code, call_details) do
+  def exec(code, call_details) do
     GenServer.call(via_tuple(code), call_details)
   end
 
@@ -51,10 +51,9 @@ defmodule GameBox.Arena.Server do
   # we're mostly going to use `call` here:
   #     e.g. call_details = {:call, "count_vowels", "this is a test"]}
   @impl true
-  def handle_call(call_details, _from, state) do
-    {ctx, plugin} = state
-    [:call, func_name | args] = Tuple.to_list(call_details)
-    response = apply(Extism.Plugin, String.to_existing_atom(func_name), [plugin | args])
+  def handle_call(call_details, _from, {ctx, plugin}) do
+    [func_name | args] = Tuple.to_list(call_details)
+    response = apply(Extism.Plugin, func_name, [plugin | args])
     {:reply, response, {ctx, plugin}}
   end
 end
