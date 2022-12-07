@@ -1,7 +1,18 @@
 # GameBox
 
+This repo houses GameBox. Details can be found in this 2 part blog post:
 
-Work in progress, do not use
+https://extism.org/blog/extending-fly-io-distributed-game-system-part-1
+
+This is currently a proof of concept and we are working on making this something we can deploy.
+If you have Elixir or Phoenix knowledge, we'd love your help! Come join us in [Discord](https://discord.gg/cx3usBCWnc). Stop by the `#elixir-sdk` room.
+
+
+I've been working on a [tictactoe game in rust](games/tictactoe/) to figure out what the game API will be and how to best integrate with LiveView:
+
+<video src="gamebox-demo.mp4"></video>
+
+If you're interested in writing any games, we'd love to have one in another language like Go or Assemblyscript, or Haskell.
 
 ## Install
 
