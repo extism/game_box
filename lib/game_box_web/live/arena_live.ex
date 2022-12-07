@@ -18,14 +18,16 @@ defmodule GameBoxWeb.ArenaLive do
     """
   end
 
-  def mount(%{ "code" => code } = _params, session, socket) do
+  def mount(params, _session, socket) do
+    %{"player_id" => player_id} = params
+
+    code = GameBox.Arena.start_arena()
+
     if connected?(socket) do
       Phoenix.PubSub.subscribe(GameBox.PubSub, "arena:" <> code)
     end
-    {:ok, assign(socket, %{"version" => 0, "code" => code, "player_id" => session["username"]})}
-  end
-  def mount(params, session, socket) do
-    {:ok, socket}
+
+    {:ok, assign(socket, version: "0", code: code, player_id: player_id)}
   end
 
   def handle_event(event_name, value, socket) do

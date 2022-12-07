@@ -1,9 +1,9 @@
 defmodule GameBox.Arena do
 
-  def start_arena(code) do
-    # TODO change this out
+  def start_arena do
+    code = generate_code()
     GameBox.Arena.Server.start_link(code)
-    #load_game(code, path)
+    code
   end
 
   def load_game(code, path) do
@@ -12,5 +12,15 @@ defmodule GameBox.Arena do
 
   def fetch(code) do
     GameBox.Arena.Registry.whereis_name(code)
+  end
+
+  def generate_code do
+    code = for _ <- 1..5, into: "", do: <<Enum.random('ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')>>
+
+    if GameBox.Arena.Server.exists?(code) do
+      generate_code()
+    else
+      code
+    end
   end
 end
