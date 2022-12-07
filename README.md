@@ -10,7 +10,7 @@ If you have Elixir or Phoenix knowledge, we'd love your help! Come join us in [D
 
 I've been working on a [tictactoe game in rust](games/tictactoe/) to figure out what the game API will be and how to best integrate with LiveView:
 
-<video src="/gamebox-demo.mp4"></video>
+<video src="https://user-images.githubusercontent.com/185919/206291522-86aed4cf-13b6-4757-a400-4e3c7dafb57f.mp4"></video>
 
 If you're interested in writing any games, we'd love to have one in another language like Go or Assemblyscript, or Haskell.
 
