@@ -5,7 +5,7 @@ Work in progress, do not use
 
 ## Install
 
-> j**Note**: You need rustup installed
+> **Note**: You need rustup installed
 
 ```
 mix do deps.get, compile
