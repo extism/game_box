@@ -1,6 +1,11 @@
 <style>{{ css }}</style>
-<h3>Current Player is {{ current_player }}</h3>
-<h3>You are player: {{ player_id }}</h3>
+
+{% if current_player == player_id %}
+<h3>It is your turn</h3>
+{% else %}
+<h3>Waiting on {{ current_player }} to move<h3>
+{% endif %}
+
 <div class="board">
    {% for row in range(end=3) %}
       <div class="row">

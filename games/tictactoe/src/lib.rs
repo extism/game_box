@@ -1,5 +1,6 @@
+use derive_builder::Builder;
 use extism_pdk::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use tera::Tera;
 
 #[derive(Serialize, Deserialize)]
@@ -21,19 +22,16 @@ static APP_CSS: &[u8] = include_bytes!("templates/app.css");
 static APP_HTML: &[u8] = include_bytes!("templates/app.html");
 
 impl GameState {
-    pub fn new() -> Self {
-        let board: Vec<String> = vec![
-            "".into(), "".into(), "".into(),
-            "".into(), "".into(), "".into(),
-            "".into(), "".into(), "".into(),
-        ];
+    pub fn new(player_ids: Vec<String>) -> Self {
+        let mut board: Vec<String> = vec![];
+        board.resize(9, "".into());
         return GameState {
-           player_ids: vec!["player1".into(), "player2".into()],
-           board: board,
-           current_player: "".into(),
-           state: State::StartedGame,
-           version: 0,
-        }
+            board: board,
+            current_player: player_ids[0].to_string(),
+            state: State::StartedGame,
+            version: 0,
+            player_ids,
+        };
     }
 
     pub fn load() -> Result<Self, Error> {
@@ -67,9 +65,9 @@ impl GameState {
 
     pub fn current_player_character(&self) -> String {
         if self.player_ids[0] == self.current_player {
-            return "X".into()
+            return "X".into();
         }
-        return "O".into()
+        return "O".into();
     }
 
     pub fn moved(&mut self) {
@@ -79,18 +77,39 @@ impl GameState {
             self.current_player = self.player_ids[0].clone();
         }
     }
+
+    pub fn inc_version(&mut self) {
+        self.version += 1;
+    }
+
+    pub fn error(&mut self, msg: String) -> Assigns {
+        self.version += 1;
+        self.save();
+        //return AssignsBuilder::default().error(Some(msg)).build().unwrap();
+        return Assigns {
+            player_id: "".into(),
+            error: Some(msg),
+            version: self.version,
+        };
+    }
+}
+
+#[derive(Deserialize)]
+struct GameConfig {
+    player_ids: Vec<String>,
 }
 
 #[plugin_fn]
-pub fn init_game(_: ()) -> FnResult<String> {
-    let game_state = GameState::new();
+pub fn init_game(Json(conf): Json<GameConfig>) -> FnResult<()> {
+    let game_state = GameState::new(conf.player_ids);
     game_state.save()?;
-    Ok(game_state.render(Assigns { player_id: "".to_string()}))
+    Ok(())
 }
 
 #[derive(Deserialize)]
 struct CellValue {
-    cell: String
+    cell: String,
+    value: String,
 }
 
 #[derive(Deserialize)]
@@ -101,12 +120,23 @@ struct LiveEvent {
     value: CellValue,
 }
 
+#[derive(Builder, Serialize, Deserialize)]
+struct Assigns {
+    #[serde(skip_serializing)]
+    player_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error: Option<String>,
+    #[serde(skip_deserializing)]
+    version: i32,
+}
+
 #[plugin_fn]
-pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<String> {
+pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<Json<Assigns>> {
     let mut game_state = GameState::load()?;
-    // if game_state.current_player != event.player_id {
-    //     return Ok(game_state.render())
-    // }
+    if game_state.current_player != event.player_id {
+        game_state.inc_version();
+        return Ok(Json(game_state.error("It's not your turn".into())));
+    }
 
     if event.event_name == "cell-clicked" {
         let id = event.value.cell.parse::<usize>().unwrap();
@@ -114,14 +144,16 @@ pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<String> {
         game_state.moved();
     }
 
-    game_state.version = game_state.version + 1;
+    game_state.inc_version();
     game_state.save()?;
-    Ok(game_state.version.to_string())
-}
 
-#[derive(Deserialize)]
-struct Assigns {
-    player_id: String,
+    let new_assigns = Assigns {
+        version: game_state.version,
+        error: None,
+        player_id: event.player_id,
+    };
+
+    Ok(Json(new_assigns))
 }
 
 #[plugin_fn]
