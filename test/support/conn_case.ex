@@ -35,10 +35,6 @@ defmodule GameBoxWeb.ConnCase do
   setup tags do
     GameBox.DataCase.setup_sandbox(tags)
 
-    username = Ecto.UUID.generate()
-
-    conn = Plug.Test.init_test_session(Phoenix.ConnTest.build_conn(), %{"username" => username})
-
-    %{conn: conn}
+    %{conn: Phoenix.ConnTest.build_conn()}
   end
 end

@@ -3,29 +3,35 @@ defmodule GameBoxWeb.ArenaLive do
 
   def render(assigns) do
     IO.puts("render Assigns: ")
-    IO.inspect(assigns)
+    #IO.inspect(assigns)
     input = JSON.encode!(
       player_id: assigns["player_id"],
       code: assigns["code"]
     )
     IO.inspect(input)
-    {:ok, content} = GameBox.Arena.Server.call(assigns["code"], {:call, "render", input})
-    ~H"""
-    <div>
-      <p class="alert alert-danger" role="alert"><%= live_flash(@flash, :error) %></p>
-      <%= Phoenix.HTML.raw content %>
-    </div>
-    """
+    case GameBox.Arena.Server.exec(assigns["code"], {:call, "render", input}) do
+      {:ok, content} ->
+        ~H"""
+        <div>
+          <p class="alert alert-danger" role="alert"><%= live_flash(@flash, :error) %></p>
+          <%= Phoenix.HTML.raw content %>
+        </div>
+        """
+      {:error, err} ->
+        IO.puts(err)
+        ""
+    end
   end
 
-  def mount(%{ "code" => code } = _params, session, socket) do
+  def mount(%{"player_id" => player_id} = _params, _session, socket) do
+    code = GameBox.Arena.start_arena()
+    IO.puts("Starting game " <> code)
+
     if connected?(socket) do
       Phoenix.PubSub.subscribe(GameBox.PubSub, "arena:" <> code)
     end
-    {:ok, assign(socket, %{"version" => 0, "code" => code, "player_id" => session["username"]})}
-  end
-  def mount(params, session, socket) do
-    {:ok, socket}
+
+    {:ok, assign(socket, %{"version" => 0, "code" => code, "player_id" => player_id})}
   end
 
   def handle_event(event_name, value, socket) do

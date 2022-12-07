@@ -15,8 +15,15 @@ defmodule GameBox.Arena.Server do
     GenServer.call(via_tuple(code), {:new, manifest, wasi})
   end
 
-  def call(code, call_details) do
+  def exec(code, call_details) do
     GenServer.call(via_tuple(code), call_details)
+  end
+
+  def exists?(code) do
+    code
+    |> via_tuple()
+    |> GenServer.whereis()
+    |> is_pid()
   end
 
   # Callabcks
