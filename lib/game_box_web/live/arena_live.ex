@@ -3,13 +3,11 @@ defmodule GameBoxWeb.ArenaLive do
 
   def render(assigns) do
     IO.puts("render Assigns: ")
-    #IO.inspect(assigns)
-    input = JSON.encode!(
-      player_id: assigns["player_id"],
-      code: assigns["code"]
-    )
-    IO.inspect(input)
-    case GameBox.Arena.Server.exec(assigns["code"], {:call, "render", input}) do
+    input_assigns = %{
+      player_id: assigns[:player_id],
+      code: assigns[:code]
+    }
+    case GameBox.render_game(assigns[:code], input_assigns) do
       {:ok, content} ->
         ~H"""
         <div>
@@ -19,52 +17,52 @@ defmodule GameBoxWeb.ArenaLive do
         """
       {:error, err} ->
         IO.puts(err)
-        ""
+        ~H""
     end
   end
 
   def mount(%{"player_id" => player_id} = _params, _session, socket) do
-    code = GameBox.Arena.start_arena()
+    code = GameBox.start_arena(player_id)
     IO.puts("Starting game " <> code)
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(GameBox.PubSub, "arena:" <> code)
     end
 
-    {:ok, assign(socket, %{"version" => 0, "code" => code, "player_id" => player_id})}
+    {:ok, assign(socket, version: 0, code: code, player_id: player_id)}
   end
 
   def handle_event(event_name, value, socket) do
     code = socket.assigns["code"]
 
-    input = JSON.encode!(%{
+    event = %{
        "code" => code,
        "player_id" => socket.assigns["player_id"],
        "event_name" => event_name,
        "value" => value,
-    })
+    }
 
-    case GameBox.Arena.Server.call(code, {:call, "handle_event", input}) do
+    case GameBox.handle_game_event(code, event) do
       {:ok, new_assigns} ->
-        new_assigns = JSON.decode!(new_assigns)
-        error = Map.get(new_assigns, "error")
+        new_assigns = Jason.decode!(new_assigns, keys: :atoms)
+        error = Map.get(new_assigns, :error)
         if error do
-          broadcast_change(code, new_assigns["version"])
+          broadcast_change(code, new_assigns[:version])
           {:noreply, socket |> assign(new_assigns) |> put_flash(:error, error)}
         else
-          broadcast_change(code, new_assigns["version"])
+          broadcast_change(code, new_assigns[:version])
           {:noreply, assign(socket, new_assigns)}
         end
       {:error, err} ->
         IO.puts("Call failed: ")
-        IO.puts(input)
+        IO.puts(event)
         IO.puts(err)
         {:noreply, put_flash(socket, :error, err)}
     end
   end
 
   def handle_info({version}, socket) do
-    {:noreply, assign(socket, "version", version)}
+    {:noreply, assign(socket, :version, version)}
   end
 
   defp broadcast_change(code, version) do
