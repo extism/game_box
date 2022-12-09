@@ -6,6 +6,11 @@ use tera::Tera;
 static APP_CSS: &[u8] = include_bytes!("templates/app.css");
 static APP_HTML: &[u8] = include_bytes!("templates/app.html");
 
+
+// Assigns are attached to the user's socket
+// They are passed to the render() function to render the screen
+// Assigns are also returned from the handle_event() function.
+// When returned, those values are assigned to the user's socket
 #[derive(Builder, Serialize, Deserialize)]
 pub struct Assigns {
     #[serde(skip_serializing)]
@@ -18,10 +23,11 @@ pub struct Assigns {
 
 #[derive(Serialize, Deserialize)]
 pub enum GameState {
-    StartedGame,
-    EndedGame,
+    Playing,
+    Ended,
 }
 
+// Stores the state of the game
 #[derive(Serialize, Deserialize)]
 pub struct Game {
     pub current_player: String,
@@ -58,7 +64,7 @@ impl Game {
         return Game {
             board: board,
             current_player: player_ids[0].to_string(),
-            state:GameState::StartedGame,
+            state:GameState::Playing,
             version: 0,
             player_ids,
         };
@@ -66,8 +72,8 @@ impl Game {
 
     pub fn render(&self, assigns: Assigns) -> String {
         match self.state {
-            GameState::StartedGame => self.render_board(assigns),
-            GameState::EndedGame => self.render_board(assigns),
+            GameState::Playing => self.render_board(assigns),
+            GameState::Ended => self.render_board(assigns),
         }
     }
 
