@@ -1,68 +1,114 @@
 defmodule GameBox.Arena.Server do
+  @moduledoc false
+
   use GenServer
 
-  defmodule Arena do
-    defstruct [:ctx, :plugin, :host_player_id, :players]
-  end
+  require Logger
 
-  def start_link(code) do
-    GenServer.start_link(__MODULE__, [], name: via_tuple(code))
-  end
+  alias GameBox.Arena.Player
+  alias GameBox.Arena.State
+  alias GameBox.Arena.Server
+  alias Phoenix.PubSub
 
-  defp via_tuple(code) do
-    {:via, GameBox.Arena.Registry, {:arena, code}}
-  end
+  def child_spec(opts) do
+    player = Keyword.fetch!(opts, :player)
+    code = Keyword.fetch!(opts, :code)
 
-  # API
-
-  def load(code, manifest, wasi) do
-    GenServer.call(via_tuple(code), {:new, manifest, wasi})
-  end
-
-  def plugin_apply(code, call_details) do
-    GenServer.call(via_tuple(code), call_details)
-  end
-
-  def exists?(code) do
-    code
-    |> via_tuple()
-    |> GenServer.whereis()
-    |> is_pid()
-  end
-
-  # Callabcks
-
-  @impl true
-  def init(_init_args) do
-    ctx = Extism.Context.new()
-    arena = %Arena{
-      ctx: ctx,
-      plugin: nil,
-      host_player_id: nil,
-      players: []
+    %{
+      id: "arena_#{code}",
+      start: {Server, :start_link, [code, player]},
+      shutdown: 10_000,
+      restart: :transient
     }
-    {:ok, arena}
   end
 
-  # This special call is for loading or reloading a plugin given a manifest
-  @impl true
-  def handle_call({:new, manifest, wasi}, _from, arena) do
-    # if we have an exiting Plugin let's free it
-    if arena.plugin do
-        Extism.Plugin.free(arena.plugin)
+  @doc """
+  Start a Server with the specified code as the name.
+  """
+  def start_link(code, %Player{} = player) do
+    case GenServer.start_link(Server, %{player: player, code: code}, name: via_tuple(code)) do
+      {:ok, pid} ->
+        {:ok, pid}
+
+      {:error, {:already_started, pid}} ->
+        Logger.info(
+          "Already started Server #{inspect(code)} at #{inspect(pid)}, returning :ignore"
+        )
+
+        :ignore
     end
-    # Load a new plugin given the manifest and store it in the new state
-    {:ok, plugin}  = Extism.Context.new_plugin(arena.ctx, manifest, wasi)
-    {:reply, {:ok, arena}, %{arena | plugin: plugin}}
   end
 
-  # this is a generic way to call functions on the Extism.Plugin module
-  # we're mostly going to use `call` here:
-  #     e.g. call_details = {:call, "count_vowels", "this is a test"]}
+  def game_state(code) do
+    GenServer.call(via_tuple(code), :game_state)
+  end
+
+  @doc """
+  Start a new game or join an existing game.
+  """
+  @spec start_or_join(State.code(), Player.t()) ::
+          {:ok, :started | :joined} | {:error, String.t()}
+  def start_or_join(code, %Player{} = player) do
+    case Horde.DynamicSupervisor.start_child(
+           GameBox.DistributedSupervisor,
+           {Server, [code: code, player: player]}
+         ) do
+      {:ok, _pid} ->
+        Logger.info("Started game server #{inspect(code)}")
+        {:ok, :started}
+
+      :ignore ->
+        Logger.info("Game server #{inspect(code)} already running. Joining")
+
+        join_game(code, player)
+        {:ok, :joined}
+    end
+  end
+
+  @doc """
+  Join a running game server
+  """
+  @spec join_game(State.code(), Player.t()) :: :ok | {:error, String.t()}
+  def join_game(code, %Player{} = player) do
+    GenServer.cast(via_tuple(code), {:join_game, player})
+  end
+
   @impl true
-  def handle_call(call_details, _from, arena) do
-    [func_name | args] = Tuple.to_list(call_details)
-    response = apply(Extism.Plugin, func_name, [arena.plugin | args])
-    {:reply, response, arena}
+  def init(%{player: player, code: code}) do
+    # Create the new game state with the creating player assigned
+    {:ok, State.new(code, player)}
+  end
+
+  @doc """
+  Return the `:via` tuple for referencing and interacting with a specific Server.
+  """
+  def via_tuple(code), do: {:via, Horde.Registry, {GameBox.ArenaRegistry, code}}
+
+  @doc """
+  Lookup the Server and report if it is found. Returns a boolean.
+  """
+  @spec server_found?(State.code()) :: boolean()
+  def server_found?(code) do
+    # Look up the game in the registry. Return if a match is found.
+    case Horde.Registry.lookup(GameBox.ArenaRegistry, code) do
+      [] -> false
+      [{pid, _} | _] when is_pid(pid) -> true
+    end
+  end
+
+  @impl true
+  def handle_call(:game_state, _from, state) do
+    {:reply, state, state}
+  end
+
+  @impl true
+  def handle_cast({:join_game, %Player{} = player}, %State{} = state) do
+    state = State.join_player(state, player)
+    broadcast_game_state(state)
+    {:noreply, state}
+  end
+
+  def broadcast_game_state(%State{} = state) do
+    PubSub.broadcast(GameBox.PubSub, "arena:#{state.code}", {:arena_state, state})
   end
 end

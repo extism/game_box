@@ -1,71 +1,49 @@
 defmodule GameBoxWeb.ArenaLive do
-  use Phoenix.LiveView
+  use GameBoxWeb, :live_view
+
+  alias Phoenix.PubSub
+  alias GameBox.Arena
 
   def render(assigns) do
-    IO.puts("render Assigns: ")
-    input_assigns = %{
-      player_id: assigns[:player_id],
-      code: assigns[:code]
-    }
-    case GameBox.render_game(assigns[:code], input_assigns) do
-      {:ok, content} ->
-        ~H"""
-        <div>
-          <p class="alert alert-danger" role="alert"><%= live_flash(@flash, :error) %></p>
-          <%= Phoenix.HTML.raw content %>
-        </div>
-        """
-      {:error, err} ->
-        IO.puts(err)
-        ~H""
-    end
+    ~H"""
+    <h1>Arena</h1>
+    <p>Current Player: <%= @player.name %></p>
+    <p>Players Online</p>
+    <ul>
+      <li :for={player <- @arena.players}><%= player.name %></li>
+    </ul>
+
+    <h2>Choose a game to start playing</h2>
+    <ul>
+      <li :for={game <- @games}><%= game.title %></li>
+    </ul>
+    """
   end
 
-  def mount({"player_id" => player_id} = _params, _session, socket) do
-    code = GameBox.start_arena(player_id)
-    IO.puts("Starting game " <> code)
+  def mount(params, _session, socket) do
+    %{"code" => code, "player_id" => player_id} = params
 
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(GameBox.PubSub, "arena:" <> code)
+      PubSub.subscribe(GameBox.PubSub, "arena:#{code}")
+      send(self(), :load_game_state)
     end
 
-    {:ok, assign(socket, version: 0, code: code, player_id: player_id)}
+    {:ok,
+     assign(socket,
+       games: GameBox.Games.list_games(),
+       arena_code: code,
+       player_id: player_id,
+       player: %Arena.Player{},
+       arena: %Arena.State{},
+       server_found: Arena.Server.server_found?(code)
+     )}
   end
 
-  def handle_event(event_name, value, socket) do
-    code = socket.assigns["code"]
-
-    event = %{
-       "code" => code,
-       "player_id" => socket.assigns["player_id"],
-       "event_name" => event_name,
-       "value" => value,
-    }
-
-    case GameBox.handle_game_event(code, event) do
-      {:ok, new_assigns} ->
-        new_assigns = Jason.decode!(new_assigns, keys: :atoms)
-        error = Map.get(new_assigns, :error)
-        if error do
-          broadcast_change(code, new_assigns[:version])
-          {:noreply, socket |> assign(new_assigns) |> put_flash(:error, error)}
-        else
-          broadcast_change(code, new_assigns[:version])
-          {:noreply, assign(socket, new_assigns)}
-        end
-      {:error, err} ->
-        IO.puts("Call failed: ")
-        IO.puts(event)
-        IO.puts(err)
-        {:noreply, put_flash(socket, :error, err)}
-    end
+  def handle_info(:load_game_state, socket) do
+    %{assigns: %{arena_code: code, player_id: player_id}} = socket
+    state = Arena.Server.game_state(code)
+    player = Arena.State.get_player(state, player_id)
+    {:noreply, assign(socket, arena: state, player: player)}
   end
 
-  def handle_info({version}, socket) do
-    {:noreply, assign(socket, :version, version)}
-  end
-
-  defp broadcast_change(code, version) do
-    Phoenix.PubSub.broadcast(GameBox.PubSub, "arena:" <> code, {version})
-  end
 end

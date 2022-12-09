@@ -25,6 +25,12 @@ defmodule GameBoxWeb.ConnCase do
       import GameBoxWeb.ConnCase
       import Phoenix.LiveViewTest
 
+      use Phoenix.VerifiedRoutes,
+        endpoint: GameBoxWeb.Endpoint,
+        router: GameBoxWeb.Router,
+        statics: GameBoxWeb.static_paths()
+
+
       alias GameBoxWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
