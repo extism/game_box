@@ -11,8 +11,9 @@ struct GameConfig {
 
 #[plugin_fn]
 pub fn init_game(Json(conf): Json<GameConfig>) -> FnResult<()> {
-    let game_state = Game::new(conf.player_ids);
-    game_state.save()?;
+    let mut storage = PluginStorage::new();
+    let game = Game::new(conf.player_ids);
+    storage.save(&game)?;
     Ok(())
 }
 
@@ -32,10 +33,13 @@ struct LiveEvent {
 
 #[plugin_fn]
 pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<Json<Assigns>> {
-    let mut game_state = Game::load()?;
+    let mut storage = PluginStorage::new();
+    let mut game_state = storage.load()?;
     if game_state.current_player != event.player_id {
         game_state.inc_version();
-        return Ok(Json(game_state.error("It's not your turn".into())));
+        let err = game_state.error("It's not your turn".into());
+        storage.save(&game_state)?;
+        return Ok(Json(err));
     }
 
     if event.event_name == "cell-clicked" {
@@ -45,7 +49,7 @@ pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<Json<Assigns>> {
     }
 
     game_state.inc_version();
-    game_state.save()?;
+    storage.save(&game_state)?;
 
     let new_assigns = Assigns {
         version: game_state.version,
@@ -58,6 +62,7 @@ pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<Json<Assigns>> {
 
 #[plugin_fn]
 pub fn render(Json(assigns): Json<Assigns>) -> FnResult<String> {
-    let game_state = Game::load()?;
+    let storage = PluginStorage::new();
+    let game_state = storage.load()?;
     Ok(game_state.render(assigns))
 }

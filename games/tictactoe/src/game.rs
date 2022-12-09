@@ -21,37 +21,45 @@ pub struct Assigns {
     pub version: i32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum GameState {
     Playing,
     Ended,
 }
 
 // Stores the state of the game
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
     pub current_player: String,
     pub player_ids: Vec<String>,
     pub board: Vec<String>,
     pub state: GameState,
-    pub version: i32,
+    pub version: i32
 }
 
-pub trait Persistence {
-    fn load() -> Result<Game, Error>;
-    fn save(&self) -> Result<(), Error>;
+pub trait Persister {
+    fn load(&self) -> Result<Game, Error>;
+    fn save(&mut self, game: &Game) -> Result<(), Error>;
 }
 
-impl Persistence for Game {
-    fn load() -> Result<Self, Error> {
+pub struct PluginStorage;
+
+impl PluginStorage {
+    pub fn new() -> Self {
+        return PluginStorage{}
+    }
+}
+
+impl Persister for PluginStorage {
+    fn load(&self) -> Result<Game, Error> {
         let state = var::get("game_state")?.expect("variable 'game_state' set");
         let serialized = String::from_utf8(state).expect("string from varible value");
         let game: Game = serde_json::from_str(serialized.as_str())?;
         Ok(game)
     }
 
-    fn save(&self) -> Result<(), Error> {
-        let serialized = serde_json::to_string(self)?;
+    fn save(&mut self, game: &Game) -> Result<(), Error> {
+        let serialized = serde_json::to_string(game)?;
         set_var!("game_state", "{}", serialized)?;
         Ok(())
     }
@@ -107,12 +115,56 @@ impl Game {
 
     pub fn error(&mut self, msg: String) -> Assigns {
         self.version += 1;
-        self.save();
         //return AssignsBuilder::default().error(Some(msg)).build().unwrap();
         return Assigns {
             player_id: "".into(),
             error: Some(msg),
             version: self.version,
         };
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    pub struct FakeStorage {
+        pub state: String,
+    }
+
+    impl FakeStorage {
+        pub fn new() -> Self { FakeStorage{state: "".into()} }
+    }
+
+    impl Persister for FakeStorage {
+        fn load(&self) -> Result<Game, Error> {
+            let game: Game = serde_json::from_str(&self.state.as_str())?;
+            Ok(game)
+        }
+
+        fn save(&mut self, game: &Game) -> Result<(), Error> {
+            let serialized = serde_json::to_string(game)?;
+            self.state = serialized;
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn run_simulation() -> Result<(), Error> {
+        let mut storage = FakeStorage::new();
+        let game = Game::new(vec!["benjamin".into(), "brian".into()]);
+        storage.save(&game)?;
+        let game2 = storage.load();
+        println!("{:#?}", game2);
+
+        let assigns = Assigns {
+            player_id: "benjamin".into(),
+            error: None,
+            version: 0
+         };
+
+        println!("{}", game.render(assigns));
+        Ok(())
     }
 }
