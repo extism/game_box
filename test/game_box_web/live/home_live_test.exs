@@ -2,42 +2,34 @@ defmodule GameBoxWeb.HomeLiveTest do
   use GameBoxWeb.ConnCase
 
   describe "home" do
-    test "sets a user id in session", ctx do
+    test "join an arena", ctx do
       %{conn: conn} = ctx
-      conn = get(conn, Routes.live_path(conn, GameBoxWeb.HomeLive))
-      assert "" <> _ = get_session(conn, :user_id)
-    end
+      {:ok, view, _html} = live(conn, ~p"/")
 
-    test "renders with forms", ctx do
-      %{conn: conn} = ctx
-      {:ok, _view, html} = live(conn, Routes.live_path(conn, GameBoxWeb.HomeLive))
-      assert html =~ "Create a Game"
-      assert html =~ "Join a Game"
-    end
-
-    test "create a game", ctx do
-      %{conn: conn} = ctx
-      {:ok, view, _html} = live(conn, Routes.live_path(conn, GameBoxWeb.HomeLive))
+      player = GameBox.Arena.Player.new("one")
 
       view
-      |> element("#create_game")
-      |> render_submit(%{player_id: "Test"})
+      |> element("#join_arena")
+      |> render_submit(%{player_id: player.id, arena_code: "ABC"})
 
-      path = Routes.live_path(conn, GameBoxWeb.ArenaLive, %{player_id: "Test"})
+      path = ~p"/arena?code=ABC&player_id=#{player.id}"
       {^path, %{}} = assert_redirect(view)
     end
 
-    test "join a game", ctx do
+    test "arena with two players", ctx do
       %{conn: conn} = ctx
-      {:ok, view, _html} = live(conn, Routes.live_path(conn, GameBoxWeb.HomeLive))
 
-      code = GameBox.Arena.start_arena()
+      arena_code = "CDE"
+      player_one = GameBox.Arena.Player.new("one")
+      player_two = GameBox.Arena.Player.new("two")
+      {:ok, :started} = GameBox.Arena.Server.start_or_join(arena_code, player_one)
+      {:ok, :joined} = GameBox.Arena.Server.start_or_join(arena_code, player_two)
 
-      view
-      |> element("#join_game")
-      |> render_submit(%{player_id: "Test", code: code})
+      {:ok, view, _html} = live(conn, ~p"/arena?code=#{arena_code}&player_id=#{player_one.id}")
 
-      assert_redirected(view, Routes.live_path(conn, GameBoxWeb.ArenaLive, %{code: code}))
+      html = render(view)
+      assert html =~ "Current Player: one"
+      assert html =~ "two"
     end
   end
 end

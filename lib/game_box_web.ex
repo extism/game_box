@@ -17,9 +17,15 @@ defmodule GameBoxWeb do
   and import those modules here.
   """
 
+  def static_paths do
+    ~w(uploads assets fonts images favicon.ico robots.txt)
+  end
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: GameBoxWeb
+
+      unquote(verified_routes())
 
       import Plug.Conn
       import GameBoxWeb.Gettext
@@ -45,7 +51,7 @@ defmodule GameBoxWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {GameBoxWeb.LayoutView, "live.html"}
+        layout: {GameBoxWeb.LayoutView, :live}
 
       unquote(view_helpers())
     end
@@ -89,6 +95,8 @@ defmodule GameBoxWeb do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
+      unquote(verified_routes())
+
       # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
       import Phoenix.LiveView.Helpers
 
@@ -98,8 +106,19 @@ defmodule GameBoxWeb do
       import GameBoxWeb.ErrorHelpers
       import GameBoxWeb.Gettext
       alias GameBoxWeb.Router.Helpers, as: Routes
+      import Phoenix.Component
     end
   end
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: GameBoxWeb.Endpoint,
+        router: GameBoxWeb.Router,
+        statics: GameBoxWeb.static_paths()
+    end
+  end
+
 
   @doc """
   When used, dispatch to the appropriate controller/view/etc.
