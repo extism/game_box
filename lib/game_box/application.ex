@@ -7,6 +7,8 @@ defmodule GameBox.Application do
 
   @impl true
   def start(_type, _args) do
+    topologies = Application.get_env(:libcluster, :topologies) || []
+
     children = [
       # Start the Ecto repository
       GameBox.Repo,
@@ -14,12 +16,19 @@ defmodule GameBox.Application do
       GameBoxWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: GameBox.PubSub},
-      # Start the Endpoint (http/https)
-      GameBoxWeb.Endpoint,
       # Start a worker by calling: GameBox.Worker.start_link(arg)
       # {GameBox.Worker, arg}
-      GameBox.Arena.Registry,
-      GameBox.Arena.Supervisor,
+      {Cluster.Supervisor, [topologies, [name: GameBox.ClusterSupervisor]]},
+      {Horde.Registry, [name: GameBox.ArenaRegistry, keys: :unique, members: :auto]},
+      {Horde.DynamicSupervisor,
+      [
+        name: GameBox.DistributedSupervisor,
+        shutdown: 1000,
+        strategy: :one_for_one,
+        members: :auto
+      ]},
+      # Start the Endpoint (http/https)
+      GameBoxWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

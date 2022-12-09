@@ -8,7 +8,6 @@ defmodule GameBoxWeb.Router do
     plug :put_root_layout, {GameBoxWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug GameBoxWeb.SessionPlug
   end
 
   pipeline :api do
@@ -21,6 +20,7 @@ defmodule GameBoxWeb.Router do
     live_session(:default, on_mount: GameBoxWeb.InitAssigns) do
       live "/", HomeLive
       live "/arena", ArenaLive
+      live "/game", GameLive
     end
   end
 

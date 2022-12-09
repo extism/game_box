@@ -17,6 +17,8 @@ config :game_box, GameBoxWeb.Endpoint,
   pubsub_server: GameBox.PubSub,
   live_view: [signing_salt: "I1PjC40z"]
 
+config :game_box, GameBox.Games, path: Path.expand("../priv/data", __DIR__)
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
