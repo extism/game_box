@@ -21,7 +21,7 @@ defmodule GameBoxWeb.ArenaLive do
     end
   end
 
-  def mount(%{"player_id" => player_id} = _params, _session, socket) do
+  def mount({"player_id" => player_id} = _params, _session, socket) do
     code = GameBox.start_arena(player_id)
     IO.puts("Starting game " <> code)
 
