@@ -20,19 +20,12 @@ pub struct Assigns {
     pub version: i32,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub enum GameState {
-    Playing,
-    Ended,
-}
-
 // Stores the state of the game
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
     pub current_player: String,
     pub player_ids: Vec<String>,
     pub board: Vec<String>,
-    pub state: GameState,
     pub version: i32,
 }
 
@@ -70,7 +63,6 @@ impl Game {
         board.resize(9, "".into());
         Game {
             current_player: player_ids[0].to_string(),
-            state: GameState::Playing,
             version: 0,
             player_ids,
             board,
@@ -78,13 +70,6 @@ impl Game {
     }
 
     pub fn render(&self, assigns: Assigns) -> String {
-        match self.state {
-            GameState::Playing => self.render_board(assigns),
-            GameState::Ended => self.render_board(assigns),
-        }
-    }
-
-    fn render_board(&self, assigns: Assigns) -> String {
         let mut context = tera::Context::new();
         context.insert("css", std::str::from_utf8(APP_CSS).unwrap());
         context.insert("game", self);
