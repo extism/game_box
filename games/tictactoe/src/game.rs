@@ -6,7 +6,6 @@ use tera::Tera;
 static APP_CSS: &[u8] = include_bytes!("templates/app.css");
 static APP_HTML: &[u8] = include_bytes!("templates/app.html");
 
-
 // Assigns are attached to the user's socket
 // They are passed to the render() function to render the screen
 // Assigns are also returned from the handle_event() function.
@@ -34,7 +33,7 @@ pub struct Game {
     pub player_ids: Vec<String>,
     pub board: Vec<String>,
     pub state: GameState,
-    pub version: i32
+    pub version: i32,
 }
 
 pub trait Persister {
@@ -46,7 +45,7 @@ pub struct PluginStorage;
 
 impl PluginStorage {
     pub fn new() -> Self {
-        return PluginStorage{}
+        PluginStorage {}
     }
 }
 
@@ -69,13 +68,13 @@ impl Game {
     pub fn new(player_ids: Vec<String>) -> Self {
         let mut board: Vec<String> = vec![];
         board.resize(9, "".into());
-        return Game {
-            board: board,
+        Game {
             current_player: player_ids[0].to_string(),
-            state:GameState::Playing,
+            state: GameState::Playing,
             version: 0,
             player_ids,
-        };
+            board,
+        }
     }
 
     pub fn render(&self, assigns: Assigns) -> String {
@@ -97,7 +96,7 @@ impl Game {
         if self.player_ids[0] == self.current_player {
             return "X".into();
         }
-        return "O".into();
+        "O".into()
     }
 
     pub fn moved(&mut self) {
@@ -115,14 +114,13 @@ impl Game {
     pub fn error(&mut self, msg: String) -> Assigns {
         self.version += 1;
         //return AssignsBuilder::default().error(Some(msg)).build().unwrap();
-        return Assigns {
+        Assigns {
             player_id: "".into(),
             error: Some(msg),
             version: self.version,
-        };
+        }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -133,12 +131,14 @@ mod tests {
     }
 
     impl FakeStorage {
-        pub fn new() -> Self { FakeStorage{state: "".into()} }
+        pub fn new() -> Self {
+            FakeStorage { state: "".into() }
+        }
     }
 
     impl Persister for FakeStorage {
         fn load(&self) -> Result<Game, Error> {
-            let game: Game = serde_json::from_str(&self.state.as_str())?;
+            let game: Game = serde_json::from_str(self.state.as_str())?;
             Ok(game)
         }
 
@@ -160,8 +160,8 @@ mod tests {
         let assigns = Assigns {
             player_id: "benjamin".into(),
             error: None,
-            version: 0
-         };
+            version: 0,
+        };
 
         println!("{}", game.render(assigns));
         Ok(())

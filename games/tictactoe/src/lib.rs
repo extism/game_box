@@ -2,7 +2,7 @@ mod game;
 
 use crate::game::*;
 use extism_pdk::*;
-use serde::{Deserialize};
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 struct GameConfig {
