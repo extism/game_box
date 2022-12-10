@@ -41,9 +41,19 @@ defmodule GameBoxWeb.ArenaLive do
 
   def handle_info(:load_game_state, socket) do
     %{assigns: %{arena_code: code, player_id: player_id}} = socket
+
     state = Arena.Server.game_state(code)
     player = Arena.State.get_player(state, player_id)
+
     {:noreply, assign(socket, arena: state, player: player)}
   end
 
+  def handle_info({:arena_state, state}, socket) do
+    {:noreply, assign(socket, arena: state)}
+  end
+
+  def terminate(_reason, socket) do
+    %{assigns: %{arena: arena, player: player}} = socket
+    Arena.Server.leave_arena(arena.code, player)
+  end
 end

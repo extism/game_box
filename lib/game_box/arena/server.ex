@@ -60,17 +60,21 @@ defmodule GameBox.Arena.Server do
       :ignore ->
         Logger.info("Game server #{inspect(code)} already running. Joining")
 
-        join_game(code, player)
+        join_arena(code, player)
         {:ok, :joined}
     end
   end
 
+  def leave_arena(code, player) do
+    GenServer.cast(via_tuple(code), {:leave_arena, player})
+  end
+
   @doc """
-  Join a running game server
+  Join a running arena server
   """
-  @spec join_game(State.code(), Player.t()) :: :ok | {:error, String.t()}
-  def join_game(code, %Player{} = player) do
-    GenServer.cast(via_tuple(code), {:join_game, player})
+  @spec join_arena(State.code(), Player.t()) :: :ok | {:error, String.t()}
+  def join_arena(code, %Player{} = player) do
+    GenServer.cast(via_tuple(code), {:join_arena, player})
   end
 
   @impl true
@@ -101,8 +105,19 @@ defmodule GameBox.Arena.Server do
     {:reply, state, state}
   end
 
+  def handle_cast({:leave_arena, player}, state) do
+    state = State.leave_player(state, player)
+    broadcast_game_state(state)
+
+    if state.players == [] do
+      {:stop, :normal, state}
+    else
+      {:noreply, state}
+    end
+  end
+
   @impl true
-  def handle_cast({:join_game, %Player{} = player}, %State{} = state) do
+  def handle_cast({:join_arena, %Player{} = player}, %State{} = state) do
     state = State.join_player(state, player)
     broadcast_game_state(state)
     {:noreply, state}

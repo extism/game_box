@@ -30,4 +30,9 @@ defmodule GameBox.Arena.State do
   def get_player(%State{players: players}, player_id) do
     Enum.find(players, & &1.id == player_id)
   end
+
+  def leave_player(%State{players: players} = state, player) do
+    players = Enum.reject(players, & &1.id == player.id)
+    Map.put(state, :players, players)
+  end
 end
