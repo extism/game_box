@@ -88,9 +88,8 @@ impl Game {
     fn render_board(&self, assigns: Assigns) -> String {
         let mut context = tera::Context::new();
         context.insert("css", std::str::from_utf8(APP_CSS).unwrap());
-        context.insert("current_player", self.current_player.as_str());
-        context.insert("player_id", assigns.player_id.as_str());
-        context.insert("board", &self.board);
+        context.insert("game", self);
+        context.insert("assigns", &assigns);
         Tera::one_off(std::str::from_utf8(APP_HTML).unwrap(), &context, false).unwrap()
     }
 
