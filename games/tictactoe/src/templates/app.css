@@ -1,3 +1,51 @@
+.active {
+    border-color: orange !important;
+}
+
+.players {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 100px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.playerX {
+    display: flex;
+    flex-direction: row;
+    border-style: solid;
+    border-color: green;
+}
+
+.playerO {
+    display: flex;
+    flex-direction: row;
+    border-style: solid;
+    border-color: orchid;
+}
+
+.characterX {
+    color: white;
+    background: green;
+    padding: 10px
+}
+
+.characterO {
+    background: orchid;
+    color: white;
+    padding: 10px
+}
+
+.usernameX {
+    padding: 10px
+}
+
+.usernameO {
+    border-color: orchid;
+    padding: 10px
+}
+
 .board {
     display: flex;
     flex-direction: column;

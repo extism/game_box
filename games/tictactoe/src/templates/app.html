@@ -1,19 +1,40 @@
 <style>{{ css }}</style>
 
-{% if current_player == player_id %}
-<h3>It is your turn</h3>
-{% else %}
-<h3>Waiting on {{ current_player }} to move<h3>
-{% endif %}
+{% set xclass = "playerX" %}
+{% set oclass = "playerO" %}
+{% if game.player_ids[0] == game.current_player -%}
+   {% set xclass = "playerX active" %}
+{% else -%}
+   {% set oclass = "playerO active" %}
+{% endif -%}
+
+<div class="players">
+   <div class="{{ xclass }}">
+      <div class="characterX">
+         X
+      </div>
+      <div class="usernameX">
+         {{ game.player_ids[0] }}
+      </div>
+   </div>
+   <div class="{{ oclass }}">
+      <div class="characterO">
+         O
+      </div>
+      <div class="usernameO">
+         {{ game.player_ids[1] }}
+      </div>
+   </div>
+</div>
 
 <div class="board">
-   {% for row in range(end=3) %}
+   {% for row in range(end=3) -%}
       <div class="row">
-      {% for col in range(end=3) %}
-         {% set idx = col + row * 3 %}
-         {% set value = board[idx] %}
+      {% for col in range(end=3) -%}
+         {% set idx = col + row * 3 -%}
+         {% set value = game.board[idx] -%}
          <button phx-click="cell-clicked" phx-value-cell="{{ idx }}" class="cell">{{ value }}</button>
-      {% endfor %}
+      {% endfor -%}
       </div>
-   {% endfor %}
+   {% endfor -%}
 </div>

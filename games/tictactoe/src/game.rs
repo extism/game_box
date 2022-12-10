@@ -1,0 +1,154 @@
+use derive_builder::Builder;
+use extism_pdk::*;
+use serde::{Deserialize, Serialize};
+use tera::Tera;
+
+static APP_CSS: &[u8] = include_bytes!("templates/app.css");
+static APP_HTML: &[u8] = include_bytes!("templates/app.html");
+
+// Assigns are attached to the user's socket
+// They are passed to the render() function to render the screen
+// Assigns are also returned from the handle_event() function.
+// When returned, those values are assigned to the user's socket
+#[derive(Builder, Serialize, Deserialize)]
+pub struct Assigns {
+    #[serde(skip_serializing)]
+    pub player_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    #[serde(skip_deserializing)]
+    pub version: i32,
+}
+
+// Stores the state of the game
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Game {
+    pub current_player: String,
+    pub player_ids: Vec<String>,
+    pub board: Vec<String>,
+    pub version: i32,
+}
+
+pub trait Persister {
+    fn load(&self) -> Result<Game, Error>;
+    fn save(&mut self, game: &Game) -> Result<(), Error>;
+}
+
+pub struct PluginStorage;
+
+impl PluginStorage {
+    pub fn new() -> Self {
+        PluginStorage {}
+    }
+}
+
+impl Persister for PluginStorage {
+    fn load(&self) -> Result<Game, Error> {
+        let state = var::get("game_state")?.expect("variable 'game_state' set");
+        let serialized = String::from_utf8(state).expect("string from varible value");
+        let game: Game = serde_json::from_str(serialized.as_str())?;
+        Ok(game)
+    }
+
+    fn save(&mut self, game: &Game) -> Result<(), Error> {
+        let serialized = serde_json::to_string(game)?;
+        set_var!("game_state", "{}", serialized)?;
+        Ok(())
+    }
+}
+
+impl Game {
+    pub fn new(player_ids: Vec<String>) -> Self {
+        let mut board: Vec<String> = vec![];
+        board.resize(9, "".into());
+        Game {
+            current_player: player_ids[0].to_string(),
+            version: 0,
+            player_ids,
+            board,
+        }
+    }
+
+    pub fn render(&self, assigns: Assigns) -> String {
+        let mut context = tera::Context::new();
+        context.insert("css", std::str::from_utf8(APP_CSS).unwrap());
+        context.insert("game", self);
+        context.insert("assigns", &assigns);
+        Tera::one_off(std::str::from_utf8(APP_HTML).unwrap(), &context, false).unwrap()
+    }
+
+    pub fn current_player_character(&self) -> String {
+        if self.player_ids[0] == self.current_player {
+            return "X".into();
+        }
+        "O".into()
+    }
+
+    pub fn moved(&mut self) {
+        if self.player_ids[0] == self.current_player {
+            self.current_player = self.player_ids[1].clone();
+        } else {
+            self.current_player = self.player_ids[0].clone();
+        }
+    }
+
+    pub fn inc_version(&mut self) {
+        self.version += 1;
+    }
+
+    pub fn error(&mut self, msg: String) -> Assigns {
+        self.version += 1;
+        //return AssignsBuilder::default().error(Some(msg)).build().unwrap();
+        Assigns {
+            player_id: "".into(),
+            error: Some(msg),
+            version: self.version,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    pub struct FakeStorage {
+        pub state: String,
+    }
+
+    impl FakeStorage {
+        pub fn new() -> Self {
+            FakeStorage { state: "".into() }
+        }
+    }
+
+    impl Persister for FakeStorage {
+        fn load(&self) -> Result<Game, Error> {
+            let game: Game = serde_json::from_str(self.state.as_str())?;
+            Ok(game)
+        }
+
+        fn save(&mut self, game: &Game) -> Result<(), Error> {
+            let serialized = serde_json::to_string(game)?;
+            self.state = serialized;
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn run_simulation() -> Result<(), Error> {
+        let mut storage = FakeStorage::new();
+        let game = Game::new(vec!["benjamin".into(), "brian".into()]);
+        storage.save(&game)?;
+        let game2 = storage.load();
+        println!("{:#?}", game2);
+
+        let assigns = Assigns {
+            player_id: "benjamin".into(),
+            error: None,
+            version: 0,
+        };
+
+        println!("{}", game.render(assigns));
+        Ok(())
+    }
+}
