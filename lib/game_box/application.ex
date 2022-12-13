@@ -19,14 +19,15 @@ defmodule GameBox.Application do
       # Start a worker by calling: GameBox.Worker.start_link(arg)
       # {GameBox.Worker, arg}
       {Cluster.Supervisor, [topologies, [name: GameBox.ClusterSupervisor]]},
+      {Horde.Registry, [name: GameBox.PlayersRegistry, keys: :unique, members: :auto]},
       {Horde.Registry, [name: GameBox.ArenaRegistry, keys: :unique, members: :auto]},
       {Horde.DynamicSupervisor,
-      [
-        name: GameBox.DistributedSupervisor,
-        shutdown: 1000,
-        strategy: :one_for_one,
-        members: :auto
-      ]},
+       [
+         name: GameBox.DistributedSupervisor,
+         shutdown: 1000,
+         strategy: :one_for_one,
+         members: :auto
+       ]},
       # Start the Endpoint (http/https)
       GameBoxWeb.Endpoint
     ]

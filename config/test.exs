@@ -20,9 +20,6 @@ config :game_box, GameBoxWeb.Endpoint,
   secret_key_base: "w/ayzD2AuCBGLClwAEKghzvbeWppl/k+z+ldNFdpkL4LtoGXuXgnegpi7K8VJXZ8",
   server: false
 
-# In test we don't send emails.
-config :game_box, GameBox.Mailer, adapter: Swoosh.Adapters.Test
-
 # Print only warnings and errors during test
 config :logger, level: :warn
 
