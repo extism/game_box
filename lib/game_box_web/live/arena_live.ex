@@ -18,11 +18,16 @@ defmodule GameBoxWeb.ArenaLive do
 
     ~H"""
     <h1>Arena</h1>
-    <p>Current Player: <%= @current_player.name %></p>
+    <p>
+      Current Player<br />
+      <%= @current_player.name %><br />
+      <%= @current_player.pids |> Enum.map(&inspect/1) |> Enum.join(" ") %>
+    </p>
     <p>Players Online</p>
     <ul>
       <li :for={player <- @other_players}>
-        <%= player.name %>
+        <%= player.name %><br />
+        <%= player.pids |> Enum.map(&inspect/1) |> Enum.join(" ") %>
       </li>
     </ul>
 
@@ -48,22 +53,19 @@ defmodule GameBoxWeb.ArenaLive do
 
     if connected?(socket) do
       PubSub.subscribe(GameBox.PubSub, "arena:#{arena_id}")
-      send(self(), :load_game_state)
+      Players.monitor(arena_id, player_id)
     end
 
     if Players.exists?(arena_id) and Arena.exists?(arena_id) do
-      players = Players.list_players(arena_id)
-      current_player = Map.get(players, player_id)
-      other_players = players |> Map.delete(player_id) |> Map.values()
-
       {:ok,
-       assign(socket,
-         current_player: current_player,
-         other_players: other_players,
-         arena: Arena.state(arena_id),
-         games: Games.list_games(),
-         version: -1
-       )}
+       socket
+       |> assign(:arena, Arena.state(arena_id))
+       |> assign(:games, Games.list_games())
+       |> assign(:board, nil)
+       |> assign(:version, 0)
+       |> assign(:player_id, player_id)
+       |> assign_current_player()
+       |> assign_other_players()}
     else
       IO.puts "push nav"
       {:ok, push_navigate(socket, to: ~p"/")}
@@ -126,8 +128,30 @@ defmodule GameBoxWeb.ArenaLive do
     {:noreply, assign(socket, version: version)}
   end
 
+  def handle_info(:players_updated, socket) do
+    {:noreply, assign_other_players(socket)}
+  end
+
   def handle_info(_message, socket) do
     IO.puts ":default"
     {:noreply, socket}
+  end
+
+  defp assign_current_player(socket) do
+    %{assigns: %{arena: %{arena_id: arena_id}, player_id: player_id}} = socket
+
+    assign(socket, current_player: Players.get_player(arena_id, player_id))
+  end
+
+  defp assign_other_players(socket) do
+    %{assigns: %{arena: %{arena_id: arena_id}, player_id: player_id}} = socket
+
+    other_players =
+      arena_id
+      |> Players.list_players()
+      |> Map.delete(player_id)
+      |> Map.values()
+
+    assign(socket, :other_players, other_players)
   end
 end
