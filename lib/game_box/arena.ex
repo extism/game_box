@@ -21,8 +21,10 @@ defmodule GameBox.Arena do
     GenServer.cast(via_tuple(arena_id), {:load_game, game_id})
   end
 
-  def render_game(arena_id, player_id) do
-    GenServer.call(via_tuple(arena_id), {:extism, "render", %{player_id: player_id}})
+  def render_game(arena_id, assigns) do
+    IO.puts("render game")
+    IO.inspect(assigns)
+    GenServer.call(via_tuple(arena_id), {:extism, "render", assigns})
   end
 
   def new_event(arena_id, event) do
@@ -105,10 +107,13 @@ defmodule GameBox.Arena do
     {:reply, state, state}
   end
 
-  def handle_call({:extism, "render", argument}, _from, arena) do
+  def handle_call({:extism, "render", assigns}, _from, arena) do
+    IO.puts("RENDER CALLBCK")
+    IO.inspect(arena)
+    IO.inspect(assigns)
     %{plugin: plugin} = arena
 
-    {:ok, html} = Extism.Plugin.call(plugin, "render", Jason.encode!(argument))
+    {:ok, html} = Extism.Plugin.call(plugin, "render", Jason.encode!(assigns))
 
     {:reply, html, arena}
   end
@@ -155,8 +160,12 @@ defmodule GameBox.Arena do
     {:ok, _output} =
       Extism.Plugin.call(plugin, "init_game", Jason.encode!(%{player_ids: player_ids}))
 
+    IO.puts("Game initialized")
+    IO.inspect(player_ids)
+
     PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_started)
 
+    IO.inspect(plugin)
     {:noreply, Map.put(state, :plugin, plugin)}
   end
 
