@@ -11,7 +11,8 @@ defmodule GameBox.Players do
   @fields %{
     id: %{type: :string, required: true},
     name: %{type: :string},
-    game_id: %{type: :integer}
+    game_id: %{type: :integer},
+    pids: %{type: :array}
   }
 
   @schema Map.new(@fields, fn {key, %{type: type}} -> {key, type} end)
@@ -46,6 +47,10 @@ defmodule GameBox.Players do
     GenServer.cast(via_tuple(arena_id), :end_game)
   end
 
+  def monitor(arena_id, player_id) do
+    GenServer.cast(via_tuple(arena_id), {:monitor, player_id, self()})
+  end
+
   @spec exists?(arena_id :: String.t()) :: boolean()
   def exists?(arena_id) do
     GameBox.ArenaRegistry
@@ -58,16 +63,21 @@ defmodule GameBox.Players do
     {:reply, Map.fetch!(state, player_id), state}
   end
 
-  def handle_call(:list_players, _from, state) do
-    {:reply, state, state}
+  def handle_call(:list_players, _from, players) do
+    online_players =
+      players
+      |> Enum.filter(fn {_player_id, player} -> Enum.any?(player.pids) end)
+      |> Enum.into(%{})
+
+    {:reply, online_players, players}
   end
 
   def handle_call({:update_player, player_id, params}, _from, state) do
-    player = Map.get(state, player_id, %{id: player_id})
+    player = Map.get(state, player_id, %{id: player_id, pids: []})
 
     case change_player(player, params) do
       {:ok, player} ->
-        {:reply, {:ok, player}, Map.put(state, player_id, player)}
+        {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
 
       {:error, changeset} ->
         {:reply, {:error, changeset}, state}
@@ -89,6 +99,42 @@ defmodule GameBox.Players do
       Map.new(players, fn {id, player} ->
         {id, Map.put(player, :game_id, nil)}
       end)
+
+    {:noreply, players}
+  end
+
+  def handle_cast({:monitor, player_id, pid}, players) do
+    Process.monitor(pid)
+
+    pids =
+      players[player_id][:pids]
+      |> Enum.concat([pid])
+      |> Enum.uniq()
+
+    {:noreply, put_in(players, [player_id, :pids], pids), {:continue, :broadcast}}
+  end
+
+  @impl true
+  def handle_info({:DOWN, _ref, :process, pid, _}, players) do
+    player =
+      players
+      |> Map.values()
+      |> Enum.find(&(pid in &1.pids))
+
+    if is_nil(player) do
+      {:noreply, players}
+    else
+      players = put_in(players, [player.id, :pids], List.delete(player.pids, pid))
+      {:noreply, players, {:continue, :broadcast}}
+    end
+  end
+
+  @impl true
+  def handle_continue(:broadcast, players) do
+    players
+    |> Map.values()
+    |> Enum.flat_map(&Map.get(&1, :pids))
+    |> Enum.each(&send(&1, :players_updated))
 
     {:noreply, players}
   end

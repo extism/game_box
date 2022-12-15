@@ -4,21 +4,28 @@ defmodule GameBox.Arena.PlayerTest do
   alias GameBox.Players
 
   describe "players" do
-    test "successfully starts" do
-      assert :ok = Players.start("A")
+    setup do
+      %{arena_id: Ecto.UUID.generate(), player_id: Ecto.UUID.generate()}
     end
 
-    test "can update and list players information" do
-      player_id = Ecto.UUID.generate()
-      assert :ok = Players.start("B")
+    test "successfully starts", ctx do
+      %{arena_id: arena_id} = ctx
+      assert :ok = Players.start(arena_id)
+    end
+
+    test "can update and list players information", ctx do
+      %{arena_id: arena_id, player_id: player_id} = ctx
+      assert :ok = Players.start(arena_id)
 
       assert {:ok,
               %{
                 id: ^player_id,
                 name: "Test"
-              }} = Players.update_player("B", player_id, %{name: "Test"})
+              }} = Players.update_player(arena_id, player_id, %{name: "Test"})
 
-      assert %{^player_id => %{id: ^player_id}} = Players.list_players("B")
+      Players.monitor(arena_id, player_id)
+      pid = self()
+      assert %{pids: [^pid]} = Players.get_player(arena_id, player_id)
     end
   end
 end
