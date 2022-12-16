@@ -27,8 +27,7 @@ struct CellValue {
 struct LiveEvent {
     player_id: String,
     event_name: String,
-    code: String,
-    value: CellValue,
+    value: CellValue
 }
 
 #[plugin_fn]

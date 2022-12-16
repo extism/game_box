@@ -33,12 +33,15 @@ defmodule GameBox.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:hashids, "~> 2.0"},
+      {:credo, "~> 1.6"},
+      {:dialyxir, "~> 1.2"},
       {:ecto_sql, "~> 3.6"},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
       {:extism, "~> 0.1.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:gettext, "~> 0.18"},
+      {:hashids, "~> 2.0"},
+      {:horde, "~> 0.8.7"},
       {:jason, "~> 1.2"},
       {:libcluster, "~> 3.3"},
       {:phoenix_ecto, "~> 4.4"},
@@ -50,10 +53,8 @@ defmodule GameBox.MixProject do
       {:phoenix, "~> 1.7.0-rc.0", override: true},
       {:plug_cowboy, "~> 2.5"},
       {:postgrex, ">= 0.0.0"},
-      {:swoosh, "~> 1.3"},
       {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"},
-      {:horde, "~> 0.8.7"}
+      {:telemetry_poller, "~> 1.0"}
     ]
   end
 

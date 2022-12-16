@@ -13,4 +13,14 @@ defmodule GameBox.Games do
   def list_games do
     Repo.all(Game)
   end
+
+  def get_game(game_id) do
+    game = Repo.get(Game, game_id)
+
+    if is_nil(game) do
+      {:error, :not_found}
+    else
+      {:ok, game}
+    end
+  end
 end
