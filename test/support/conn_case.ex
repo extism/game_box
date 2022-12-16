@@ -30,7 +30,6 @@ defmodule GameBoxWeb.ConnCase do
         router: GameBoxWeb.Router,
         statics: GameBoxWeb.static_paths()
 
-
       alias GameBoxWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
@@ -40,7 +39,8 @@ defmodule GameBoxWeb.ConnCase do
 
   setup tags do
     GameBox.DataCase.setup_sandbox(tags)
+    conn = Phoenix.ConnTest.build_conn()
 
-    %{conn: Phoenix.ConnTest.build_conn()}
+    %{conn: Phoenix.ConnTest.init_test_session(conn, %{player_id: Ecto.UUID.generate()})}
   end
 end
