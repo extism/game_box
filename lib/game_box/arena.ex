@@ -21,8 +21,8 @@ defmodule GameBox.Arena do
     GenServer.cast(via_tuple(arena_id), {:load_game, game_id})
   end
 
-  def render_game(arena_id, player_id) do
-    GenServer.call(via_tuple(arena_id), {:extism, "render", %{player_id: player_id}})
+  def render_game(arena_id, assigns) do
+    GenServer.call(via_tuple(arena_id), {:extism, "render", assigns})
   end
 
   def new_event(arena_id, event) do
@@ -105,12 +105,14 @@ defmodule GameBox.Arena do
     {:reply, state, state}
   end
 
-  def handle_call({:extism, "render", argument}, _from, arena) do
-    %{plugin: plugin} = arena
-
-    {:ok, html} = Extism.Plugin.call(plugin, "render", Jason.encode!(argument))
-
-    {:reply, html, arena}
+  def handle_call({:extism, "render", assigns}, _from, arena) do
+    plugin = arena[:plugin]
+    if plugin do
+      {:ok, html} = Extism.Plugin.call(plugin, "render", Jason.encode!(assigns))
+      {:reply, html, arena}
+    else
+      {:reply, "", arena}
+    end
   end
 
   def handle_call({:extism, "handle_event", argument}, _from, arena) do

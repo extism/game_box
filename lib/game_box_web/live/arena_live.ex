@@ -7,6 +7,13 @@ defmodule GameBoxWeb.ArenaLive do
   alias Phoenix.PubSub
 
   def render(assigns) do
+    %{arena: arena, current_player: current_player} = assigns
+    arena_id = arena[:arena_id]
+    board =
+      Arena.render_game(arena_id, %{
+        player_id: current_player[:name],
+      })
+
     ~H"""
     <h1>Arena</h1>
     <p>
@@ -32,7 +39,7 @@ defmodule GameBoxWeb.ArenaLive do
     <hr />
 
     <div id="board">
-      <%= Phoenix.HTML.raw(@board) %>
+      <%= Phoenix.HTML.raw(board) %>
     </div>
     """
   end
@@ -85,14 +92,17 @@ defmodule GameBoxWeb.ArenaLive do
         put_flash(socket, :error, response.error)
       end
 
+    Arena.broadcast_game_state(%{arena_id: arena_id, version: response.version})
     {:noreply, assign(socket, :version, response.version)}
   end
 
   def handle_info(:game_started, socket) do
-    %{assigns: %{arena: %{arena_id: arena_id}, current_player: %{name: player_name}}} = socket
-    board = Arena.render_game(arena_id, player_name)
+    #%{assigns: %{arena: %{arena_id: arena_id}, current_player: %{name: player_name}}} = socket
+    {:noreply, assign(socket, version: 0)}
+  end
 
-    {:noreply, assign(socket, :board, board)}
+  def handle_info(:load_game_state, %{assigns: %{server_found?: false}} = socket) do
+    {:noreply, push_navigate(socket, to: ~p"/")}
   end
 
   def handle_info({:arena_state, state}, socket) do
@@ -100,9 +110,7 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def handle_info({:version, version}, socket) do
-    %{assigns: %{arena: %{arena_id: arena_id}, current_player: %{name: player_name}}} = socket
-    board = Arena.render_game(arena_id, player_name)
-    {:noreply, assign(socket, board: board, version: version)}
+    {:noreply, assign(socket, version: version)}
   end
 
   def handle_info(:players_updated, socket) do
