@@ -13,8 +13,6 @@ defmodule GameBoxWeb.ArenaLive do
       Arena.render_game(arena_id, %{
         player_id: current_player[:name],
       })
-    #board = ""
-
 
     ~H"""
     <h1>Arena</h1>
@@ -47,7 +45,6 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def mount(params, _session, socket) do
-    IO.puts "Mounting"
     %{"arena_id" => arena_id} = params
     %{assigns: %{player_id: player_id}} = socket
 
@@ -67,18 +64,12 @@ defmodule GameBoxWeb.ArenaLive do
        |> assign_current_player()
        |> assign_other_players()}
     else
-      IO.puts "push nav"
       {:ok, push_navigate(socket, to: ~p"/")}
     end
   end
 
   def handle_event("start_game", %{"game_id" => game_id}, socket) do
-    IO.puts "start game"
-    IO.inspect socket
-    IO.inspect game_id
     %{assigns: %{arena: %{arena_id: arena_id}}} = socket
-    IO.puts "load game"
-    IO.inspect game_id
     :ok = Arena.load_game(arena_id, game_id)
     {:noreply, socket}
   end
@@ -93,8 +84,6 @@ defmodule GameBoxWeb.ArenaLive do
     }
 
     response = Arena.new_event(arena_id, event)
-    IO.puts "handle event"
-    IO.inspect(response)
 
     socket =
       if is_nil(response[:error]) do
@@ -108,23 +97,19 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def handle_info(:game_started, socket) do
-    IO.puts ":game_started"
     #%{assigns: %{arena: %{arena_id: arena_id}, current_player: %{name: player_name}}} = socket
     {:noreply, assign(socket, version: 0)}
   end
 
   def handle_info(:load_game_state, %{assigns: %{server_found?: false}} = socket) do
-    IO.puts ":load_game_state"
     {:noreply, push_navigate(socket, to: ~p"/")}
   end
 
   def handle_info({:arena_state, state}, socket) do
-    IO.puts ":arena_state"
     {:noreply, assign(socket, arena: state)}
   end
 
   def handle_info({:version, version}, socket) do
-    IO.puts ":version_bump"
     {:noreply, assign(socket, version: version)}
   end
 
@@ -133,7 +118,6 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def handle_info(_message, socket) do
-    IO.puts ":default"
     {:noreply, socket}
   end
 
