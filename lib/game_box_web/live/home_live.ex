@@ -83,11 +83,13 @@ defmodule GameBoxWeb.HomeLive do
   end
 
   def handle_event("upload_game", unsigned_params, socket) do
+    disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
+
     [path] =
       consume_uploaded_entries(socket, :game, fn %{path: path}, _entry ->
-        dest = Path.join([:code.priv_dir(:game_box), "static", "uploads", Path.basename(path)])
+        dest = Path.join([disk_volume_path, Path.basename(path)])
         File.cp!(path, dest)
-        {:ok, ~p"/uploads/#{Path.basename(dest)}"}
+        {:ok, Path.basename(path)}
       end)
 
     {:ok, _game} =

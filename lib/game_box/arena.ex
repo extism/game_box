@@ -144,7 +144,8 @@ defmodule GameBox.Arena do
       Extism.Plugin.free(plugin)
     end
 
-    path = "priv/static/#{game.path}"
+    disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
+    path = Path.join([disk_volume_path, game.path])
     {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: path}]}, false)
 
     player_ids =
