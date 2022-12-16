@@ -25,7 +25,6 @@ RUN apt-get update -y && apt-get install -y build-essential git \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -qy
-ENV PATH="${PATH}:/root/.cargo/bin"
 
 # prepare build dir
 WORKDIR /app
@@ -46,7 +45,7 @@ RUN mkdir config
 # to ensure any relevant config change will trigger the dependencies
 # to be re-compiled.
 COPY config/config.exs config/${MIX_ENV}.exs config/
-RUN mix deps.compile
+RUN PATH="${PATH}:/root/.cargo/bin" mix deps.compile
 
 COPY priv priv
 
