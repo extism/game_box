@@ -110,6 +110,7 @@ defmodule GameBox.Arena do
 
   def handle_call({:extism, "render", assigns}, _from, arena) do
     plugin = arena[:plugin]
+
     if plugin do
       {:ok, html} = Extism.Plugin.call(plugin, "render", Jason.encode!(assigns))
       {:reply, html, arena}
