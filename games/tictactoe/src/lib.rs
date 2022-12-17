@@ -33,38 +33,18 @@ struct LiveEvent {
 #[plugin_fn]
 pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<Json<Assigns>> {
     let mut storage = PluginStorage::new();
-    let mut game_state = storage.load()?;
-
-    if game_state.current_player != event.player_id {
-        game_state.inc_version();
-        let err = game_state.error("It's not your turn".into());
-        storage.save(&game_state)?;
-        return Ok(Json(err));
-    }
+    let mut game = storage.load()?;
 
     if event.event_name == "cell-clicked" {
-        let id = event.value.cell.parse::<usize>().unwrap();
-        game_state.board[id] = game_state.current_player_character();
-        game_state.moved();
+        let cell_idx = event.value.cell.parse::<usize>().unwrap();
+        game.make_move(&mut storage, event.player_id.clone(), cell_idx)?;
     } else if event.event_name == "reset-game" {
-        let game_state_d = Game::new(game_state.player_ids);
-        storage.save(&game_state_d)?;
-        let new_assigns = Assigns {
-            version: 0,
-            error: None,
-            player_id: event.player_id,
-        };
-        return Ok(Json(new_assigns))
+        game.reset();
+        storage.save(&game)?;
     }
 
-    game_state.set_winning_cells();
-
-    game_state.inc_version();
-    storage.save(&game_state)?;
-
     let new_assigns = Assigns {
-        version: game_state.version,
-        error: None,
+        version: game.version,
         player_id: event.player_id,
     };
 

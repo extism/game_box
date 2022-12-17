@@ -26,7 +26,10 @@ defmodule GameBox.Arena do
   end
 
   def new_event(arena_id, event) do
-    GenServer.call(via_tuple(arena_id), {:extism, "handle_event", event})
+    case GenServer.call(via_tuple(arena_id), {:extism, "handle_event", event}) do
+      {:ok, r} -> {:ok, Jason.decode!(r, keys: :atoms)}
+      err -> err
+    end
   end
 
   def state(arena_id) do
@@ -118,9 +121,7 @@ defmodule GameBox.Arena do
   def handle_call({:extism, "handle_event", argument}, _from, arena) do
     %{plugin: plugin} = arena
 
-    {:ok, response} = Extism.Plugin.call(plugin, "handle_event", Jason.encode!(argument))
-
-    response = Jason.decode!(response, keys: :atoms)
+    response = Extism.Plugin.call(plugin, "handle_event", Jason.encode!(argument))
 
     {:reply, response, arena, {:continue, :broadcast}}
   end
