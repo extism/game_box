@@ -1,3 +1,4 @@
+use anyhow::bail;
 use derive_builder::Builder;
 use extism_pdk::*;
 use serde::{Deserialize, Serialize};
@@ -27,6 +28,8 @@ pub struct Game {
     pub player_ids: Vec<String>,
     pub board: Vec<String>,
     pub version: i32,
+    pub winning_cells: Option<Vec<usize>>,
+    pub winner: Option<usize> 
 }
 
 pub trait Persister {
@@ -63,6 +66,8 @@ impl Game {
         board.resize(9, "".into());
         Game {
             current_player: player_ids[0].to_string(),
+            winning_cells: None,
+            winner: None,
             version: 0,
             player_ids,
             board,
@@ -77,6 +82,16 @@ impl Game {
         Tera::one_off(std::str::from_utf8(APP_HTML).unwrap(), &context, false).unwrap()
     }
 
+    // pub fn make_move(&mut self, player_id: String) -> Result<(), Error> {
+    //     if self.current_player != player_id {
+    //         bail!("It's not your turn");
+    //     }
+
+
+
+    //     Ok(())
+    // }
+
     pub fn current_player_character(&self) -> String {
         if self.player_ids[0] == self.current_player {
             return "X".into();
@@ -89,6 +104,40 @@ impl Game {
             self.current_player = self.player_ids[1].clone();
         } else {
             self.current_player = self.player_ids[0].clone();
+        }
+    }
+
+    pub fn set_winning_cells(&mut self) {
+        // check cols
+        let col_candidates: Vec<Vec<usize>> =
+            (0..3).into_iter().map(|i| vec![i, i + 3, i + 6]).collect();
+
+        // check rows
+        let row_candidates: Vec<Vec<usize>> = (0..3)
+            .into_iter()
+            .map(|i| {
+                let x = i * 3;
+                vec![x, x + 1, x + 2]
+            })
+            .collect();
+
+        // check diagonals
+        let mut candidates = vec![vec![0, 4, 8], vec![2, 4, 6]];
+
+        candidates.extend(col_candidates);
+        candidates.extend(row_candidates);
+
+        for cand in candidates {
+            let vals: Vec<String> = cand.iter().map(|c| self.board[*c].clone()).collect();
+            if vals.iter().all(|c| c == "X") {
+                self.winning_cells = Some(cand);
+                self.winner = Some(0);
+                break;
+            } else if vals.iter().all(|c| c == "O") {
+                self.winning_cells = Some(cand);
+                self.winner = Some(1);
+                break;
+            }
         }
     }
 
@@ -139,8 +188,8 @@ mod tests {
         let mut storage = FakeStorage::new();
         let game = Game::new(vec!["benjamin".into(), "brian".into()]);
         storage.save(&game)?;
-        let game2 = storage.load();
-        println!("{:#?}", game2);
+        let mut game = storage.load()?;
+        println!("{:#?}", game);
 
         let assigns = Assigns {
             player_id: "benjamin".into(),
@@ -149,6 +198,22 @@ mod tests {
         };
 
         println!("{}", game.render(assigns));
+
+        game.board[0] = "O".into();
+        game.board[1] = "O".into();
+        game.board[2] = "X".into();
+        game.set_winning_cells();
+
+        println!("{:#?}", game.winning_cells);
+        println!("{:#?}", game.winner);
+
+        let assigns = Assigns {
+            player_id: "benjamin".into(),
+            error: None,
+            version: 0,
+        };
+        println!("{}", game.render(assigns));
+
         Ok(())
     }
 }

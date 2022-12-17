@@ -8,6 +8,11 @@
    {% set oclass = "playerO active" %}
 {% endif -%}
 
+{% if game.winner == 0 or game.winner == 1 -%}
+<h1>Winner is {{game.player_ids[game.winner]}}</h1>
+<button phx-click="reset-game">Reset Game</button>
+{% endif -%}
+
 <div class="players">
    <div class="{{ xclass }}">
       <div class="characterX">
@@ -33,7 +38,8 @@
       {% for col in range(end=3) -%}
          {% set idx = col + row * 3 -%}
          {% set value = game.board[idx] -%}
-         <button phx-click="cell-clicked" phx-value-cell="{{ idx }}" class="cell">{{ value }}</button>
+         {% set winner = game.winning_cells and idx in game.winning_cells -%}
+         <button phx-click="cell-clicked" phx-value-cell="{{ idx }}" class="cell winner-{{winner}}">{{ value }}</button>
       {% endfor -%}
       </div>
    {% endfor -%}
