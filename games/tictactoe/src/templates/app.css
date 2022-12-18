@@ -65,3 +65,12 @@
     height: 200px;
     font-size: 45px;
 }
+
+.winner-false {
+
+}
+
+.winner-true {
+    border: solid;
+    border-color: greenyellow;
+}

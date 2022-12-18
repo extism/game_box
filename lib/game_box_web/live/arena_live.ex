@@ -1,5 +1,6 @@
 defmodule GameBoxWeb.ArenaLive do
   use GameBoxWeb, :live_view
+  require Logger
 
   alias GameBox.Arena
   alias GameBox.Games
@@ -83,21 +84,25 @@ defmodule GameBoxWeb.ArenaLive do
       value: params
     }
 
-    response = Arena.new_event(arena_id, event)
+    Logger.info("Got LiveView Event #{inspect event}")
 
-    socket =
-      if is_nil(response[:error]) do
+    socket = case Arena.new_event(arena_id, event) do
+      {:error, err} ->
         socket
-      else
-        put_flash(socket, :error, response.error)
-      end
+        |> put_flash(:error, err)
+        |> assign(:version, socket.assigns[:version] + 1)
+      {:ok, assigns} ->
+        assign(socket, assigns)
+    end
 
-    Arena.broadcast_game_state(%{arena_id: arena_id, version: response.version})
-    {:noreply, assign(socket, :version, response.version)}
+    Logger.info("Broadcasting State Change #{inspect socket.assigns[:version]}")
+    Arena.broadcast_game_state(%{arena_id: arena_id, version: socket.assigns[:version]})
+    {:noreply, socket}
   end
 
   def handle_info(:game_started, socket) do
     #%{assigns: %{arena: %{arena_id: arena_id}, current_player: %{name: player_name}}} = socket
+    Logger.info("Game started")
     {:noreply, assign(socket, version: 0)}
   end
 

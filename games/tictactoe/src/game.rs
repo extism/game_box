@@ -1,3 +1,4 @@
+use anyhow::bail;
 use derive_builder::Builder;
 use extism_pdk::*;
 use serde::{Deserialize, Serialize};
@@ -14,8 +15,8 @@ static APP_HTML: &[u8] = include_bytes!("templates/app.html");
 pub struct Assigns {
     #[serde(skip_serializing)]
     pub player_id: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<String>,
+    //#[serde(skip_serializing_if = "Option::is_none")]
+    // pub error: Option<String>,
     #[serde(skip_deserializing)]
     pub version: i32,
 }
@@ -27,6 +28,8 @@ pub struct Game {
     pub player_ids: Vec<String>,
     pub board: Vec<String>,
     pub version: i32,
+    pub winning_cells: Option<Vec<usize>>,
+    pub winner: Option<usize> 
 }
 
 pub trait Persister {
@@ -59,14 +62,26 @@ impl Persister for PluginStorage {
 
 impl Game {
     pub fn new(player_ids: Vec<String>) -> Self {
+        let mut game = Game {
+            current_player: player_ids[0].clone(),
+            winning_cells: None,
+            winner: None,
+            version: 0,
+            board: vec![],
+            player_ids,
+        };
+        game.reset();
+        game
+    }
+
+    pub fn reset(&mut self) {
         let mut board: Vec<String> = vec![];
         board.resize(9, "".into());
-        Game {
-            current_player: player_ids[0].to_string(),
-            version: 0,
-            player_ids,
-            board,
-        }
+        self.inc_version();
+        self.board = board;
+        self.current_player = self.player_ids[0].clone();
+        self.winner = None;
+        self.winning_cells = None;
     }
 
     pub fn render(&self, assigns: Assigns) -> String {
@@ -77,33 +92,80 @@ impl Game {
         Tera::one_off(std::str::from_utf8(APP_HTML).unwrap(), &context, false).unwrap()
     }
 
-    pub fn current_player_character(&self) -> String {
-        if self.player_ids[0] == self.current_player {
-            return "X".into();
+    pub fn make_move(&mut self, storage: &mut dyn Persister, player_id: String, cell_idx: usize) -> Result<(), Error> {
+        if self.current_player != player_id {
+            self.inc_version();
+            storage.save(self)?;
+            bail!("It's not your turn");
         }
-        "O".into()
-    }
 
-    pub fn moved(&mut self) {
+        if self.board[cell_idx] != "" {
+            self.inc_version();
+            storage.save(self)?;
+            bail!("Invalid move");
+        }
+
+        self.board[cell_idx] = self.current_player_character();
+
+        // switch the current player
         if self.player_ids[0] == self.current_player {
             self.current_player = self.player_ids[1].clone();
         } else {
             self.current_player = self.player_ids[0].clone();
         }
+
+        self.check_for_winner();
+
+        self.inc_version();
+        storage.save(self)?;
+
+        Ok(())
+    }
+
+    pub fn current_player_character(&self) -> String {
+        if self.player_ids[0] == self.current_player {
+            "X".into()
+        } else {
+            "O".into()
+        }
+    }
+
+    pub fn check_for_winner(&mut self) {
+        // check cols
+        let col_candidates: Vec<Vec<usize>> =
+            (0..3).into_iter().map(|i| vec![i, i + 3, i + 6]).collect();
+
+        // check rows
+        let row_candidates: Vec<Vec<usize>> = (0..3)
+            .into_iter()
+            .map(|i| {
+                let x = i * 3;
+                vec![x, x + 1, x + 2]
+            })
+            .collect();
+
+        // check diagonals
+        let mut candidates = vec![vec![0, 4, 8], vec![2, 4, 6]];
+
+        candidates.extend(col_candidates);
+        candidates.extend(row_candidates);
+
+        for cand in candidates {
+            let vals: Vec<String> = cand.iter().map(|c| self.board[*c].clone()).collect();
+            if vals.iter().all(|c| c == "X") {
+                self.winning_cells = Some(cand);
+                self.winner = Some(0);
+                break;
+            } else if vals.iter().all(|c| c == "O") {
+                self.winning_cells = Some(cand);
+                self.winner = Some(1);
+                break;
+            }
+        }
     }
 
     pub fn inc_version(&mut self) {
         self.version += 1;
-    }
-
-    pub fn error(&mut self, msg: String) -> Assigns {
-        self.version += 1;
-        //return AssignsBuilder::default().error(Some(msg)).build().unwrap();
-        Assigns {
-            player_id: "".into(),
-            error: Some(msg),
-            version: self.version,
-        }
     }
 }
 
@@ -139,16 +201,30 @@ mod tests {
         let mut storage = FakeStorage::new();
         let game = Game::new(vec!["benjamin".into(), "brian".into()]);
         storage.save(&game)?;
-        let game2 = storage.load();
-        println!("{:#?}", game2);
+        let mut game = storage.load()?;
 
+        game.make_move(&mut storage, "benjamin".into(), 0)?;
+
+        // same player can't make another move
+        assert!(game.make_move(&mut storage, "benjamin".into(), 3).is_err());
+        // same other player can't move on played cell
+        assert!(game.make_move(&mut storage, "brian".into(), 0).is_err());
+
+        game.make_move(&mut storage, "brian".into(), 2)?;
+        game.make_move(&mut storage, "benjamin".into(), 4)?;
+        game.make_move(&mut storage, "brian".into(), 3)?;
+        game.make_move(&mut storage, "benjamin".into(), 8)?;
+
+        assert_eq!(game.winner, Some(0));
+        assert_eq!(game.winning_cells, Some(vec![0,4,8]));
+
+        // view game from benjamin's perspective
         let assigns = Assigns {
             player_id: "benjamin".into(),
-            error: None,
-            version: 0,
+            version: game.version,
         };
-
         println!("{}", game.render(assigns));
+
         Ok(())
     }
 }
