@@ -40,7 +40,6 @@ defmodule GameBox.MixProject do
       {:extism, "~> 0.1.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:gettext, "~> 0.18"},
-      {:hashids, "~> 2.0"},
       {:horde, "~> 0.8.7"},
       {:jason, "~> 1.2"},
       {:libcluster, "~> 3.3"},

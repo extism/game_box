@@ -1,0 +1,94 @@
+name: Push
+on: push
+
+env:
+  OTP_VERSION_SPEC: "25.1"
+  ELIXIR_VERSION_SPEC: "1.14"
+  MIX_ENV: test
+  ImageOS: "ubuntu20"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.10.0
+        with:
+          access_token: ${{ github.token }}
+      
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Elixir
+        uses: erlef/setup-beam@v1.11
+        id: setup
+        with:
+          otp-version: ${{ env.OTP_VERSION_SPEC }}
+          elixir-version: ${{ env.ELIXIR_VERSION_SPEC }}
+      
+      - name: Cache Keys
+        id: keys
+        run: |
+          echo ::set-output name=deps_key::deps-${{ runner.os }}
+          echo ::set-output name=lockfile_key::${{ hashFiles('mix.lock', 'assets/package-lock.json') }}
+          echo ::set-output name=build_key::build-${{ runner.os }}-${{ env.MIX_ENV }}
+          echo ::set-output name=version_key::${{ steps.setup.outputs['otp-version'] }}-${{ steps.setup.outputs['elixir-version'] }}
+          echo ::set-output name=files_key::${{ hashFiles('*/lib/**/*.ex', '*/test/**/*.ex', '*/test/**/*.exs', 'mix.lock', 'assets/package-lock.json', 'config/*.exs') }}
+      
+      - uses: actions/cache@v3.0.2
+        id: deps_cache
+        with:
+          path: deps
+          key: ${{ steps.keys.outputs.deps_key }}-${{ steps.keys.outputs.version_key }}-${{ steps.keys.outputs.lockfile_key }}
+          restore-keys: ${{ steps.keys.outputs.deps_key }}-${{ steps.keys.outputs.version_key }}-
+      
+      - uses: actions/cache@v3.0.2
+        id: build_cache
+        with:
+          path: _build
+          key: ${{ steps.keys.outputs.build_key }}-${{ steps.keys.outputs.version_key }}-${{ steps.keys.outputs.files_key }}
+          restore-keys: ${{ steps.keys.outputs.build_key }}-${{ steps.keys.outputs.version_key }}-
+
+      - name: Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Mix dependencies
+        id: mix_dependences
+        if: steps.deps_cache.outputs['cache-hit'] != 'true'
+        run: mix deps.get
+      
+      - name: Compile
+        id: compile
+        if: steps.build_cache.outputs['cache-hit'] != 'true'
+        run: mix compile --warnings-as-errors
+      
+      - name: Formatting
+        run: mix format --check-formatted
+      
+      - name: Credo
+        run: mix credo --strict
+      
+      - name: Create Dialyzer PLTs
+        if: steps.build_cache.outputs['cache-hit'] != 'true'
+        run: MIX_ENV=dev mix dialyzer --plt
+      
+      - name: Run dialyzer
+        run: MIX_ENV=dev mix dialyzer --no-check
+
+      - name: Tests
+        id: tests
+        run: mix test --no-compile --no-deps-check --warnings-as-errors

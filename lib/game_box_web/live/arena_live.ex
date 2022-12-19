@@ -8,25 +8,15 @@ defmodule GameBoxWeb.ArenaLive do
   alias Phoenix.PubSub
 
   def render(assigns) do
-    %{arena: arena, current_player: current_player} = assigns
-    arena_id = arena[:arena_id]
-    board =
-      Arena.render_game(arena_id, %{
-        player_id: current_player[:name],
-      })
-
     ~H"""
     <h1>Arena</h1>
     <p>
-      Current Player<br />
-      <%= @current_player.name %><br />
-      <%= @current_player.pids |> Enum.map(&inspect/1) |> Enum.join(" ") %>
+      Current Player: <%= @current_player.name %>
     </p>
     <p>Players Online</p>
     <ul>
       <li :for={player <- @other_players}>
-        <%= player.name %><br />
-        <%= player.pids |> Enum.map(&inspect/1) |> Enum.join(" ") %>
+        <%= player.name %>
       </li>
     </ul>
 
@@ -40,7 +30,7 @@ defmodule GameBoxWeb.ArenaLive do
     <hr />
 
     <div id="board">
-      <%= Phoenix.HTML.raw(board) %>
+      <%= Phoenix.HTML.raw(render_board(@arena[:arena_id], @current_player[:name])) %>
     </div>
     """
   end
@@ -84,24 +74,26 @@ defmodule GameBoxWeb.ArenaLive do
       value: params
     }
 
-    Logger.info("Got LiveView Event #{inspect event}")
+    Logger.info("Got LiveView Event #{inspect(event)}")
 
-    socket = case Arena.new_event(arena_id, event) do
-      {:error, err} ->
-        socket
-        |> put_flash(:error, err)
-        |> assign(:version, socket.assigns[:version] + 1)
-      {:ok, assigns} ->
-        assign(socket, assigns)
-    end
+    socket =
+      case Arena.new_event(arena_id, event) do
+        {:error, err} ->
+          socket
+          |> put_flash(:error, err)
+          |> assign(:version, socket.assigns[:version] + 1)
 
-    Logger.info("Broadcasting State Change #{inspect socket.assigns[:version]}")
+        {:ok, assigns} ->
+          assign(socket, assigns)
+      end
+
+    Logger.info("Broadcasting State Change #{inspect(socket.assigns[:version])}")
     Arena.broadcast_game_state(%{arena_id: arena_id, version: socket.assigns[:version]})
     {:noreply, socket}
   end
 
   def handle_info(:game_started, socket) do
-    #%{assigns: %{arena: %{arena_id: arena_id}, current_player: %{name: player_name}}} = socket
+    # %{assigns: %{arena: %{arena_id: arena_id}, current_player: %{name: player_name}}} = socket
     Logger.info("Game started")
     {:noreply, assign(socket, version: 0)}
   end
@@ -142,5 +134,11 @@ defmodule GameBoxWeb.ArenaLive do
       |> Map.values()
 
     assign(socket, :other_players, other_players)
+  end
+
+  defp render_board(arena_id, player_id) do
+    Arena.render_game(arena_id, %{
+      player_id: player_id
+    })
   end
 end
