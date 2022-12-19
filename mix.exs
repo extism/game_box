@@ -34,7 +34,7 @@ defmodule GameBox.MixProject do
   defp deps do
     [
       {:credo, "~> 1.6"},
-      {:dialyxir, "~> 1.2"},
+      {:dialyxir, "~> 1.2", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.6"},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
       {:extism, "~> 0.1.0"},
