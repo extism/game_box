@@ -10,11 +10,9 @@ defmodule GameBoxWeb.ArenaLive do
   def render(assigns) do
     ~H"""
     <h1>Arena</h1>
-    <p>
-      Current Player: <%= @current_player.name %>
-    </p>
     <p>Players Online</p>
     <ul>
+      <li><%= @current_player.name %></li>
       <li :for={player <- @other_players}>
         <%= player.name %>
       </li>

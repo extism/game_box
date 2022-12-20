@@ -12,17 +12,20 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}></script>
   </head>
   <body>
-    <header>
-      <section class="container">
-        <nav>
-          <ul>
-            <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><.link href={~p"/dashboard/home"}>Live Dashboard</.link></li>
-            <% end %>
-          </ul>
-        </nav>
-      </section>
-    </header>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-primary">
+      <a class="navbar-brand" href="#">GameBox</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item-active"><.link class="nav-link" href={~p"/dashboard/home"}>Live Dashboard</.link></li>
+        </ul>
+      </div>
+    </nav>
     <%= @inner_content %>
   </body>
 </html>
