@@ -12,11 +12,23 @@ defmodule GameBoxWeb.HomeLive do
     <form id="join_arena" phx-submit="join_arena">
       <div class="form-group">
         <label for="player_name">Name</label>
-        <input class="form-control" type="text" id="player_name" name="player_name" placeholder="Enter user name"/>
+        <input
+          class="form-control"
+          type="text"
+          id="player_name"
+          name="player_name"
+          placeholder="Enter user name"
+        />
       </div>
       <div class="form-group">
         <label for="arena_id">Email address</label>
-        <input type="text" class="form-control" id="arena_id" name="arena_id" placeholder="4 character arena code">
+        <input
+          type="text"
+          class="form-control"
+          id="arena_id"
+          name="arena_id"
+          placeholder="4 character arena code"
+        />
       </div>
 
       <button type="submit" class="btn btn-primary">Join Arena</button>
