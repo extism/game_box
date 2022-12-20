@@ -39,6 +39,13 @@ config :phoenix, :json_library, Jason
 
 config :game_box, disk_volume_path: "priv/static/uploads"
 
+config :dart_sass,
+  version: "1.57.1",
+  default: [
+    args: ~w(css/app.scss ../priv/static/assets/app.css),
+    cd: Path.expand("../assets", __DIR__)
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
