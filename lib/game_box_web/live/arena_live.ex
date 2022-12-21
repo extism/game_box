@@ -14,24 +14,23 @@ defmodule GameBoxWeb.ArenaLive do
 
     ~H"""
     <%= if board == "" do %>
-    <h1>Arena</h1>
-    <p>Players Online</p>
-    <ul>
-      <li><%= @current_player.name %></li>
-      <li :for={player <- @other_players}>
-        <%= player.name %>
-      </li>
-    </ul>
+      <h1>Arena</h1>
+      <p>Players Online</p>
+      <ul>
+        <li><%= @current_player.name %></li>
+        <li :for={player <- @other_players}>
+          <%= player.name %>
+        </li>
+      </ul>
 
-    <h2>Choose a game to start playing</h2>
-    <ul>
-      <li :for={game <- @games}>
-        <button phx-click="start_game" phx-value-game_id={game.id}><%= game.title %></button>
-      </li>
-    </ul>
+      <h2>Choose a game to start playing</h2>
+      <ul>
+        <li :for={game <- @games}>
+          <button phx-click="start_game" phx-value-game_id={game.id}><%= game.title %></button>
+        </li>
+      </ul>
 
-    <hr />
-
+      <hr />
     <% end %>
 
     <div id="board">
