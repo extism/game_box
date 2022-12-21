@@ -68,6 +68,7 @@ defmodule GameBoxWeb.HomeLive do
   @impl true
   def handle_event("join_arena", unsigned_params, socket) do
     %{"player_name" => player_name, "arena_id" => arena_id} = unsigned_params
+
     if String.length(arena_id) != 4 do
       {:noreply, put_flash(socket, :error, "Arena code should be exactly 4 characters")}
     else

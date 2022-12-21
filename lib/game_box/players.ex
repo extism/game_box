@@ -78,6 +78,7 @@ defmodule GameBox.Players do
 
   def handle_call({:register_player, player_id, params}, _from, state) do
     player = Map.get(state, player_id, nil)
+
     if player != nil do
       {:reply, {:error, "Player name already taken"}, state}
     else
