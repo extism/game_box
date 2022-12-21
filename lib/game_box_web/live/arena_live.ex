@@ -54,7 +54,7 @@ defmodule GameBoxWeb.ArenaLive do
        socket
        |> assign(:arena, Arena.state(arena_id))
        |> assign(:games, Games.list_games())
-       |> assign(:version, 0)
+       |> assign(:version, -1)
        |> assign(:player_id, player_id)
        |> assign_current_player()
        |> assign_other_players()}
