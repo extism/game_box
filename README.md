@@ -31,25 +31,22 @@ cd games/tictactoe
 cargo build --target wasm32-unknown-unknown
 ```
 
+> **Note**: Use `--release` for a smaller build to upload to the prod gamebox site
+
 ## Running
 
+You might need to do this first
+```
+cd assets
+npm instal
+cd ..
+```
+
 Run with iex so you can manipulate the game state in repl:
+
 
 ```
 iex -S mix phx.server
 ```
 
-To load and initialize a game at a specific 4 letter room code, run this in the iex repl:
-
-```
-# registers code name and starts process
-GameBox.Arenas.Server.start_link("ABCD") 
-
-# loads the game process
-GameBox.Arenas.load_game("ABCD", "/Users/ben/d/game_box/games/tictactoe/target/wasm32-unknown-unknown/debug/tictactoe_rs.wasm")
-
-# Calls the init_game function on the arena initializing the game and memory
-GameBox.Arenas.Server.call("ABCD", {:call, "init_game", Jason.encode!(%{player_ids: ["benjamin", "brian"]})})
-```
-
-Open game at: http://localhost:4000/arena?code=ABCD
+Open game at: http://localhost:4000/

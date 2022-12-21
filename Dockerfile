@@ -21,7 +21,7 @@ ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 FROM ${BUILDER_IMAGE} as builder
 
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git curl \
+RUN apt-get update -y && apt-get install -y build-essential git curl npm \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -53,6 +53,8 @@ COPY priv priv
 COPY lib lib
 
 COPY assets assets
+
+RUN cd assets && npm install
 
 # compile assets
 RUN mix assets.deploy
