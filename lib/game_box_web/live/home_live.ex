@@ -10,7 +10,7 @@ defmodule GameBoxWeb.HomeLive do
     ~H"""
     <h2>Start or Join an Arena</h2>
     <form id="join_arena" phx-submit="join_arena">
-      <div class="form-group">
+      <div class="mb-3">
         <label for="player_name">Name</label>
         <input
           class="form-control"
@@ -20,8 +20,8 @@ defmodule GameBoxWeb.HomeLive do
           placeholder="Enter user name"
         />
       </div>
-      <div class="form-group">
-        <label for="arena_id">Email address</label>
+      <div class="mb-3">
+        <label for="arena_id">Arena Code</label>
         <input
           type="text"
           class="form-control"
