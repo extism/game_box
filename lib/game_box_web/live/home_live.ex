@@ -34,19 +34,6 @@ defmodule GameBoxWeb.HomeLive do
 
         <button type="submit" class="btn btn-primary">Join Arena</button>
       </form>
-
-      <h2>Upload a Game</h2>
-      <form id="upload_game" phx-submit="upload_game" phx-change="validate">
-        <%= live_file_input(@uploads.game, name: "Test") %>
-
-        <%= unless Enum.empty?(@uploads.game.entries) do %>
-          <label>
-            <span>Title</span>
-            <input type="text" name="title" />
-          </label>
-        <% end %>
-        <button>Submit</button>
-      </form>
     </div>
     """
   end
@@ -59,10 +46,7 @@ defmodule GameBoxWeb.HomeLive do
 
     {:ok,
      socket
-     |> assign(:uploaded_files, [])
-     |> assign(:games, Games.list_games())
-     |> assign(:player_id, session["player_id"])
-     |> allow_upload(:game, accept: ~w(.wasm), max_entries: 2, max_file_size: 100_000_000)}
+     |> assign(:player_id, session["player_id"])}
   end
 
   @impl true
@@ -97,26 +81,6 @@ defmodule GameBoxWeb.HomeLive do
   def handle_event("validate_join", unsigned_params, socket) do
     %{"arena_id" => arena_id, "player_name" => player_name} = unsigned_params
     {:noreply, assign(socket, arena_id: arena_id, player_name: player_name)}
-  end
-
-  def handle_event("upload_game", unsigned_params, socket) do
-    disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
-
-    [path] =
-      consume_uploaded_entries(socket, :game, fn %{path: path}, _entry ->
-        dest = Path.join([disk_volume_path, Path.basename(path)])
-        File.cp!(path, dest)
-        {:ok, Path.basename(path)}
-      end)
-
-    {:ok, _game} =
-      unsigned_params
-      |> Map.put("path", path)
-      |> Games.create_game()
-
-    Phoenix.PubSub.broadcast(GameBox.PubSub, "games", {:games, Games.list_games()})
-
-    {:noreply, socket}
   end
 
   @impl true
