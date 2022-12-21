@@ -10,11 +10,9 @@ defmodule GameBoxWeb.ArenaLive do
   def render(assigns) do
     ~H"""
     <h1>Arena</h1>
-    <p>
-      Current Player: <%= @current_player.name %>
-    </p>
     <p>Players Online</p>
     <ul>
+      <li><%= @current_player.name %></li>
       <li :for={player <- @other_players}>
         <%= player.name %>
       </li>
@@ -49,7 +47,6 @@ defmodule GameBoxWeb.ArenaLive do
        socket
        |> assign(:arena, Arena.state(arena_id))
        |> assign(:games, Games.list_games())
-       |> assign(:board, nil)
        |> assign(:version, 0)
        |> assign(:player_id, player_id)
        |> assign_current_player()
