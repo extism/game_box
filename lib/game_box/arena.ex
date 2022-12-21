@@ -98,8 +98,7 @@ defmodule GameBox.Arena do
      %{
        arena_id: arena_id,
        ctx: Extism.Context.new(),
-       plugin: nil,
-       version: 0
+       plugin: nil
      }}
   end
 
@@ -124,15 +123,15 @@ defmodule GameBox.Arena do
 
     response = Extism.Plugin.call(plugin, "handle_event", Jason.encode!(argument))
 
-    {:reply, response, arena, {:continue, :broadcast}}
+    {:reply, response, arena}
   end
 
-  @impl true
-  def handle_continue(:broadcast, state) do
-    %{arena_id: arena_id, version: version} = state
-    PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", {:version, version})
-    {:noreply, state}
-  end
+  # @impl true
+  # def handle_continue(:broadcast, state) do
+  #   %{arena_id: arena_id, version: version} = state
+  #   PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", {:version, version})
+  #   {:noreply, state}
+  # end
 
   @impl true
   def handle_cast({:load_game, game_id}, state) do
