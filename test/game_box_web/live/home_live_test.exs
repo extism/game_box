@@ -9,12 +9,12 @@ defmodule GameBoxWeb.HomeLiveTest do
 
       view
       |> element("#join_arena")
-      |> render_submit(%{player_name: "Joe", arena_id: "ABC"})
+      |> render_submit(%{player_name: "Joe", arena_id: "ABCD"})
 
-      path = ~p"/arena/ABC"
+      path = ~p"/arena/ABCD"
       assert {^path, %{}} = assert_redirect(view)
-      assert %{id: ^player_id, name: "Joe"} = GameBox.Players.get_player("ABC", player_id)
-      assert %{arena_id: "ABC"} = GameBox.Arena.state("ABC")
+      assert %{id: ^player_id, name: "Joe"} = GameBox.Players.get_player("ABCD", player_id)
+      assert %{arena_id: "ABCD"} = GameBox.Arena.state("ABCD")
     end
   end
 end
