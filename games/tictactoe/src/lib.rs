@@ -19,8 +19,10 @@ pub fn init_game(Json(conf): Json<GameConfig>) -> FnResult<()> {
 
 #[derive(Deserialize)]
 struct CellValue {
-    cell: String,
-    value: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    cell: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    value: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -36,7 +38,7 @@ pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<Json<Assigns>> {
     let mut game = storage.load()?;
 
     if event.event_name == "cell-clicked" {
-        let cell_idx = event.value.cell.parse::<usize>().unwrap();
+        let cell_idx = event.value.cell.unwrap().parse::<usize>().unwrap();
         game.make_move(&mut storage, event.player_id.clone(), cell_idx)?;
     } else if event.event_name == "reset-game" {
         game.reset();

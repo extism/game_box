@@ -13,23 +13,25 @@ defmodule GameBoxWeb.ArenaLive do
     board = render_board(assigns[:arena][:arena_id], assigns[:current_player][:name])
 
     ~H"""
-    <h1>Arena</h1>
-    <p>Players Online</p>
-    <ul>
-      <li><%= @current_player.name %></li>
-      <li :for={player <- @other_players}>
-        <%= player.name %>
-      </li>
-    </ul>
+    <%= if board == "" do %>
+      <h1>Arena</h1>
+      <p>Players Online</p>
+      <ul>
+        <li><%= @current_player.name %></li>
+        <li :for={player <- @other_players}>
+          <%= player.name %>
+        </li>
+      </ul>
 
-    <h2>Choose a game to start playing</h2>
-    <ul>
-      <li :for={game <- @games}>
-        <button phx-click="start_game" phx-value-game_id={game.id}><%= game.title %></button>
-      </li>
-    </ul>
+      <h2>Choose a game to start playing</h2>
+      <ul>
+        <li :for={game <- @games}>
+          <button phx-click="start_game" phx-value-game_id={game.id}><%= game.title %></button>
+        </li>
+      </ul>
 
-    <hr />
+      <hr />
+    <% end %>
 
     <div id="board">
       <%= Phoenix.HTML.raw(board) %>
@@ -51,7 +53,7 @@ defmodule GameBoxWeb.ArenaLive do
        socket
        |> assign(:arena, Arena.state(arena_id))
        |> assign(:games, Games.list_games())
-       |> assign(:version, 0)
+       |> assign(:version, -1)
        |> assign(:player_id, player_id)
        |> assign_current_player()
        |> assign_other_players()}
@@ -63,6 +65,7 @@ defmodule GameBoxWeb.ArenaLive do
   def handle_event("start_game", %{"game_id" => game_id}, socket) do
     %{assigns: %{arena: %{arena_id: arena_id}}} = socket
     :ok = Arena.load_game(arena_id, game_id)
+    Arena.broadcast_game_state(%{arena_id: arena_id, version: 0})
     {:noreply, socket}
   end
 
