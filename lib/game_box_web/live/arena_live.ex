@@ -13,6 +13,7 @@ defmodule GameBoxWeb.ArenaLive do
     board = render_board(assigns[:arena][:arena_id], assigns[:current_player][:name])
 
     ~H"""
+    <%= if board == "" do %>
     <h1>Arena</h1>
     <p>Players Online</p>
     <ul>
@@ -30,6 +31,8 @@ defmodule GameBoxWeb.ArenaLive do
     </ul>
 
     <hr />
+
+    <% end %>
 
     <div id="board">
       <%= Phoenix.HTML.raw(board) %>
@@ -63,6 +66,7 @@ defmodule GameBoxWeb.ArenaLive do
   def handle_event("start_game", %{"game_id" => game_id}, socket) do
     %{assigns: %{arena: %{arena_id: arena_id}}} = socket
     :ok = Arena.load_game(arena_id, game_id)
+    Arena.broadcast_game_state(%{arena_id: arena_id, version: 0})
     {:noreply, socket}
   end
 
