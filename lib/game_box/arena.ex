@@ -153,7 +153,8 @@ defmodule GameBox.Arena do
       arena_id
       |> Players.list_players()
       |> Map.values()
-      |> Enum.take(2) # just choose the first 2 users and the rest can watch
+      # just choose the first 2 users and the rest can watch
+      |> Enum.take(2)
       |> Enum.filter(& &1.game_id)
       |> Enum.map(&Map.get(&1, :name))
 

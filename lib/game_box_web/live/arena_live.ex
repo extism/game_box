@@ -65,6 +65,7 @@ defmodule GameBoxWeb.ArenaLive do
   def handle_event("start_game", %{"game_id" => game_id}, socket) do
     %{assigns: %{arena: %{arena_id: arena_id}}} = socket
     players = Players.list_players(arena_id)
+
     if length(Map.keys(players)) < 2 do
       {:noreply, put_flash(socket, :error, "Not enough players to start game")}
     else
