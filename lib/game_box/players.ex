@@ -39,6 +39,10 @@ defmodule GameBox.Players do
     GenServer.call(via_tuple(arena_id), {:update_player, player_id, params})
   end
 
+  def register_player(arena_id, player_id, params) do
+    GenServer.call(via_tuple(arena_id), {:register_player, player_id, params})
+  end
+
   def start_game(arena_id, game_id) do
     GenServer.cast(via_tuple(arena_id), {:start_game, game_id})
   end
@@ -70,6 +74,21 @@ defmodule GameBox.Players do
       |> Enum.into(%{})
 
     {:reply, online_players, players}
+  end
+
+  def handle_call({:register_player, player_id, params}, _from, state) do
+    player = Map.get(state, player_id, nil)
+    if player != nil do
+      {:reply, {:error, "Player name already taken"}, state}
+    else
+      case change_player(player || %{id: player_id, pids: []}, params) do
+        {:ok, player} ->
+          {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
+
+        {:error, changeset} ->
+          {:reply, {:error, changeset}, state}
+      end
+    end
   end
 
   def handle_call({:update_player, player_id, params}, _from, state) do

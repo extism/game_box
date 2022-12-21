@@ -8,6 +8,9 @@ defmodule GameBoxWeb.ArenaLive do
   alias Phoenix.PubSub
 
   def render(assigns) do
+    # NOTE: don't put this in the heex template or it will be cached
+    # ignore warnings from phoenix
+    board = render_board(assigns[:arena][:arena_id], assigns[:current_player][:name])
     ~H"""
     <h1>Arena</h1>
     <p>Players Online</p>
@@ -28,7 +31,7 @@ defmodule GameBoxWeb.ArenaLive do
     <hr />
 
     <div id="board">
-      <%= Phoenix.HTML.raw(render_board(@arena[:arena_id], @current_player[:name])) %>
+      <%= Phoenix.HTML.raw(board) %>
     </div>
     """
   end
