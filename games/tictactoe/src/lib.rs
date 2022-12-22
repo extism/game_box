@@ -6,21 +6,22 @@ use serde::Deserialize;
 
 #[derive(Deserialize)]
 struct GameConfig {
-    player_ids: Vec<String>,
+    player_id: String,
+    player_ids: Vec<String>
 }
 
 #[plugin_fn]
-pub fn init_game(Json(conf): Json<GameConfig>) -> FnResult<()> {
+pub fn init_game(Json(conf): Json<GameConfig>) -> FnResult<Json<Assigns>> {
     let mut storage = PluginStorage::new();
-    let game = Game::new(conf.player_ids);
+    let game = Game::new(conf.player_id, conf.player_ids);
     storage.save(&game)?;
-    Ok(())
+    let new_assigns = Assigns{player_id: game.current_player};
+    Ok(Json(new_assigns))
 }
 
 #[derive(Deserialize)]
 struct CellValue {
     cell: String,
-    value: String,
 }
 
 #[derive(Deserialize)]
@@ -44,7 +45,6 @@ pub fn handle_event(Json(event): Json<LiveEvent>) -> FnResult<Json<Assigns>> {
     }
 
     let new_assigns = Assigns {
-        version: game.version,
         player_id: event.player_id,
     };
 
@@ -56,4 +56,12 @@ pub fn render(Json(assigns): Json<Assigns>) -> FnResult<String> {
     let storage = PluginStorage::new();
     let game_state = storage.load()?;
     Ok(game_state.render(assigns))
+}
+
+#[plugin_fn]
+pub fn game_state(player_id: String) -> FnResult<Json<Assigns>> {
+    let assigns = Assigns {
+        player_id: player_id,
+    };
+    Ok(Json(assigns))
 }

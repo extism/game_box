@@ -13,12 +13,9 @@ static APP_HTML: &[u8] = include_bytes!("templates/app.html");
 // When returned, those values are assigned to the user's socket
 #[derive(Builder, Serialize, Deserialize)]
 pub struct Assigns {
-    #[serde(skip_serializing)]
     pub player_id: String,
     //#[serde(skip_serializing_if = "Option::is_none")]
     // pub error: Option<String>,
-    #[serde(skip_deserializing)]
-    pub version: i32,
 }
 
 // Stores the state of the game
@@ -27,7 +24,6 @@ pub struct Game {
     pub current_player: String,
     pub player_ids: Vec<String>,
     pub board: Vec<String>,
-    pub version: i32,
     pub winning_cells: Option<Vec<usize>>,
     pub winner: Option<usize> 
 }
@@ -61,12 +57,11 @@ impl Persister for PluginStorage {
 }
 
 impl Game {
-    pub fn new(player_ids: Vec<String>) -> Self {
+    pub fn new(player_id: String, player_ids: Vec<String>) -> Self {
         let mut game = Game {
-            current_player: player_ids[0].clone(),
+            current_player: player_id,
             winning_cells: None,
             winner: None,
-            version: 0,
             board: vec![],
             player_ids,
         };
@@ -77,9 +72,7 @@ impl Game {
     pub fn reset(&mut self) {
         let mut board: Vec<String> = vec![];
         board.resize(9, "".into());
-        self.inc_version();
         self.board = board;
-        self.current_player = self.player_ids[0].clone();
         self.winner = None;
         self.winning_cells = None;
     }
@@ -94,13 +87,11 @@ impl Game {
 
     pub fn make_move(&mut self, storage: &mut dyn Persister, player_id: String, cell_idx: usize) -> Result<(), Error> {
         if self.current_player != player_id {
-            self.inc_version();
             storage.save(self)?;
             bail!("It's not your turn");
         }
 
         if self.board[cell_idx] != "" {
-            self.inc_version();
             storage.save(self)?;
             bail!("Invalid move");
         }
@@ -116,7 +107,6 @@ impl Game {
 
         self.check_for_winner();
 
-        self.inc_version();
         storage.save(self)?;
 
         Ok(())
@@ -162,10 +152,6 @@ impl Game {
                 break;
             }
         }
-    }
-
-    pub fn inc_version(&mut self) {
-        self.version += 1;
     }
 }
 

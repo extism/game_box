@@ -7,6 +7,7 @@ defmodule GameBox.Players do
 
   alias Ecto.Changeset
   alias GameBox.Players
+  alias Phoenix.PubSub
 
   @fields %{
     id: %{type: :string, required: true},
@@ -43,8 +44,8 @@ defmodule GameBox.Players do
     GenServer.cast(via_tuple(arena_id), {:start_game, game_id})
   end
 
-  def end_game(arena_id) do
-    GenServer.cast(via_tuple(arena_id), :end_game)
+  def end_game(arena_id, game_id) do
+    GenServer.cast(via_tuple(arena_id), {:end_game, game_id})
   end
 
   def monitor(arena_id, player_id) do
@@ -59,25 +60,27 @@ defmodule GameBox.Players do
   end
 
   @impl true
-  def handle_call({:get_player, player_id}, _from, state) do
-    {:reply, Map.fetch!(state, player_id), state}
+  def handle_call({:get_player, player_id}, _from, %{players: players} = state) do
+    {:reply, Map.fetch!(players, player_id), state}
   end
 
-  def handle_call(:list_players, _from, players) do
+  def handle_call(:list_players, _from, %{players: players} = state) do
     online_players =
       players
       |> Enum.filter(fn {_player_id, player} -> Enum.any?(player.pids) end)
       |> Enum.into(%{})
 
-    {:reply, online_players, players}
+    {:reply, online_players, state}
   end
 
-  def handle_call({:update_player, player_id, params}, _from, state) do
-    player = Map.get(state, player_id, %{id: player_id, pids: []})
+  def handle_call({:update_player, player_id, params}, _from, %{players: players} = state) do
+    player = Map.get(players, player_id, %{id: player_id, pids: []})
 
     case change_player(player, params) do
       {:ok, player} ->
-        {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
+        players = Map.put(players, player_id, player)
+        state = Map.put(state, :players, players)
+        {:reply, {:ok, player}, state, {:continue, :broadcast}}
 
       {:error, changeset} ->
         {:reply, {:error, changeset}, state}
@@ -85,25 +88,36 @@ defmodule GameBox.Players do
   end
 
   @impl true
-  def handle_cast({:start_game, game_id}, players) do
+  def handle_cast({:start_game, game_id}, %{players: players} = state) do
     players =
       Map.new(players, fn {id, player} ->
         {id, Map.put(player, :game_id, game_id)}
       end)
 
-    {:noreply, players}
+    state = Map.put(state, :players, players)
+
+    {:noreply, state}
   end
 
-  def handle_cast(:end_game, players) do
+  def handle_cast({:end_game, game_id}, %{players: players} = state) do
     players =
       Map.new(players, fn {id, player} ->
-        {id, Map.put(player, :game_id, nil)}
+        player =
+          if player.game_id == game_id do
+            Map.put(player, :game_id, nil)
+          else
+            player
+          end
+
+        {id, player}
       end)
 
-    {:noreply, players}
+    state = Map.put(state, :players, players)
+
+    {:noreply, state}
   end
 
-  def handle_cast({:monitor, player_id, pid}, players) do
+  def handle_cast({:monitor, player_id, pid}, %{players: players} = state) do
     Process.monitor(pid)
 
     pids =
@@ -111,37 +125,38 @@ defmodule GameBox.Players do
       |> Enum.concat([pid])
       |> Enum.uniq()
 
-    {:noreply, put_in(players, [player_id, :pids], pids), {:continue, :broadcast}}
+    players = put_in(players, [player_id, :pids], pids)
+    state = Map.put(state, :players, players)
+
+    {:noreply, state, {:continue, :broadcast}}
   end
 
   @impl true
-  def handle_info({:DOWN, _ref, :process, pid, _}, players) do
+  def handle_info({:DOWN, _ref, :process, pid, _}, %{players: players} = state) do
     player =
       players
       |> Map.values()
       |> Enum.find(&(pid in &1.pids))
 
     if is_nil(player) do
-      {:noreply, players}
+      {:noreply, state}
     else
       players = put_in(players, [player.id, :pids], List.delete(player.pids, pid))
-      {:noreply, players, {:continue, :broadcast}}
+      state = Map.put(state, :players, players)
+      {:noreply, state, {:continue, :broadcast}}
     end
   end
 
   @impl true
-  def handle_continue(:broadcast, players) do
-    players
-    |> Map.values()
-    |> Enum.flat_map(&Map.get(&1, :pids))
-    |> Enum.each(&send(&1, :players_updated))
+  def handle_continue(:broadcast, %{arena_id: arena_id} = state) do
+    PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :players_updated)
 
-    {:noreply, players}
+    {:noreply, state}
   end
 
   @impl true
-  def init(_) do
-    {:ok, %{}}
+  def init(arena_id) do
+    {:ok, %{arena_id: arena_id, players: %{}}}
   end
 
   def child_spec(opts) do
@@ -156,7 +171,7 @@ defmodule GameBox.Players do
   end
 
   def start_link(arena_id) do
-    case GenServer.start_link(Players, [], name: via_tuple(arena_id)) do
+    case GenServer.start_link(Players, arena_id, name: via_tuple(arena_id)) do
       {:ok, pid} ->
         {:ok, pid}
 

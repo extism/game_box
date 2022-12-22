@@ -5,6 +5,8 @@ defmodule GameBox.Games.Game do
 
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   schema "games" do
     field :title, :string
     field :path, :string

@@ -10,6 +10,15 @@ defmodule GameBox.Arena do
   alias GameBox.Players
   alias Phoenix.PubSub
 
+  @type arena_id :: String.t()
+  @type game_id :: GameBox.Games.Game.t()
+
+  @type state :: %{
+    arena_id: arena_id,
+    ctx: %Extism.Context{},
+    plugin: nil
+  }
+
   @spec exists?(arena_id :: String.t()) :: boolean()
   def exists?(arena_id) do
     GameBox.ArenaRegistry
@@ -17,31 +26,35 @@ defmodule GameBox.Arena do
     |> Enum.any?()
   end
 
-  def load_game(arena_id, game_id) do
-    GenServer.cast(via_tuple(arena_id), {:load_game, game_id})
+  def game_state(arena_id, player_id) do
+    GenServer.call(via_tuple(arena_id), {:game_state, player_id})
   end
 
-  def render_game(arena_id, assigns) do
-    GenServer.call(via_tuple(arena_id), {:extism, "render", assigns})
+  @spec load_game(arena_id, game_id, player_id :: String.t()) :: :ok
+  def load_game(arena_id, game_id, player_id) do
+    GenServer.call(via_tuple(arena_id), {:load_game, game_id, player_id})
+  end
+
+  @spec render_game(arena_id(), game_state :: map) :: String.t() | nil
+  def render_game(arena_id, game_state) do
+    GenServer.call(via_tuple(arena_id), {:extism, "render", game_state})
   end
 
   def new_event(arena_id, event) do
     case GenServer.call(via_tuple(arena_id), {:extism, "handle_event", event}) do
-      {:ok, r} -> {:ok, Jason.decode!(r, keys: :atoms)}
-      err -> err
+      {:ok, result} ->
+        {:ok, Jason.decode!(result, keys: :atoms)}
+
+      {:error, message} ->
+        {:error, message}
     end
   end
 
+  @spec state(arena_id) :: state :: nil
   def state(arena_id) do
     if exists?(arena_id) do
       GenServer.call(via_tuple(arena_id), :state)
-    else
-      %{arena_id: arena_id}
     end
-  end
-
-  def via_tuple(arena_id) do
-    {:via, Horde.Registry, {GameBox.ArenaRegistry, arena_id}}
   end
 
   def child_spec(opts) do
@@ -98,8 +111,7 @@ defmodule GameBox.Arena do
      %{
        arena_id: arena_id,
        ctx: Extism.Context.new(),
-       plugin: nil,
-       version: 0
+       plugin: nil
      }}
   end
 
@@ -108,34 +120,38 @@ defmodule GameBox.Arena do
     {:reply, state, state}
   end
 
-  def handle_call({:extism, "render", assigns}, _from, arena) do
-    plugin = arena[:plugin]
+  def handle_call({:extism, "render", _game_state}, _from, %{plugin: nil} = state) do
+    {:reply, nil, state}
+  end
 
-    if plugin do
-      {:ok, html} = Extism.Plugin.call(plugin, "render", Jason.encode!(assigns))
-      {:reply, html, arena}
+  def handle_call({:extism, "render", game_state}, _from, state) do
+    %{plugin: plugin} = state
+    params = Jason.encode!(game_state)
+    {:ok, html} = Extism.Plugin.call(plugin, "render", params)
+    {:reply, html, state}
+  end
+
+  def handle_call({:extism, "handle_event", argument}, _from, state) do
+    %{plugin: plugin} = state
+    params = Jason.encode!(argument)
+    response = Extism.Plugin.call(plugin, "handle_event", params)
+    {:reply, response, state, {:continue, :broadcast}}
+  end
+
+  def handle_call({:game_state, player_id}, _from, state) do
+    %{plugin: plugin} = state
+    if is_nil(plugin) do
+      {:reply, nil, state}
     else
-      {:reply, "", arena}
+      {:ok, game_state} =
+        Extism.Plugin.call(plugin, "game_state", player_id)
+        |> IO.inspect(label: "GAME)STATE")
+
+      {:reply, Jason.decode!(game_state), state}
     end
   end
 
-  def handle_call({:extism, "handle_event", argument}, _from, arena) do
-    %{plugin: plugin} = arena
-
-    response = Extism.Plugin.call(plugin, "handle_event", Jason.encode!(argument))
-
-    {:reply, response, arena, {:continue, :broadcast}}
-  end
-
-  @impl true
-  def handle_continue(:broadcast, state) do
-    %{arena_id: arena_id, version: version} = state
-    PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", {:version, version})
-    {:noreply, state}
-  end
-
-  @impl true
-  def handle_cast({:load_game, game_id}, state) do
+  def handle_call({:load_game, game_id, player_id}, _from, state) do
     %{arena_id: arena_id, ctx: ctx, plugin: plugin} = state
 
     {:ok, game} = Games.get_game(game_id)
@@ -149,24 +165,34 @@ defmodule GameBox.Arena do
     disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
     path = Path.join([disk_volume_path, game.path])
     {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: path}]}, false)
+    players = Players.list_players(arena_id)
 
     player_ids =
-      arena_id
-      |> Players.list_players()
+      players
       |> Map.values()
       |> Enum.filter(& &1.game_id)
       |> Enum.map(&Map.get(&1, :name))
 
-    {:ok, _output} =
-      Extism.Plugin.call(plugin, "init_game", Jason.encode!(%{player_ids: player_ids}))
+    player_id = players[player_id][:name]
+
+    {:ok, game_state} =
+      Extism.Plugin.call(plugin, "init_game", Jason.encode!(%{player_id: player_id, player_ids: player_ids}))
+
+    game_state = Jason.decode!(game_state)
 
     PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_started)
 
-    {:noreply, Map.put(state, :plugin, plugin)}
+    {:reply, game_state, Map.put(state, :plugin, plugin)}
   end
 
-  def broadcast_game_state(state) do
-    %{arena_id: arena_id, version: version} = state
-    PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", {:version, version})
+  @impl true
+  def handle_continue(:broadcast, state) do
+    %{arena_id: arena_id} = state
+    PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_update)
+    {:noreply, state}
+  end
+
+  defp via_tuple(arena_id) do
+    {:via, Horde.Registry, {GameBox.ArenaRegistry, arena_id}}
   end
 end
