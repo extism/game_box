@@ -51,6 +51,7 @@ defmodule GameBoxWeb.UploadLive do
 
   def handle_event("upload_game", unsigned_params, socket) do
     password = Map.get(unsigned_params, "password")
+
     if Application.get_env(:game_box, :password) != password do
       {:noreply, put_flash(socket, :error, "Incorrect password")}
     else
