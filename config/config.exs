@@ -46,6 +46,9 @@ config :dart_sass,
     cd: Path.expand("../assets", __DIR__)
   ]
 
+# override
+config :game_box, password: "12345"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

@@ -16,6 +16,10 @@ defmodule GameBoxWeb.UploadLive do
             <span>Title</span>
             <input type="text" name="title" />
           </label>
+          <label>
+            <span>Password</span>
+            <input type="password" name="password" />
+          </label>
         <% end %>
         <button>Submit</button>
       </form>
@@ -46,23 +50,28 @@ defmodule GameBoxWeb.UploadLive do
   end
 
   def handle_event("upload_game", unsigned_params, socket) do
-    disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
+    password = Map.get(unsigned_params, "password")
+    if Application.get_env(:game_box, :password) != password do
+      {:noreply, put_flash(socket, :error, "Incorrect password")}
+    else
+      disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
 
-    [path] =
-      consume_uploaded_entries(socket, :game, fn %{path: path}, _entry ->
-        dest = Path.join([disk_volume_path, Path.basename(path)])
-        File.cp!(path, dest)
-        {:ok, Path.basename(path)}
-      end)
+      [path] =
+        consume_uploaded_entries(socket, :game, fn %{path: path}, _entry ->
+          dest = Path.join([disk_volume_path, Path.basename(path)])
+          File.cp!(path, dest)
+          {:ok, Path.basename(path)}
+        end)
 
-    {:ok, _game} =
-      unsigned_params
-      |> Map.put("path", path)
-      |> Games.create_game()
+      {:ok, _game} =
+        unsigned_params
+        |> Map.put("path", path)
+        |> Games.create_game()
 
-    Phoenix.PubSub.broadcast(GameBox.PubSub, "games", {:games, Games.list_games()})
+      Phoenix.PubSub.broadcast(GameBox.PubSub, "games", {:games, Games.list_games()})
 
-    {:noreply, socket}
+      {:noreply, clear_flash(socket)}
+    end
   end
 
   @impl true
