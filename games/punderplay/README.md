@@ -13,7 +13,7 @@ zig build
 
 ### Testing
 
-Run unit tests via `zig test src/game.zig`
+Run unit tests via `zig build test`
 
 Execute functions in the game:
 
