@@ -94,7 +94,9 @@ defmodule GameBoxWeb.ArenaLive do
           |> assign(:version, socket.assigns[:version] + 1)
 
         {:ok, assigns} ->
-          assign(socket, assigns)
+          socket
+          |> clear_flash
+          |> assign(assigns)
       end
 
     Logger.info("Broadcasting State Change #{inspect(socket.assigns[:version])}")
