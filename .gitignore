@@ -35,7 +35,3 @@ npm-debug.log
 dev.secret.exs
 
 priv/static/uploads
-
-games/punderplay/zig-cache/
-games/punderplay/zig-out/
-games/punderplay/.zigmod
