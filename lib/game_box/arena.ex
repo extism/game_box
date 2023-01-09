@@ -125,8 +125,9 @@ defmodule GameBox.Arena do
     else
       default = %{
         min_players: 2,
-        max_players: 2,
+        max_players: 2
       }
+
       {:reply, default, arena}
     end
   end

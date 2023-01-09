@@ -71,9 +71,22 @@ defmodule GameBoxWeb.ArenaLive do
 
     cond do
       num_players < constraints[:min_players] ->
-        {:noreply, put_flash(socket, :error, "Not enough players to start game. Need at least " <> to_string constraints[:min_players])}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "Not enough players to start game. Need at least " <>
+             to_string(constraints[:min_players])
+         )}
+
       num_players > constraints[:max_players] ->
-        {:noreply, put_flash(socket, :error, "Too many players. Can have no more than " <> to_string constraints[:max_players])}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "Too many players. Can have no more than " <> to_string(constraints[:max_players])
+         )}
+
       true ->
         :ok = Arena.load_game(arena_id, game_id)
         Arena.broadcast_game_state(%{arena_id: arena_id, version: 0})
