@@ -17,6 +17,10 @@ defmodule GameBox.Arena do
     |> Enum.any?()
   end
 
+  def get_constraints(arena_id, game_id) do
+    GenServer.call(via_tuple(arena_id), {:extism, "get_constraints", game_id})
+  end
+
   def load_game(arena_id, game_id) do
     GenServer.cast(via_tuple(arena_id), {:load_game, game_id})
   end
@@ -105,6 +109,26 @@ defmodule GameBox.Arena do
   @impl true
   def handle_call(:state, _from, state) do
     {:reply, state, state}
+  end
+
+  def handle_call({:extism, "get_constraints", game_id}, _from, arena) do
+    {:ok, game} = Games.get_game(game_id)
+    disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
+    wasm_path = Path.join([disk_volume_path, game.path])
+
+    ctx = arena[:ctx]
+    {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: wasm_path}]}, false)
+
+    if Extism.Plugin.has_function(plugin, "get_constraints") do
+      {:ok, config} = Extism.Plugin.call(plugin, "get_constraints", nil)
+      {:reply, Jason.decode!(config), arena}
+    else
+      default = %{
+        min_players: 2,
+        max_players: 2,
+      }
+      {:reply, default, arena}
+    end
   end
 
   def handle_call({:extism, "render", assigns}, _from, arena) do

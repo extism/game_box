@@ -65,13 +65,19 @@ defmodule GameBoxWeb.ArenaLive do
   def handle_event("start_game", %{"game_id" => game_id}, socket) do
     %{assigns: %{arena: %{arena_id: arena_id}}} = socket
     players = Players.list_players(arena_id)
+    num_players = length(Map.keys(players))
 
-    if length(Map.keys(players)) < 2 do
-      {:noreply, put_flash(socket, :error, "Not enough players to start game")}
-    else
-      :ok = Arena.load_game(arena_id, game_id)
-      Arena.broadcast_game_state(%{arena_id: arena_id, version: 0})
-      {:noreply, socket}
+    constraints = Arena.get_constraints(arena_id, game_id)
+
+    cond do
+      num_players < constraints[:min_players] ->
+        {:noreply, put_flash(socket, :error, "Not enough players to start game. Need at least " <> to_string constraints[:min_players])}
+      num_players > constraints[:max_players] ->
+        {:noreply, put_flash(socket, :error, "Too many players. Can have no more than " <> to_string constraints[:max_players])}
+      true ->
+        :ok = Arena.load_game(arena_id, game_id)
+        Arena.broadcast_game_state(%{arena_id: arena_id, version: 0})
+        {:noreply, socket}
     end
   end
 

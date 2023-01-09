@@ -57,9 +57,23 @@ Open game at: http://localhost:4000/
 Currently, you need to implement 3 functions to make a game. This will change if we try to add support for different types of games:
 
 ```
+get_constraints(void) -> GameConstraints
 init_game(GameConfig) -> void
 handle_event(LiveEvent) -> Assigns 
 render(Assigns) -> String
+```
+
+#### `get_constraints(void) -> GameConstraints`
+
+Called before initializing the game. This gives GameBox some metadata about the constraints of the game. If you do not implement this function it will assume the min and max players are 2.
+
+
+```rust
+#[derive(Deserialize)]
+struct GameConstraints {
+    min_players: u32,
+    max_players: u32,
+}
 ```
 
 #### `init_game(GameConfig) -> void`
