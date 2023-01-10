@@ -12,8 +12,13 @@ pub fn build(b: *std.build.Builder) void {
 
     const game_tests = b.addTest("src/game.zig");
     deps.addAllTo(game_tests);
-    game_tests.setBuildMode(mode);
 
-    const test_step = b.step("test-game", "run `game` tests");
-    test_step.dependOn(&game_tests.step);
+    const store_tests = b.addTest("src/store.zig");
+    deps.addAllTo(store_tests);
+
+    const game_test_step = b.step("test-game", "run `game` tests");
+    game_test_step.dependOn(&game_tests.step);
+
+    const store_test_step = b.step("test-store", "run `store` tests");
+    store_test_step.dependOn(&store_tests.step);
 }

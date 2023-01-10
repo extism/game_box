@@ -16,6 +16,7 @@ zig build
 Run unit tests via: 
 ```sh
 zig build test-game
+zig build test-store
 ```
 
 Execute functions in the game:

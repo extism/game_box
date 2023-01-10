@@ -17,10 +17,16 @@ pub const PlayerScores = struct {
     score: u8,
 };
 
+pub const GameData = struct {
+    current_judge: Judge,
+    players: []PlayerScores,
+    rounds: []Round,
+};
+
 pub const Game = struct {
     allocator: std.mem.Allocator,
     current_judge: Judge,
-    players: [2]PlayerScores,
+    players: []PlayerScores,
     rounds: std.ArrayList(Round),
 
     const Self = @This();
@@ -28,11 +34,11 @@ pub const Game = struct {
     pub fn init(allocator: std.mem.Allocator, players: []Player) Self {
         // pick a player from the set of current players to act as the judge.
         // initialize the scores for each player.
-        var game_players = [2]PlayerScores{ .{ .player = players[0], .score = 0 }, .{ .player = players[1], .score = 0 } };
+        var game_players = [_]PlayerScores{ .{ .player = players[0], .score = 0 }, .{ .player = players[1], .score = 0 } };
         return Self{
             .allocator = allocator,
             .current_judge = players[0],
-            .players = game_players,
+            .players = &game_players,
             .rounds = std.ArrayList(Round).init(allocator),
         };
     }
@@ -43,6 +49,21 @@ pub const Game = struct {
 
     pub fn to_json(self: Self) []const u8 {
         return std.json.stringifyAlloc(self.allocator, .{ .current_judge = self.current_judge, .players = self.players, .rounds = self.rounds.items }, .{}) catch unreachable;
+    }
+
+    pub fn from_json(allocator: std.mem.Allocator, data: []const u8) Self {
+        var stream = std.json.TokenStream.init(data);
+        const gameData = std.json.parse(GameData, &stream, .{ .allocator = allocator }) catch unreachable;
+        defer std.json.parseFree(GameData, gameData, .{ .allocator = allocator });
+
+        var rounds = std.ArrayList(Round).init(allocator);
+        rounds.appendSlice(gameData.rounds) catch unreachable;
+        return Self{
+            .allocator = allocator,
+            .current_judge = gameData.current_judge,
+            .players = gameData.players,
+            .rounds = rounds,
+        };
     }
 };
 
