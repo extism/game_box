@@ -1,0 +1,6 @@
+id: f0fex8nt61gpyoimsjcmtpd4ukxh0f2hbts0zgtjntvclua0
+name: punderplay
+license: BSD-3
+description: Pun-based game for GameBox demo
+root_dependencies:
+  - src: git https://github.com/extism/zig-pdk
