@@ -9,6 +9,10 @@ pub const PluginStore = struct {
 
     const Self = @This();
 
+    pub fn init(plugin: *Plugin) Self {
+        return Self{ .inner = plugin };
+    }
+
     pub fn get(self: Self, key: []const u8) []const u8 {
         return self.inner.getVar(key) catch unreachable orelse "";
     }
