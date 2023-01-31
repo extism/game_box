@@ -83,8 +83,6 @@ if config_env() == :prod do
     ]
 end
 
-passwd =
-  System.get_env("UPLOAD_PASSWORD") ||
-    raise "UPLOAD_PASSWORD secret not available"
+passwd = System.get_env("UPLOAD_PASSWORD")
 
 config :game_box, password: passwd
