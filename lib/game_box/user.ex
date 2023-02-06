@@ -6,6 +6,7 @@ defmodule GameBox.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
   schema "users" do
     field(:gh_id, :integer)
     field(:gh_login, :string)
