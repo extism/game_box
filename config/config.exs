@@ -39,10 +39,14 @@ config :phoenix, :json_library, Jason
 
 config :game_box, disk_volume_path: "priv/static/uploads"
 
-config :dart_sass,
-  version: "1.57.1",
+config :tailwind,
+  version: "3.2.4",
   default: [
-    args: ~w(css/app.scss ../priv/static/assets/app.css),
+    args: ~w(
+      --config=tailwind.config.js
+      --input=css/app.css
+      --output=../priv/static/assets/app.css
+    ),
     cd: Path.expand("../assets", __DIR__)
   ]
 
