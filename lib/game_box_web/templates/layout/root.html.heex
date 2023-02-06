@@ -12,25 +12,20 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}></script>
   </head>
   <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/">GameBox</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="/">Home</a>
+  <nav>
+    <div>
+      <a href="/">GameBox</a>
+        <ul>
+          <li>
+            <a href="/">Home</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/upload">Upload Game</a>
+          <li>
+            <a href="/upload">Upload Game</a>
           </li>
-          <li class="nav-item">
-          <.link class="nav-link" href={~p"/dashboard/home"}>Live Dashboard</.link>
+          <li>
+          <.link href={~p"/dashboard/home"}>Live Dashboard</.link>
           </li>
         </ul>
-      </div>
     </div>
   </nav>
     <%= @inner_content %>
