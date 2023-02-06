@@ -6,8 +6,8 @@ defmodule GameBox.Games.Game do
   import Ecto.Changeset
 
   schema "games" do
-    field :title, :string
-    field :path, :string
+    field(:title, :string)
+    field(:path, :string)
     timestamps()
   end
 

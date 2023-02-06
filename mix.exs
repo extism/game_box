@@ -39,6 +39,7 @@ defmodule GameBox.MixProject do
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
       {:dart_sass, "~> 0.5", runtime: Mix.env() == :dev},
       {:extism, "~> 0.1.0"},
+      {:ex_machina, "~> 2.7.0", only: :test},
       {:floki, ">= 0.30.0", only: :test},
       {:gettext, "~> 0.18"},
       {:horde, "~> 0.8.7"},
@@ -54,7 +55,9 @@ defmodule GameBox.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:postgrex, ">= 0.0.0"},
       {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"}
+      {:telemetry_poller, "~> 1.0"},
+      {:ueberauth, "~> 0.6.3"},
+      {:ueberauth_github, "~> 0.8.0"}
     ]
   end
 

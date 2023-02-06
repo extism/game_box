@@ -46,6 +46,11 @@ config :dart_sass,
     cd: Path.expand("../assets", __DIR__)
   ]
 
+config :ueberauth, Ueberauth,
+  providers: [
+    github: {Ueberauth.Strategy.Github, default_scope: "user:email"}
+  ]
+
 # override
 config :game_box, password: "12345"
 

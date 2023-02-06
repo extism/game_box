@@ -20,15 +20,30 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
+
           <li class="nav-item">
-            <a class="nav-link" href="/">Home</a>
+            <.link
+              class="nav-link"
+              href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}
+            >
+              Home
+            </.link>
           </li>
+          <%= if assigns[:current_user] do %>
           <li class="nav-item">
-            <a class="nav-link" href="/upload">Upload Game</a>
+            <.link
+              class="nav-link"
+              href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)}
+            >
+              Upload Game
+            </.link>
           </li>
-          <li class="nav-item">
-          <.link class="nav-link" href={~p"/dashboard/home"}>Live Dashboard</.link>
+          <li>
+            <.link class="nav-link" href={Routes.auth_path(@conn, :delete)}>Sign Out</.link>
           </li>
+          <% else %>
+            <li><.link class="nav-link" href={Routes.auth_path(@conn, :request, :github)}>Sign in with Github</.link></li>
+          <% end %>
         </ul>
       </div>
     </div>

@@ -24,6 +24,7 @@ defmodule GameBoxWeb.ConnCase do
       import Phoenix.ConnTest
       import GameBoxWeb.ConnCase
       import Phoenix.LiveViewTest
+      import GameBox.Factory
 
       use Phoenix.VerifiedRoutes,
         endpoint: GameBoxWeb.Endpoint,
