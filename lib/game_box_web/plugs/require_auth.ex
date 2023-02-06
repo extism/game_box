@@ -3,8 +3,8 @@ defmodule GameBoxWeb.RequireAuth do
   Plug that ensures that a user is logged in
   """
   import Plug.Conn
-  alias GameBoxWeb.Router.Helpers, as: Routes
   alias GameBox.User
+  alias GameBoxWeb.Router.Helpers, as: Routes
   alias Phoenix.Controller
 
   def init(opts), do: opts

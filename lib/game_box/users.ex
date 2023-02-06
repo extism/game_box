@@ -17,7 +17,7 @@ defmodule GameBox.Users do
     |> Repo.one()
   end
 
-  @spec find_or_create_user(map()) :: {:ok, User.t()} | {:error, %Ecto.Changeset{}}
+  @spec find_or_create_user(map()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def find_or_create_user(%{extra: %{raw_info: %{user: %{"login" => login, "id" => id}}}}) do
     case get_user_by_gh_id(id) do
       nil -> create_user(%{gh_id: id, gh_login: login})
@@ -25,7 +25,7 @@ defmodule GameBox.Users do
     end
   end
 
-  @spec create_user(map()) :: {:ok, User.t()} | {:error, %Ecto.Changeset{}}
+  @spec create_user(map()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   defp create_user(attrs) do
     %User{}
     |> User.changeset(attrs)
