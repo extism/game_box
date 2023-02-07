@@ -68,6 +68,7 @@ defmodule GameBoxWeb do
   def component do
     quote do
       use Phoenix.Component
+      import GameBoxWeb.CoreComponents
 
       unquote(view_helpers())
     end
