@@ -11,8 +11,8 @@ defmodule GameBoxWeb.CoreComponents do
   """
   use Phoenix.Component
 
-  alias Phoenix.LiveView.JS
   alias Phoenix.HTML.Form
+  alias Phoenix.LiveView.JS
   import GameBoxWeb.Gettext
 
   @spec modal(map) :: Phoenix.LiveView.Rendered.t()
