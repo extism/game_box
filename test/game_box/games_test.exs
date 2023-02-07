@@ -19,7 +19,8 @@ defmodule GameBox.GamesTest do
   end
 
   describe "list_games/0" do
-    test "returns all games" do
+    test "returns all games that were not uploaded by a banned user" do
+      _banned_game = insert(:game, user: insert(:user, is_banned: true))
       games = Games.list_games()
       assert Enum.count(games) == 2
     end
