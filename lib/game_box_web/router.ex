@@ -2,27 +2,48 @@ defmodule GameBoxWeb.Router do
   use GameBoxWeb, :router
 
   pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_live_flash
-    plug :put_root_layout, {GameBoxWeb.LayoutView, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
-    plug GameBoxWeb.SessionPlug
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:fetch_live_flash)
+    plug(:put_root_layout, {GameBoxWeb.LayoutView, :root})
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
+    plug(GameBoxWeb.SessionPlug)
+    plug(GameBoxWeb.LoadUser)
+  end
+
+  pipeline :require_auth do
+    plug(GameBoxWeb.RequireAuth)
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
+  end
+
+  scope "/auth", GameBoxWeb do
+    pipe_through(:browser)
+    get("/delete", AuthController, :delete)
+    get("/:provider", AuthController, :request)
+    get("/:provider/callback", AuthController, :callback)
   end
 
   scope "/", GameBoxWeb do
-    pipe_through :browser
+    pipe_through(:browser)
+
+    live "/", WelcomeLive
 
     live_session(:default, on_mount: GameBoxWeb.InitAssigns) do
-      live "/", HomeLive
-      live "/upload", UploadLive
-      live "/arena/:arena_id", ArenaLive
-      live "/arena/:arena_id/game/:game_id", GameLive
+      live("/home", HomeLive)
+      live("/arena/:arena_id", ArenaLive)
+      live("/arena/:arena_id/game/:game_id", GameLive)
+    end
+  end
+
+  scope "/", GameBoxWeb do
+    pipe_through([:browser, :require_auth])
+
+    live_session(:authenticated, on_mount: GameBoxWeb.InitAssigns) do
+      live("/upload", UploadLive)
     end
   end
 
@@ -42,9 +63,9 @@ defmodule GameBoxWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do
-      pipe_through :browser
+      pipe_through(:browser)
 
-      live_dashboard "/dashboard", metrics: GameBoxWeb.Telemetry
+      live_dashboard("/dashboard", metrics: GameBoxWeb.Telemetry)
     end
   end
 end
