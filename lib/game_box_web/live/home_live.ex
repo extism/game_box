@@ -2,7 +2,6 @@ defmodule GameBoxWeb.HomeLive do
   use GameBoxWeb, :live_view
 
   alias GameBox.Arena
-  alias GameBox.Games
   alias GameBox.Players
 
   @impl true
