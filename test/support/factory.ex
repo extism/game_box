@@ -28,4 +28,13 @@ defmodule GameBox.Factory do
       }
     }
   end
+
+  def game_factory do
+    %GameBox.Games.Game{
+      title: sequence(:title, &"Game #{&1}"),
+      description: "a very fun game to play!",
+      path: "uploaded_path/123",
+      user: build(:user)
+    }
+  end
 end
