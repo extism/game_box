@@ -31,6 +31,7 @@ defmodule GameBoxWeb.Router do
     pipe_through(:browser)
 
     live "/", WelcomeLive
+    live "/styleguide", StyleguideLive
 
     live_session(:default, on_mount: GameBoxWeb.InitAssigns) do
       live("/home", HomeLive)
