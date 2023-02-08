@@ -10,6 +10,20 @@ module.exports = {
     '../lib/*_web/**/*.*ex',
   ],
   theme: {
+    fontFamily: {
+      display: [
+        "originalsregular",
+        "Helvetica", 
+        "Arial", 
+        "sans-serif"
+      ],
+      sans: [ 
+        "dm_monomedium",
+        "Helvetica", 
+        "Arial", 
+        "sans-serif"
+      ]
+    },
     extend: {
       colors: { 
         primary: '#A26CFF',
