@@ -15,7 +15,10 @@ module.exports = {
         primary: '#A26CFF',
         secondary: '#C7B9E0',
         dark:'#170124', 
-        success: '#6CFF9E'
+        success: '#6CFF9E',
+        info: '#0EA5E9', 
+        warning: '#FB923C', 
+        error: '#DC2626'
       }
     },
   },
