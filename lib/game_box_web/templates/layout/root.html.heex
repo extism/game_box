@@ -12,40 +12,35 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}></script>
   </head>
   <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/">GameBox</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
+  <nav>
+    <div>
+      <a href="/">GameBox</a>
+        <ul>
 
-          <li class="nav-item">
+ <li>
             <.link
-              class="nav-link"
+
               href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}
             >
               Home
             </.link>
           </li>
           <%= if assigns[:current_user] do %>
-          <li class="nav-item">
+          <li>
             <.link
-              class="nav-link"
+
               href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)}
             >
               Upload Game
             </.link>
           </li>
           <li>
-            <.link class="nav-link" href={Routes.auth_path(@conn, :delete)}>Sign Out</.link>
+            <.link href={Routes.auth_path(@conn, :delete)}>Sign Out</.link>
           </li>
           <% else %>
-            <li><.link class="nav-link" href={Routes.auth_path(@conn, :request, :github)}>Sign in with Github</.link></li>
+            <li><.link href={Routes.auth_path(@conn, :request, :github)}>Sign in with Github</.link></li>
           <% end %>
         </ul>
-      </div>
     </div>
   </nav>
     <%= @inner_content %>

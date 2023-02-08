@@ -37,7 +37,6 @@ defmodule GameBox.MixProject do
       {:dialyxir, "~> 1.2", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.6"},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
-      {:dart_sass, "~> 0.5", runtime: Mix.env() == :dev},
       {:extism, "~> 0.1.0"},
       {:ex_machina, "~> 2.7.0", only: :test},
       {:floki, ">= 0.30.0", only: :test},
@@ -54,6 +53,7 @@ defmodule GameBox.MixProject do
       {:phoenix, "~> 1.7.0-rc.0", override: true},
       {:plug_cowboy, "~> 2.5"},
       {:postgrex, ">= 0.0.0"},
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:ueberauth, "~> 0.6.3"},
@@ -74,8 +74,8 @@ defmodule GameBox.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.deploy": [
+        "tailwind default --minify",
         "esbuild default --minify",
-        "sass default --no-source-map --style=compressed",
         "phx.digest"
       ]
     ]
