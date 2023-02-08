@@ -43,7 +43,7 @@ defmodule GameBoxWeb.ArenaLive do
   def render(assigns) do
     # NOTE: don't put this in the heex template or it will be cached
     # ignore warnings from phoenix
-    assigns = render_board(assigns[:arena][:arena_id], assigns[:current_player][:name])
+    board = render_board(assigns[:arena][:arena_id], assigns[:current_player][:name])
 
     ~H"""
     <%= if board == "" do %>
