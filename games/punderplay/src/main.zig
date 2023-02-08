@@ -3,43 +3,49 @@ const extism_pdk = @import("extism-pdk");
 const Plugin = extism_pdk.Plugin;
 const json = std.json;
 const game = @import("game.zig");
-const store = @import("store.zig");
 
 const VAR_STATE = "state";
 
 pub fn main() void {}
 
-pub fn initGame(allocator: std.mem.Allocator, config: game.Config, state: store.Store) !i32 {
-    var gameState: game.Game = undefined;
-    try gameState.init(allocator, config.player_ids);
-    state.set(VAR_STATE, try gameState.toJson(allocator));
-    return 0;
+pub fn initGame(allocator: std.mem.Allocator, config: game.Config) !game.Game {
+    var state: game.Game = undefined;
+    try state.init(allocator, config.player_ids);
+    return state;
 }
 
 const LiveEvent = struct {
-    player_id: []const u8,
+    player_id: game.Player,
+    event_name: []const u8,
     value: EventPayload,
 };
 
 const EventPayload = struct {
-    prompt_id: usize,
+    prompt: [2][]const u8,
     pun: []const u8,
 };
 
-pub fn handleEvent(allocator: std.mem.Allocator, event: LiveEvent, state: store.Store) i32 {
-    // var gameState = game.Game.fromJson(allocator, state.get(VAR_STATE));
-    // _ = gameState;
+const EventUpdate = struct {
+    state: game.Game,
+    assigns: Assigns,
+};
 
-    // switch (event.event_name) {}
-
+pub fn handleEvent(allocator: std.mem.Allocator, event: LiveEvent, state: *game.Game, update: *EventUpdate) !void {
     _ = allocator;
-    _ = event;
+    _ = update;
     _ = state;
 
-    return 0;
+    if (std.mem.eql(u8, event.event_name, "submit-prompt")) {}
+
+    return;
 }
 
-const Assigns = struct {};
+const Assigns = struct {
+    is_judge: bool,
+    is_winner: ?bool,
+    submitted_pun: bool,
+    current_round: u8,
+};
 
 pub fn renderView(data: Assigns) i32 {
     _ = data;
@@ -53,12 +59,18 @@ export fn init_game() i32 {
 
     var stream = json.TokenStream.init(input);
     const config = json.parse(game.Config, &stream, .{ .allocator = plugin.allocator }) catch unreachable;
-    defer json.parseFree(game.Config, config, .{ .allocator = plugin.allocator });
+    // defer json.parseFree(game.Config, config, .{ .allocator = plugin.allocator }); // TODO: this causes an out of bounds memory access
 
-    var pluginStore = store.PluginStore.init(&plugin);
-    var state = store.Store.init(&pluginStore);
+    var state = initGame(plugin.allocator, config) catch unreachable;
 
-    return initGame(plugin.allocator, config, state) catch -1;
+    plugin.setVar(VAR_STATE, state.toJson(plugin.allocator) catch unreachable);
+
+    debugOutput(plugin, state);
+    return 0;
+}
+
+fn debugOutput(plugin: Plugin, state: game.Game) void {
+    plugin.output(state.toJson(plugin.allocator) catch unreachable);
 }
 
 export fn handle_event() i32 {
@@ -70,10 +82,16 @@ export fn handle_event() i32 {
     const event = json.parse(LiveEvent, &stream, .{ .allocator = plugin.allocator }) catch unreachable;
     defer json.parseFree(LiveEvent, event, .{ .allocator = plugin.allocator });
 
-    var pluginStore = store.PluginStore.init(&plugin);
-    var state = store.Store.init(&pluginStore);
+    const data = plugin.getVar(VAR_STATE) catch unreachable orelse return -1;
+    var state: game.Game = undefined;
+    state.fromJson(plugin.allocator, data) catch unreachable;
 
-    return handleEvent(plugin.allocator, event, state);
+    var eventUpdate: EventUpdate = undefined;
+    handleEvent(plugin.allocator, event, &state, &eventUpdate) catch unreachable;
+
+    plugin.setVar(VAR_STATE, state.toJson(plugin.allocator) catch unreachable);
+
+    return 0;
 }
 
 // export fn render(input: []const u8) i32 {

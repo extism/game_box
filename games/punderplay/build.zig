@@ -3,7 +3,10 @@ const deps = @import("deps.zig");
 
 pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
-    const target = b.standardTargetOptions(.{ .default_target = .{ .cpu_arch = .wasm32, .os_tag = .freestanding } });
+    // const target = b.standardTargetOptions(.{ .default_target = .{ .cpu_arch = .wasm32, .os_tag = .freestanding } });
+    const target = b.standardTargetOptions(.{
+        .default_target = .{ .abi = .musl, .os_tag = .freestanding, .cpu_arch = .wasm32 },
+    });
     const exe = b.addExecutable("punderplay", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);

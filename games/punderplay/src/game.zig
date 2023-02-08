@@ -1,15 +1,21 @@
 const std = @import("std");
 const Plugin = @import("extism-pdk").Plugin;
+const store = @import("store.zig");
 
 pub const Player = []const u8;
 
 pub const Judge = Player;
 
-pub const Round = struct {
-    winner: Player,
-    winning_pun: []const u8,
-    judge: Judge,
+pub const SubmittedPun = struct {
     prompt: [2][]const u8,
+    player: Player,
+};
+
+pub const Round = struct {
+    winner: ?Player,
+    winning_pun: ?[]const u8,
+    prompt: ?[2][]const u8,
+    submitted_puns: ?[]SubmittedPun,
 };
 
 pub const Config = struct {
@@ -43,6 +49,14 @@ pub const Game = struct {
         self.version = 0;
     }
 
+    pub fn getCurrentRound(self: *Self) Round {
+        return self.rounds[self.rounds.len - 1];
+    }
+
+    pub fn updateCurrentRound(self: *Self, round: Round) void {
+        self.rounds[self.rounds.len - 1] = round;
+    }
+
     // pub fn deinit(self: *Game, allocator: std.mem.Allocator) void {
     //     allocator.free(self.players);
     // }
@@ -71,9 +85,9 @@ const verbs = "watering.cataloging.hunting.wanting.holding.taping.integrating.wo
 
 test "game init" {
     const ta = std.testing.allocator;
-    const input = "[\"alice\", \"bob\"]";
-    var stream = std.json.TokenStream.init(input);
+    var stream = std.json.TokenStream.init("[\"alice\", \"bob\"]");
     var players = try std.json.parse([]Player, &stream, .{ .allocator = ta });
+    defer std.json.parseFree([]Player, players, .{ .allocator = ta });
 
     var game: Game = undefined;
     try game.init(ta, players);
