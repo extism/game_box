@@ -10,7 +10,14 @@ module.exports = {
     '../lib/*_web/**/*.*ex',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: { 
+        primary: '#A26CFF',
+        secondary: '#C7B9E0',
+        dark:'#170124', 
+        success: '#6CFF9E'
+      }
+    },
   },
   plugins: [
     require('@tailwindcss/forms'),
