@@ -15,7 +15,10 @@ defmodule GameBox.Games do
 
   @spec list_games :: list(Game.t()) | []
   def list_games do
-    Repo.all(Game)
+    Game
+    |> join(:inner, [g], u in assoc(g, :user), as: :user)
+    |> where([user: user], user.is_banned == false)
+    |> Repo.all()
   end
 
   @spec list_games_for_user(integer()) :: list(Game.t()) | []
