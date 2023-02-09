@@ -60,6 +60,9 @@
 }
 
 
+[type='text'] { 
+  color: #170124;
+}
 
 /* LiveView specific classes for your customizations */
 .phx-no-feedback.invalid-feedback,
