@@ -10,6 +10,16 @@ module.exports = {
     '../lib/*_web/**/*.*ex',
   ],
   theme: {
+    fontSize: {
+      xs: '.69rem',
+      sm: '0.875rem',
+      base: '1rem',
+      xl: '1.25rem',
+      '2xl': '1.563rem',
+      '3xl': '1.953rem',
+      '4xl': '2.441rem',
+      '5xl': '3.052rem',
+    },
     fontFamily: {
       display: [
         "originalsregular",
@@ -26,7 +36,10 @@ module.exports = {
     },
     extend: {
       colors: { 
-        primary: '#A26CFF',
+        primary: {  
+          DEFAULT: '#A26CFF',
+          dark: '#8905e8'
+        },
         secondary: '#C7B9E0',
         dark:'#170124', 
         success: '#6CFF9E',
