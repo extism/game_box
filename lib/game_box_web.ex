@@ -54,7 +54,7 @@ defmodule GameBoxWeb do
       use Phoenix.LiveView,
         layout: {GameBoxWeb.LayoutView, :live}
 
-      import GameBoxWeb.CoreComponents
+      # Letimport GameBoxWeb.CoreComponents
       import GameBoxWeb.Typography
 
       unquote(view_helpers())

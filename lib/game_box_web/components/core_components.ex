@@ -81,7 +81,7 @@ defmodule GameBoxWeb.CoreComponents do
                   class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
                   aria-label={gettext("close")}
                 >
-                  <Heroicons.x_mark solid class="h-5 w-5 stroke-current" />
+                  <!--<Heroicons.x_mark solid class="h-5 w-5 stroke-current" />-->
                 </button>
               </div>
               <div id={"#{@id}-content"}>
@@ -159,7 +159,7 @@ defmodule GameBoxWeb.CoreComponents do
       {@rest}
     >
       <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6">
-        <Heroicons.information_circle :if={@kind == :info} mini class="h-4 w-4" />
+        <Heroicons.information_circle :if={@kind == :info} mini class="h-4 w-4" />HEY GIRL
         <Heroicons.exclamation_circle :if={@kind == :error} mini class="h-4 w-4" />
         <%= @title %>
       </p>
@@ -170,7 +170,7 @@ defmodule GameBoxWeb.CoreComponents do
         class="group absolute top-2 right-1 p-2"
         aria-label={gettext("close")}
       >
-        <Heroicons.x_mark solid class="h-5 w-5 stroke-current opacity-40 group-hover:opacity-70" />
+        <!--<Heroicons.x_mark solid class="h-5 w-5 stroke-current opacity-40 group-hover:opacity-70" />-->
       </button>
     </div>
     """
@@ -278,11 +278,11 @@ defmodule GameBoxWeb.CoreComponents do
     assigns
     |> assign(field: nil)
     |> assign_new(:name, fn ->
-      name = HTML.Form.input_name(f, field)
+      name = Form.input_name(f, field)
       if assigns.multiple, do: name <> "[]", else: name
     end)
-    |> assign_new(:id, fn -> HTML.Form.input_id(f, field) end)
-    |> assign_new(:value, fn -> HTML.Form.input_value(f, field) end)
+    |> assign_new(:id, fn -> Form.input_id(f, field) end)
+    |> assign_new(:value, fn -> Form.input_value(f, field) end)
     |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
     |> input()
   end
@@ -319,7 +319,7 @@ defmodule GameBoxWeb.CoreComponents do
         {@rest}
       >
         <option :if={@prompt} value=""><%= @prompt %></option>
-        <%= HTML.Form.options_for_select(@options, @value) %>
+        <%= Form.options_for_select(@options, @value) %>
       </select>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
@@ -397,7 +397,7 @@ defmodule GameBoxWeb.CoreComponents do
   def error(assigns) do
     ~H"""
     <p class="phx-no-feedback:hidden mt-3 flex gap-3 text-sm leading-6 text-rose-600">
-      <Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-rose-500" />
+      <!--<Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-rose-500" />-->
       <%= render_slot(@inner_block) %>
     </p>
     """
@@ -540,7 +540,7 @@ defmodule GameBoxWeb.CoreComponents do
         navigate={@navigate}
         class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
       >
-        <Heroicons.arrow_left solid class="w-3 h-3 stroke-current inline" />
+        <!--<Heroicons.arrow_left solid class="w-3 h-3 stroke-current inline" />-->
         <%= render_slot(@inner_block) %>
       </.link>
     </div>
