@@ -120,7 +120,7 @@ defmodule GameBoxWeb.Typography do
     """
   end
 
-  defp text_base_class(), do: "leading-5 text-gray-400"
+  defp text_base_class, do: "leading-5 text-gray-400"
 
   attr(:class, :string, default: "", doc: "CSS class")
   attr(:rest, :global)
