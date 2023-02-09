@@ -97,7 +97,14 @@ defmodule GameBoxWeb do
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+      import Phoenix.HTML
+      import Phoenix.HTML.Form, except: [label: 1]
+      import Phoenix.HTML.Link
+      import Phoenix.HTML.Tag, except: [attributes_escape: 1]
+      import Phoenix.HTML.Format
+
+      # Core UI components and translation
+      import GameBoxWeb.CoreComponents
 
       unquote(verified_routes())
 
