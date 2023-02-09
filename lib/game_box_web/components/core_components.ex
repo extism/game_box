@@ -278,11 +278,11 @@ defmodule GameBoxWeb.CoreComponents do
     assigns
     |> assign(field: nil)
     |> assign_new(:name, fn ->
-      name = Form.input_name(f, field)
+      name = Phoenix.HTML.Form.input_name(f, field)
       if assigns.multiple, do: name <> "[]", else: name
     end)
-    |> assign_new(:id, fn -> Form.input_id(f, field) end)
-    |> assign_new(:value, fn -> Form.input_value(f, field) end)
+    |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
+    |> assign_new(:value, fn -> Phoenix.HTML.Form.input_value(f, field) end)
     |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
     |> input()
   end
@@ -319,7 +319,7 @@ defmodule GameBoxWeb.CoreComponents do
         {@rest}
       >
         <option :if={@prompt} value=""><%= @prompt %></option>
-        <%= Form.options_for_select(@options, @value) %>
+        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
