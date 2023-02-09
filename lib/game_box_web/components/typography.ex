@@ -24,7 +24,7 @@ defmodule GameBoxWeb.Typography do
     <h1
       class={
         get_heading_classes(
-          "text-4xl leading-10 sm:text-5xl sm:tracking-tight lg:text-6xl",
+          "text-4xl leading-10 sm:text-5xl sm:tracking-tight lg:text-6xl text-white",
           assigns
         )
       }
@@ -45,7 +45,7 @@ defmodule GameBoxWeb.Typography do
 
   def h2(assigns) do
     ~H"""
-    <h2 class={get_heading_classes("text-2xl sm:text-3xl leading-10", assigns)} {@rest}>
+    <h2 class={get_heading_classes("text-2xl sm:text-3xl leading-10  text-white", assigns)} {@rest}>
       <%= render_slot(@inner_block) || @label %>
     </h2>
     """
@@ -61,7 +61,7 @@ defmodule GameBoxWeb.Typography do
 
   def h3(assigns) do
     ~H"""
-    <h3 class={get_heading_classes("text-xl sm:text-2xl leading-7", assigns)} {@rest}>
+    <h3 class={get_heading_classes("text-xl sm:text-2xl leading-7  text-white", assigns)} {@rest}>
       <%= render_slot(@inner_block) || @label %>
     </h3>
     """
