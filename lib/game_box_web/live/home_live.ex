@@ -11,23 +11,27 @@ defmodule GameBoxWeb.HomeLive do
       <.h2>Start or Join an Arena</.h2>
       <form id="join_arena" phx-submit="join_arena" class="flex flex-col w-1/4">
         <div>
-          <.label for="player_name">Name</.label>
-          <input
+          <.input
+            label="Name"
             type="text"
             id="player_name"
             name="player_name"
             placeholder="Enter user name"
             class="w-full"
+            value={@player_name}
+            errors={["required"]}
           />
         </div>
         <div>
-          <.label for="arena_id">Arena Code</.label>
-          <input
+          <.input
+            label="Arena Code"
             type="text"
             id="arena_id"
             name="arena_id"
             placeholder="4 character arena code"
             class="w-full"
+            value=""
+            errors={["required"]}
           />
         </div>
         <.button color="primary" type="submit">Join arena</.button>
@@ -38,6 +42,11 @@ defmodule GameBoxWeb.HomeLive do
 
   @impl true
   def mount(_params, session, socket) do
+    socket =
+      socket
+      |> assign_new(:player_name, fn -> "" end)
+      |> assign_new(:arena_id, fn -> "" end)
+
     if connected?(socket) do
       Phoenix.PubSub.subscribe(GameBox.PubSub, "games")
     end
