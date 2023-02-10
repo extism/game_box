@@ -30,6 +30,7 @@ defmodule GameBoxWeb.ArenaLive do
         ready? ->
           socket
           |> assign(:game_selected, nil)
+          |> assign(:constraints, %{min_players: 1})
           |> set_defaults(arena_id, player_id)
 
         true ->
