@@ -83,27 +83,30 @@ defmodule GameBox.Players do
       ) do
     player = Map.get(state, player_id, nil)
 
+    name_taken =
+      state
+      |> Map.values()
+      |> Enum.any?(&(&1.name == name && &1.id != player_id))
+
+    update = fn player, params ->
+      case change_player(player, params) do
+        {:ok, player} ->
+          {:reply, {:ok, player}, Map.put(state, player.id, player), {:continue, :broadcast}}
+
+        {:error, changeset} ->
+          {:reply, {:error, changeset}, state}
+      end
+    end
+
     cond do
-      name_already_taken?(state, name, player_id) ->
+      is_nil(player) and not name_taken ->
+        update.(%{id: player_id, pids: []}, params)
+
+      name_taken ->
         {:reply, {:error, "Player name already taken"}, state}
 
-      same_player?(player, player_id) ->
-        case change_player(player || %{id: player_id, name: name}, params) do
-          {:ok, player} ->
-            {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
-
-          {:error, changeset} ->
-            {:reply, {:error, changeset}, state}
-        end
-
       true ->
-        case change_player(player || %{id: player_id, pids: []}, params) do
-          {:ok, player} ->
-            {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
-
-          {:error, changeset} ->
-            {:reply, {:error, changeset}, state}
-        end
+        update.(player, params)
     end
   end
 
@@ -235,17 +238,5 @@ defmodule GameBox.Players do
     |> Changeset.cast(params, @all)
     |> Changeset.validate_required(@required)
     |> Changeset.apply_action(:update)
-  end
-
-  defp name_already_taken?(state, name, player_id) do
-    state
-    |> Map.values()
-    |> Enum.find(&(&1.name == name && &1.id != player_id))
-  end
-
-  defp same_player?(nil, _), do: false
-
-  defp same_player?(player, player_id) do
-    player && player.id == player_id
   end
 end

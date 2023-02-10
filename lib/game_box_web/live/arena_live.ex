@@ -13,36 +13,30 @@ defmodule GameBoxWeb.ArenaLive do
       Players.monitor(arena_id, player_id)
     end
 
+    ready? = Players.exists?(arena_id) and Arena.exists?(arena_id)
     game_id = Arena.get_game(arena_id)
 
     socket =
-      if game_id do
-        constraints = Arena.get_constraints(arena_id, game_id)
-        {:ok, game} = Games.get_game(game_id)
+      cond do
+        ready? and game_id ->
+          constraints = Arena.get_constraints(arena_id, game_id)
+          {:ok, game} = Games.get_game(game_id)
 
-        socket
-        |> assign(:game_selected, game)
-        |> assign(:min_players, constraints[:min_players])
-      else
-        socket
-        |> assign(:game_selected, nil)
-        |> assign(:min_players, nil)
+          socket
+          |> assign(:constraints, constraints)
+          |> assign(:game_selected, game)
+          |> set_defaults(arena_id, player_id)
+
+        ready? ->
+          socket
+          |> assign(:game_selected, nil)
+          |> set_defaults(arena_id, player_id)
+
+        true ->
+          push_navigate(socket, to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))
       end
 
-    if Players.exists?(arena_id) and Arena.exists?(arena_id) do
-      {:ok,
-       socket
-       |> assign(:arena, Arena.state(arena_id))
-       |> assign(:games, Games.list_games())
-       |> assign(:version, -1)
-       |> assign(:player_id, player_id)
-       |> assign(:is_host, Arena.get_host(arena_id) == player_id)
-       |> assign(:game_started, false)
-       |> assign_current_player()
-       |> assign_other_players()}
-    else
-      {:ok, push_navigate(socket, to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))}
-    end
+    {:ok, socket}
   end
 
   def render(assigns) do
@@ -79,7 +73,7 @@ defmodule GameBoxWeb.ArenaLive do
             <div>
               <p>
                 <strong>Player count: </strong>
-                <%= @total_players %>-<%= @min_players %>
+                <%= @total_players %>-<%= @constraints.min_players %>
               </p>
             </div>
             <p>Online Players</p>
@@ -220,6 +214,18 @@ defmodule GameBoxWeb.ArenaLive do
     {:noreply, socket}
   end
 
+  defp set_defaults(socket, arena_id, player_id) do
+    socket
+    |> assign(:arena, Arena.state(arena_id))
+    |> assign(:games, Games.list_games())
+    |> assign(:version, -1)
+    |> assign(:player_id, player_id)
+    |> assign(:is_host, Arena.get_host(arena_id) == player_id)
+    |> assign(:game_started, false)
+    |> assign_current_player()
+    |> assign_other_players()
+  end
+
   defp assign_current_player(socket) do
     %{assigns: %{arena: %{arena_id: arena_id}, player_id: player_id}} = socket
 
@@ -248,8 +254,8 @@ defmodule GameBoxWeb.ArenaLive do
     |> Enum.count()
   end
 
-  def can_start_game?(%{min_players: min_players, other_players: other_players}) do
-    Enum.count(other_players) + 1 >= min_players
+  def can_start_game?(%{constraints: %{min_players: min_players}, total_players: total_players}) do
+    total_players >= min_players
   end
 
   def can_start_game?(_), do: false
