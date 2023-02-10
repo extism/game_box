@@ -33,7 +33,7 @@ defmodule GameBox.Factory do
     %GameBox.Games.Game{
       title: sequence(:title, &"Game #{&1}"),
       description: "a very fun game to play!",
-      path: "uploaded_path/123",
+      path: "tictactoe.wasm",
       user: build(:user)
     }
   end

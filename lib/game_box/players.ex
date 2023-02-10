@@ -76,19 +76,34 @@ defmodule GameBox.Players do
     {:reply, online_players, players}
   end
 
-  def handle_call({:register_player, player_id, params}, _from, state) do
+  def handle_call(
+        {:register_player, player_id, %{arena_id: _arena_id, name: name} = params},
+        _from,
+        state
+      ) do
     player = Map.get(state, player_id, nil)
 
-    if player != nil do
-      {:reply, {:error, "Player name already taken"}, state}
-    else
-      case change_player(player || %{id: player_id, pids: []}, params) do
-        {:ok, player} ->
-          {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
+    cond do
+      name_already_taken?(state, name, player_id) ->
+        {:reply, {:error, "Player name already taken"}, state}
 
-        {:error, changeset} ->
-          {:reply, {:error, changeset}, state}
-      end
+      same_player?(player, player_id) ->
+        case change_player(player || %{id: player_id, name: name}, params) do
+          {:ok, player} ->
+            {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
+
+          {:error, changeset} ->
+            {:reply, {:error, changeset}, state}
+        end
+
+      true ->
+        case change_player(player || %{id: player_id, pids: []}, params) do
+          {:ok, player} ->
+            {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
+
+          {:error, changeset} ->
+            {:reply, {:error, changeset}, state}
+        end
     end
   end
 
@@ -145,6 +160,7 @@ defmodule GameBox.Players do
       {:noreply, players}
     else
       players = put_in(players, [player.id, :pids], List.delete(player.pids, pid))
+
       {:noreply, players, {:continue, :broadcast}}
     end
   end
@@ -219,5 +235,17 @@ defmodule GameBox.Players do
     |> Changeset.cast(params, @all)
     |> Changeset.validate_required(@required)
     |> Changeset.apply_action(:update)
+  end
+
+  defp name_already_taken?(state, name, player_id) do
+    state
+    |> Map.values()
+    |> Enum.find(&(&1.name == name && &1.id != player_id))
+  end
+
+  defp same_player?(nil, _), do: false
+
+  defp same_player?(player, player_id) do
+    player && player.id == player_id
   end
 end
