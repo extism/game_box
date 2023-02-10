@@ -59,9 +59,8 @@
   font-style: normal;
 }
 
-
 [type='text'] { 
-  color: #170124;
+  color: #fff;
 }
 
 /* LiveView specific classes for your customizations */
