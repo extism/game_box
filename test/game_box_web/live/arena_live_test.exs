@@ -5,7 +5,7 @@ defmodule GameBoxWeb.ArenaLiveTest do
   alias GameBox.Arena
   alias GameBox.Players
 
-  setup ctx do
+  setup do
     path = "tictactoe.wasm"
     disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
     dest = Path.join([disk_volume_path, Path.basename(path)])
@@ -15,41 +15,26 @@ defmodule GameBoxWeb.ArenaLiveTest do
     on_exit(fn ->
       File.rm_rf("test/uploads")
     end)
-
-    %{conn: conn} = ctx
-    game = insert(:game)
-
-    conn2 =
-      Phoenix.ConnTest.build_conn()
-      |> Phoenix.ConnTest.init_test_session(%{player_id: Ecto.UUID.generate()})
-
-    arena_id = "ABCD"
-    player_one_id = get_session(conn, :player_id)
-    player_two_id = get_session(conn2, :player_id)
-
-    Arena.start(arena_id)
-    Arena.set_host(arena_id, player_one_id)
-
-    :ok = Players.start(arena_id)
-
-    Players.update_player(arena_id, player_one_id, %{name: "Test 1"})
-    Players.update_player(arena_id, player_two_id, %{name: "Test 2"})
-
-    {:ok,
-     arena_id: arena_id,
-     conn: conn,
-     conn2: conn2,
-     game: game,
-     player_one_id: player_one_id,
-     player_two_id: player_two_id}
   end
 
   describe "arena" do
-    test "first person to join becomes arena host", %{
-      arena_id: arena_id,
-      conn: conn,
-      conn2: conn2
-    } do
+    test "host can start and select a game", %{conn: conn} do
+      conn2 =
+        Phoenix.ConnTest.build_conn()
+        |> Phoenix.ConnTest.init_test_session(%{player_id: Ecto.UUID.generate()})
+
+      arena_id = "ABCD"
+      player_one_id = get_session(conn, :player_id)
+      player_two_id = get_session(conn2, :player_id)
+
+      Arena.start(arena_id)
+      Arena.set_host(arena_id, player_one_id)
+
+      :ok = Players.start(arena_id)
+
+      Players.update_player(arena_id, player_one_id, %{name: "Test 1"})
+      Players.update_player(arena_id, player_two_id, %{name: "Test 2"})
+
       {:ok, _view1, html1} = live(conn, ~p"/arena/#{arena_id}")
       {:ok, _view2, html2} = live(conn2, ~p"/arena/#{arena_id}")
 
@@ -60,11 +45,26 @@ defmodule GameBoxWeb.ArenaLiveTest do
     end
 
     test "host can select a game", %{
-      arena_id: arena_id,
-      conn: conn,
-      conn2: conn2,
-      game: game
+      conn: conn
     } do
+      game = insert(:game)
+
+      conn2 =
+        Phoenix.ConnTest.build_conn()
+        |> Phoenix.ConnTest.init_test_session(%{player_id: Ecto.UUID.generate()})
+
+      arena_id = "AAAA"
+      player_one_id = get_session(conn, :player_id)
+      player_two_id = get_session(conn2, :player_id)
+
+      Arena.start(arena_id)
+      Arena.set_host(arena_id, player_one_id)
+
+      :ok = Players.start(arena_id)
+
+      Players.update_player(arena_id, player_one_id, %{name: "Test 1"})
+      Players.update_player(arena_id, player_two_id, %{name: "Test 2"})
+
       {:ok, view1, html1} = live(conn, ~p"/arena/#{arena_id}")
       {:ok, view2, html2} = live(conn2, ~p"/arena/#{arena_id}")
 
@@ -86,11 +86,26 @@ defmodule GameBoxWeb.ArenaLiveTest do
     end
 
     test "host can start game", %{
-      arena_id: arena_id,
-      conn: conn,
-      conn2: conn2,
-      game: game
+      conn: conn
     } do
+      game = insert(:game)
+
+      conn2 =
+        Phoenix.ConnTest.build_conn()
+        |> Phoenix.ConnTest.init_test_session(%{player_id: Ecto.UUID.generate()})
+
+      arena_id = "BBBB"
+      player_one_id = get_session(conn, :player_id)
+      player_two_id = get_session(conn2, :player_id)
+
+      Arena.start(arena_id)
+      Arena.set_host(arena_id, player_one_id)
+
+      :ok = Players.start(arena_id)
+
+      Players.update_player(arena_id, player_one_id, %{name: "Test 1"})
+      Players.update_player(arena_id, player_two_id, %{name: "Test 2"})
+
       {:ok, view1, html1} = live(conn, ~p"/arena/#{arena_id}")
       {:ok, _view2, _html2} = live(conn2, ~p"/arena/#{arena_id}")
 

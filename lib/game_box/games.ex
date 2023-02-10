@@ -45,7 +45,7 @@ defmodule GameBox.Games do
       %Game{} = game ->
         {:ok, game}
 
-      result ->
+      _result ->
         {:error, :not_found}
     end
   end
