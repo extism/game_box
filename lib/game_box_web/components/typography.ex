@@ -1,7 +1,7 @@
 defmodule GameBoxWeb.Typography do
   use Phoenix.Component
 
-  import GameBoxWeb.Helpers
+  import GameBoxWeb.ComponentHelpers
 
   @moduledoc """
   Everything related to text. Headings, paragraphs and links

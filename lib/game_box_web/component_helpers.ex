@@ -1,4 +1,4 @@
-defmodule GameBoxWeb.Helpers do
+defmodule GameBoxWeb.ComponentHelpers do
   @moduledoc """
   Module for constructing dynamic class names
   """
