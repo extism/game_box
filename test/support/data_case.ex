@@ -26,6 +26,7 @@ defmodule GameBox.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import GameBox.DataCase
+      import GameBox.Factory
     end
   end
 

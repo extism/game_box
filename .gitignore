@@ -35,3 +35,4 @@ npm-debug.log
 dev.secret.exs
 
 priv/static/uploads
+.DS_Store

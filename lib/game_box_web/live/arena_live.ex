@@ -58,7 +58,7 @@ defmodule GameBoxWeb.ArenaLive do
        |> assign_current_player()
        |> assign_other_players()}
     else
-      {:ok, push_navigate(socket, to: ~p"/")}
+      {:ok, push_navigate(socket, to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))}
     end
   end
 
