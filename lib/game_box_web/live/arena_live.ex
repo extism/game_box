@@ -13,7 +13,21 @@ defmodule GameBoxWeb.ArenaLive do
       Players.monitor(arena_id, player_id)
     end
 
-    is_host = Arena.get_host(arena_id) == player_id
+    game_id = Arena.get_game(arena_id)
+
+    socket =
+      if game_id do
+        constraints = Arena.get_constraints(arena_id, game_id)
+        {:ok, game} = Games.get_game(game_id)
+
+        socket
+        |> assign(:game_selected, game)
+        |> assign(:min_players, constraints[:min_players])
+      else
+        socket
+        |> assign(:game_selected, nil)
+        |> assign(:min_players, nil)
+      end
 
     if Players.exists?(arena_id) and Arena.exists?(arena_id) do
       {:ok,
@@ -22,10 +36,8 @@ defmodule GameBoxWeb.ArenaLive do
        |> assign(:games, Games.list_games())
        |> assign(:version, -1)
        |> assign(:player_id, player_id)
-       |> assign(:is_host, is_host)
-       |> assign(:game_selected, nil)
+       |> assign(:is_host, Arena.get_host(arena_id) == player_id)
        |> assign(:game_started, false)
-       |> assign(:min_players, nil)
        |> assign_current_player()
        |> assign_other_players()}
     else
@@ -43,7 +55,7 @@ defmodule GameBoxWeb.ArenaLive do
       <h1>Arena: <%= @arena.arena_id %></h1>
 
       <hr />
-      <h2><%= assigns[:current_player][:name] %></h2>
+      <h2><%= @current_player.name %></h2>
       <%= if @is_host && @game_selected do %>
         <%= if can_start_game?(assigns) do %>
           <button phx-click="start_game" phx-value-game_id={@game_selected.id}>Start Game</button>
@@ -67,7 +79,7 @@ defmodule GameBoxWeb.ArenaLive do
             <div>
               <p>
                 <strong>Player count: </strong>
-                <%= player_count(assigns[:arena][:arena_id]) %>-<%= assigns[:min_players] %>
+                <%= @total_players %>-<%= @min_players %>
               </p>
             </div>
             <p>Online Players</p>
@@ -217,19 +229,22 @@ defmodule GameBoxWeb.ArenaLive do
   defp assign_other_players(socket) do
     %{assigns: %{arena: %{arena_id: arena_id}, player_id: player_id}} = socket
 
+    players = Players.list_players(arena_id)
+
     other_players =
-      arena_id
-      |> Players.list_players()
+      players
       |> Map.delete(player_id)
       |> Map.values()
 
-    assign(socket, :other_players, other_players)
+    socket
+    |> assign(:other_players, other_players)
+    |> assign(:total_players, Enum.count(players))
   end
 
   defp player_count(arena_id) do
     arena_id
     |> Players.list_players()
-    |> Map.keys()
+    |> Map.values()
     |> Enum.count()
   end
 

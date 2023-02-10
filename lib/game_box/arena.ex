@@ -119,7 +119,8 @@ defmodule GameBox.Arena do
        arena_id: arena_id,
        ctx: Extism.Context.new(),
        plugin: nil,
-       host_id: nil
+       host_id: nil,
+       game_id: nil
      }}
   end
 
