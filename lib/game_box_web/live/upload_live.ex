@@ -17,7 +17,7 @@ defmodule GameBoxWeb.UploadLive do
     {:ok,
      socket
      |> assign_new(:title, fn -> "" end)
-     |> assign_new(:description, fn -> "" end)
+     |> assign(:description, "")
      |> assign(:uploaded_files, [])
      |> assign(:changeset, Game.changeset(%Game{}, %{}))
      |> assign(:user_id, user_id)
@@ -42,30 +42,24 @@ defmodule GameBoxWeb.UploadLive do
         phx-change="validate"
         phx-submit="upload_game"
       >
-        <.input
-          label="Title"
-          type="text"
-          id="title"
-          name="title"
-          class="w-full"
-          value={@title}
-          errors={[]}
-        />
+        <.input field={{f, :title}} value={@title} label="Title" name="title" id="title" errors={[]} />
 
         <.input
-          label="Description"
-          type="text"
-          id="description"
-          name="description"
-          class="w-full"
+          field={{f, :description}}
           value={@description}
+          label="Description"
+          name="description"
+          id="description"
           errors={[]}
         />
 
         <.live_file_input upload={@uploads.game} />
+
         <%= for err <- upload_errors(@uploads.game) do %>
           <p class="alert alert-danger"><%= error_to_string(err) %></p>
         <% end %>
+
+        <.button type="submit">Save</.button>
 
         <%= submit("Save") %>
       </.form>
