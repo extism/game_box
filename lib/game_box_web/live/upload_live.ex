@@ -32,29 +32,28 @@ defmodule GameBoxWeb.UploadLive do
   def render(assigns) do
     ~H"""
     <div class="container join-arena-form">
-      <h2>Upload a Game</h2>
-      <.form
+      <.h2>Upload a Game</.h2>
+      <.simple_form
         :let={f}
         id="upload-game-form"
         for={@changeset}
         phx-change="validate"
         phx-submit="upload_game"
       >
-        <label>
-          Title: <%= text_input(f, :title) %>
-        </label>
+        <.input field={{f, :title}} label="Title" />
 
-        <label>
-          Description: <%= text_input(f, :description) %>
-        </label>
+        <.input field={{f, :description}} label="Description" />
 
         <.live_file_input upload={@uploads.game} />
+
         <%= for err <- upload_errors(@uploads.game) do %>
           <p class="alert alert-danger"><%= error_to_string(err) %></p>
         <% end %>
 
-        <%= submit("Save") %>
-      </.form>
+        <:actions>
+          <.button type="submit" name="save">Save</.button>
+        </:actions>
+      </.simple_form>
 
       <ul>
         <li :for={game <- @games}>

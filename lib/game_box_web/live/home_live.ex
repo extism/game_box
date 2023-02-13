@@ -8,18 +8,33 @@ defmodule GameBoxWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <div>
-      <h2>Start or Join an Arena</h2>
-      <form id="join_arena" phx-submit="join_arena">
+      <.h2>Start or Join an Arena</.h2>
+      <form id="join_arena" phx-submit="join_arena" class="flex flex-col w-1/4">
         <div>
-          <label for="player_name">Name</label>
-          <input type="text" id="player_name" name="player_name" placeholder="Enter user name" />
+          <.input
+            label="Name"
+            type="text"
+            id="player_name"
+            name="player_name"
+            placeholder="Enter user name"
+            class="w-full"
+            value=""
+            errors={["required"]}
+          />
         </div>
         <div>
-          <label for="arena_id">Arena Code</label>
-          <input type="text" id="arena_id" name="arena_id" placeholder="4 character arena code" />
+          <.input
+            label="Arena Code"
+            type="text"
+            id="arena_id"
+            name="arena_id"
+            placeholder="4 character arena code"
+            class="w-full"
+            value=""
+            errors={["required"]}
+          />
         </div>
-
-        <button type="submit">Join Arena</button>
+        <.button color="primary" type="submit">Join arena</.button>
       </form>
     </div>
     """

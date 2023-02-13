@@ -2,6 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Font imports */ 
+@font-face {
+  font-family: 'dm_monoitalic';
+  src: url('/fonts/dmmono-italic-webfont.woff2') format('woff2'),
+       url('/fonts/dmmono-italic-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'dm_monolight_italic';
+  src: url('/fonts/dmmono-lightitalic-webfont.woff2') format('woff2'),
+       url('/fonts/dmmono-lightitalic-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'dm_monoregular';
+  src: url('/fonts/dmmono-regular-webfont.woff2') format('woff2'),
+       url('/fonts/dmmono-regular-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'dm_monomedium';
+  src: url('/fonts/dmmono-medium-webfont.woff2') format('woff2'),
+       url('/fonts/dmmono-medium-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'dm_monomedium_italic';
+  src: url('/fonts/dmmono-mediumitalic-webfont.woff2') format('woff2'),
+       url('/fonts/dmmono-mediumitalic-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'dm_monolight';
+  src: url('/fonts/dmmono-light-webfont.woff2') format('woff2'),
+       url('/fonts/dmmono-light-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'originalsregular';
+  src: url('/fonts/originals-webfont.woff2') format('woff2'),
+       url('/fonts/originals-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[type='text'] { 
+  color: #fff;
+}
+
 /* LiveView specific classes for your customizations */
 .phx-no-feedback.invalid-feedback,
 .phx-no-feedback .invalid-feedback {

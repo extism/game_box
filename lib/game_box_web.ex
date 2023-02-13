@@ -44,6 +44,7 @@ defmodule GameBoxWeb do
         only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
 
       # Include shared imports and aliases for views
+
       unquote(view_helpers())
     end
   end
@@ -52,6 +53,9 @@ defmodule GameBoxWeb do
     quote do
       use Phoenix.LiveView,
         layout: {GameBoxWeb.LayoutView, :live}
+
+      # Letimport GameBoxWeb.CoreComponents
+      import GameBoxWeb.Typography
 
       unquote(view_helpers())
     end
@@ -93,7 +97,14 @@ defmodule GameBoxWeb do
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+      import Phoenix.HTML
+      import Phoenix.HTML.Form, except: [label: 1]
+      import Phoenix.HTML.Link
+      import Phoenix.HTML.Tag, except: [attributes_escape: 1]
+      import Phoenix.HTML.Format
+
+      # Core UI components and translation
+      import GameBoxWeb.CoreComponents
 
       unquote(verified_routes())
 

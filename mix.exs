@@ -41,6 +41,7 @@ defmodule GameBox.MixProject do
       {:ex_machina, "~> 2.7.0", only: :test},
       {:floki, ">= 0.30.0", only: :test},
       {:gettext, "~> 0.18"},
+      {:heroicons, "~> 0.5.0"},
       {:horde, "~> 0.8.7"},
       {:jason, "~> 1.2"},
       {:libcluster, "~> 3.3"},

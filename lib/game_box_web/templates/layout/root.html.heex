@@ -11,13 +11,12 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"}/>
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}></script>
   </head>
-  <body>
-  <nav>
+  <body class="bg-dark text-white p-10">
+  <nav class="mb-10">
     <div>
       <a href="/">GameBox</a>
         <ul>
-
- <li>
+          <li>
             <.link
 
               href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}
