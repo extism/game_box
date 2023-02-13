@@ -17,7 +17,7 @@ defmodule GameBoxWeb.UploadLive do
     {:ok,
      socket
      |> assign_new(:title, fn -> "" end)
-     |> assign(:description, "")
+     |> assign_new(:description, fn -> "" end)
      |> assign(:uploaded_files, [])
      |> assign(:changeset, Game.changeset(%Game{}, %{}))
      |> assign(:user_id, user_id)
@@ -34,24 +34,17 @@ defmodule GameBoxWeb.UploadLive do
   def render(assigns) do
     ~H"""
     <div class="container join-arena-form">
-      <h2>Upload a Game</h2>
-      <.form
+      <.h2>Upload a Game</.h2>
+      <.simple_form
         :let={f}
         id="upload-game-form"
         for={@changeset}
         phx-change="validate"
         phx-submit="upload_game"
       >
-        <.input field={{f, :title}} value={@title} label="Title" name="title" id="title" errors={[]} />
+        <.input field={{f, :title}} label="Title" />
 
-        <.input
-          field={{f, :description}}
-          value={@description}
-          label="Description"
-          name="description"
-          id="description"
-          errors={[]}
-        />
+        <.input field={{f, :description}} label="Description" />
 
         <.live_file_input upload={@uploads.game} />
 
@@ -59,10 +52,10 @@ defmodule GameBoxWeb.UploadLive do
           <p class="alert alert-danger"><%= error_to_string(err) %></p>
         <% end %>
 
-        <.button type="submit">Save</.button>
-
-        <%= submit("Save") %>
-      </.form>
+        <:actions>
+          <.button type="submit" name="save">Save</.button>
+        </:actions>
+      </.simple_form>
 
       <ul>
         <li :for={game <- @games}>
