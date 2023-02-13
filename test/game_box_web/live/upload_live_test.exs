@@ -79,6 +79,16 @@ defmodule GameBoxWeb.UploadLiveTest do
           }
         ])
 
+      art_upload =
+        file_input(view, "#upload-game-form", :artwork, [
+          %{
+            last_modified: :os.system_time(:millisecond),
+            name: "test-image.jpg",
+            content: File.read!("test-image.jpg"),
+            type: "jpg"
+          }
+        ])
+
       html =
         view
         |> element("form")
@@ -93,6 +103,8 @@ defmodule GameBoxWeb.UploadLiveTest do
       # properly reset on the changeset in the validate handle_event
       assert html_after_upload =~ "Tic Tac Toe"
       assert html_after_upload =~ "a classic game of tic tac toe"
+
+      render_upload(art_upload, "test-image.jpg")
 
       assert render_submit(view, "upload_game", %{"game" => params}) =~
                "Game successfully uploaded!"

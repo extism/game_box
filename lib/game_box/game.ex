@@ -10,6 +10,7 @@ defmodule GameBox.Games.Game do
   schema "games" do
     field(:title, :string)
     field(:path, :string)
+    field(:artwork, :string)
     field(:description, :string)
     belongs_to(:user, User)
     timestamps()
@@ -17,7 +18,7 @@ defmodule GameBox.Games.Game do
 
   def changeset(game, attrs) do
     game
-    |> cast(attrs, [:title, :path, :user_id, :description])
-    |> validate_required([:title, :path, :user_id, :description])
+    |> cast(attrs, [:title, :path, :user_id, :description, :artwork])
+    |> validate_required([:title, :path, :user_id, :description, :artwork])
   end
 end

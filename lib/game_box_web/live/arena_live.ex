@@ -30,7 +30,6 @@ defmodule GameBoxWeb.ArenaLive do
         ready? ->
           socket
           |> assign(:game_selected, nil)
-          |> assign(:constraints, %{min_players: 1})
           |> set_defaults(arena_id, player_id)
 
         true ->
@@ -74,7 +73,7 @@ defmodule GameBoxWeb.ArenaLive do
             <div>
               <p>
                 <strong>Player count: </strong>
-                <%= @total_players %>-<%= @constraints.min_players %>
+                <%= @total_players %>-<%= get_in(assigns, [:constraints, :min_players]) %>
               </p>
             </div>
             <p>Online Players</p>
@@ -91,6 +90,7 @@ defmodule GameBoxWeb.ArenaLive do
               <%= @game_selected.title %>
             </p>
             <p><strong>How to play: </strong><%= @game_selected.description %></p>
+            <img src={Routes.static_path(GameBoxWeb.Endpoint, "/uploads/#{@game_selected.artwork}")} />
             <p><strong>Creator: </strong><%= @game_selected.user.gh_login %></p>
           </div>
         </div>
@@ -190,7 +190,7 @@ defmodule GameBoxWeb.ArenaLive do
     socket =
       socket
       |> assign(:game_selected, game)
-      |> assign(:min_players, constraints[:min_players])
+      |> assign(:constraints, constraints)
 
     {:noreply, socket}
   end
