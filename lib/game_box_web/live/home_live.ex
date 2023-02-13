@@ -42,11 +42,6 @@ defmodule GameBoxWeb.HomeLive do
 
   @impl true
   def mount(_params, session, socket) do
-    socket =
-      socket
-      |> assign_new(:player_name, fn -> "" end)
-      |> assign_new(:arena_id, fn -> "" end)
-
     if connected?(socket) do
       Phoenix.PubSub.subscribe(GameBox.PubSub, "games")
     end
