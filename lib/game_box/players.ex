@@ -76,19 +76,37 @@ defmodule GameBox.Players do
     {:reply, online_players, players}
   end
 
-  def handle_call({:register_player, player_id, params}, _from, state) do
+  def handle_call(
+        {:register_player, player_id, %{arena_id: _arena_id, name: name} = params},
+        _from,
+        state
+      ) do
     player = Map.get(state, player_id, nil)
 
-    if player != nil do
-      {:reply, {:error, "Player name already taken"}, state}
-    else
-      case change_player(player || %{id: player_id, pids: []}, params) do
+    name_taken =
+      state
+      |> Map.values()
+      |> Enum.any?(&(&1.name == name && &1.id != player_id))
+
+    update = fn player, params ->
+      case change_player(player, params) do
         {:ok, player} ->
-          {:reply, {:ok, player}, Map.put(state, player_id, player), {:continue, :broadcast}}
+          {:reply, {:ok, player}, Map.put(state, player.id, player), {:continue, :broadcast}}
 
         {:error, changeset} ->
           {:reply, {:error, changeset}, state}
       end
+    end
+
+    cond do
+      is_nil(player) and not name_taken ->
+        update.(%{id: player_id, pids: []}, params)
+
+      name_taken ->
+        {:reply, {:error, "Player name already taken"}, state}
+
+      true ->
+        update.(player, params)
     end
   end
 
@@ -145,6 +163,7 @@ defmodule GameBox.Players do
       {:noreply, players}
     else
       players = put_in(players, [player.id, :pids], List.delete(player.pids, pid))
+
       {:noreply, players, {:continue, :broadcast}}
     end
   end

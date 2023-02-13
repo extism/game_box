@@ -25,6 +25,22 @@ defmodule GameBox.Arena do
     GenServer.cast(via_tuple(arena_id), {:load_game, game_id})
   end
 
+  def get_host(arena_id) do
+    GenServer.call(via_tuple(arena_id), {:get_host, arena_id})
+  end
+
+  def set_host(arena_id, player_id) do
+    GenServer.call(via_tuple(arena_id), {:set_host, player_id})
+  end
+
+  def get_game(arena_id) do
+    GenServer.call(via_tuple(arena_id), {:get_game, arena_id})
+  end
+
+  def set_game(arena_id, game_id) do
+    GenServer.call(via_tuple(arena_id), {:set_game, game_id})
+  end
+
   def render_game(arena_id, assigns) do
     GenServer.call(via_tuple(arena_id), {:extism, "render", assigns})
   end
@@ -87,12 +103,12 @@ defmodule GameBox.Arena do
       {:ok, _pid} ->
         Logger.info("Started game server #{inspect(arena_id)}")
 
-        :ok
+        {:ok, :initiated}
 
       :ignore ->
         Logger.info("Game server #{inspect(arena_id)} already running. Joining")
 
-        :ok
+        {:ok, :joined}
     end
   end
 
@@ -102,7 +118,9 @@ defmodule GameBox.Arena do
      %{
        arena_id: arena_id,
        ctx: Extism.Context.new(),
-       plugin: nil
+       plugin: nil,
+       host_id: nil,
+       game_id: nil
      }}
   end
 
@@ -157,6 +175,30 @@ defmodule GameBox.Arena do
   #   PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", {:version, version})
   #   {:noreply, state}
   # end
+
+  @impl true
+  def handle_call({:get_host, _arena_id}, _from, state) do
+    {:reply, Map.fetch!(state, :host_id), state}
+  end
+
+  @impl true
+  def handle_call({:set_host, player_id}, _from, state) do
+    {:reply, {:ok, player_id}, Map.put(state, :host_id, player_id)}
+  end
+
+  @impl true
+  def handle_call({:get_game, _arena_id}, _from, state) do
+    {:reply, Map.fetch!(state, :game_id), state}
+  end
+
+  @impl true
+  def handle_call({:set_game, game_id}, _from, state) do
+    %{arena_id: arena_id} = state
+
+    PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_selected)
+
+    {:reply, {:ok, game_id}, Map.put(state, :game_id, game_id)}
+  end
 
   @impl true
   def handle_cast({:load_game, game_id}, state) do

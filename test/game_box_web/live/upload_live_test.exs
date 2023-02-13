@@ -38,8 +38,15 @@ defmodule GameBoxWeb.UploadLiveTest do
         |> assign(:current_user, user)
         |> put_session(:user_id, user.id)
 
-      # We need to create this directory because it is gitignored
-      File.mkdir_p("priv/static/uploads")
+      path = "tictactoe.wasm"
+      disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
+      dest = Path.join([disk_volume_path, Path.basename(path)])
+      File.mkdir_p(disk_volume_path)
+      File.cp!(path, dest)
+
+      on_exit(fn ->
+        File.rm_rf("test/uploads")
+      end)
 
       {:ok, conn: conn}
     end
