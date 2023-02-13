@@ -56,7 +56,6 @@ defmodule GameBoxWeb do
 
       # Letimport GameBoxWeb.CoreComponents
       import GameBoxWeb.Typography
-      import GameBoxWeb.Tabs
 
       unquote(view_helpers())
     end
