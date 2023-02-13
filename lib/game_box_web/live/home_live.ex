@@ -18,7 +18,7 @@ defmodule GameBoxWeb.HomeLive do
             name="player_name"
             placeholder="Enter user name"
             class="w-full"
-            value={@player_name}
+            value=""
             errors={["required"]}
           />
         </div>
