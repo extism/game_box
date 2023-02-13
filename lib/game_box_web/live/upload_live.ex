@@ -16,8 +16,6 @@ defmodule GameBoxWeb.UploadLive do
 
     {:ok,
      socket
-     |> assign_new(:title, fn -> "" end)
-     |> assign_new(:description, fn -> "" end)
      |> assign(:uploaded_files, [])
      |> assign(:changeset, Game.changeset(%Game{}, %{}))
      |> assign(:user_id, user_id)
