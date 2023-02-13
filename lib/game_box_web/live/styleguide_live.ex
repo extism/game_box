@@ -1,5 +1,4 @@
 defmodule GameBoxWeb.StyleguideLive do
-  import Phoenix.Component, only: [embed_templates: 1]
   use GameBoxWeb, :live_view
   # import Phoenix.Component, only: [embed_templates: 1]
   use GameBoxWeb, :component
@@ -10,7 +9,7 @@ defmodule GameBoxWeb.StyleguideLive do
 
   def render(assigns) do
     ~H"""
-    <.h1>Styleguide</.h1>
+    <.h2>Styleguide</.h2>
     <.tabs>
       <.tab patch={Routes.styleguide_path(@socket, :styleguide)} label="Styleguide Home" />
       <.tab patch={Routes.styleguide_path(@socket, :typography)} replace={true} label="Typography" />
@@ -26,12 +25,5 @@ defmodule GameBoxWeb.StyleguideLive do
       <% end %>
     </div>
     """
-  end
-
-  def handle_params(params, url, socket) do
-    IO.inspect(params, label: "HEY GIRL THESE ARE YOUR PARAMS")
-    IO.inspect(url, label: "HEY GIRL THIS IS YOUR URL")
-    IO.inspect(socket, label: "HEY GIRL THIS YOUR SOCKET")
-    {:noreply, socket}
   end
 end
