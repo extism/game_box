@@ -27,10 +27,10 @@ defmodule GameBoxWeb.StyleguideLive do
         is_active={is_active?(@live_action, :typography)}
       />
       <.tab
-        patch={Routes.styleguide_path(@socket, :buttons)}
+        patch={Routes.styleguide_path(@socket, :form_fields)}
         replace={true}
-        label="Buttons"
-        is_active={is_active?(@live_action, :buttons)}
+        label="Form"
+        is_active={is_active?(@live_action, :form_fields)}
       />
     </.tabs>
     <div class="mx-3">
@@ -41,6 +41,8 @@ defmodule GameBoxWeb.StyleguideLive do
           <.typography />
         <% :buttons -> %>
           <.buttons />
+        <% :form_fields -> %>
+          <.form_fields />
       <% end %>
     </div>
     """
