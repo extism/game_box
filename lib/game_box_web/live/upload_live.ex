@@ -4,8 +4,8 @@ defmodule GameBoxWeb.UploadLive do
   alias GameBox.Games
   alias GameBox.Games.Game
 
+  @disk_volume_path Application.compile_env(:game_box, :disk_volume_path)
   @max_file_size 100_000_000
-  @max_entries 1
 
   @impl true
   @spec mount(any, map, Phoenix.LiveView.Socket.t()) :: {:ok, Phoenix.LiveView.Socket.t()}
@@ -17,14 +17,12 @@ defmodule GameBoxWeb.UploadLive do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
+     |> assign(:artwork_files, [])
      |> assign(:changeset, Game.changeset(%Game{}, %{}))
      |> assign(:user_id, user_id)
      |> assign(:games, Games.list_games_for_user(user_id))
-     |> allow_upload(:game,
-       accept: ~w(.wasm),
-       max_entries: @max_entries,
-       max_file_size: @max_file_size
-     )}
+     |> allow_upload(:game, accept: ~w(.wasm), max_file_size: @max_file_size)
+     |> allow_upload(:artwork, accept: ~w(.jpg .jpeg .png))}
   end
 
   @impl true
@@ -50,16 +48,22 @@ defmodule GameBoxWeb.UploadLive do
           <p class="alert alert-danger"><%= error_to_string(err) %></p>
         <% end %>
 
+        <.live_file_input upload={@uploads.artwork} />
+        <%= for err <- upload_errors(@uploads.artwork) do %>
+          <p class="alert alert-danger"><%= error_to_string(err) %></p>
+        <% end %>
         <:actions>
           <.button type="submit" name="save">Save</.button>
         </:actions>
       </.simple_form>
-
-      <ul>
-        <li :for={game <- @games}>
-          <p><%= game.title %></p>
-        </li>
-      </ul>
+      <div class="mt-8">
+        <.h2>My Games</.h2>
+        <ul>
+          <li :for={game <- @games}>
+            <p><%= game.title %></p>
+          </li>
+        </ul>
+      </div>
     </div>
     """
   end
@@ -74,15 +78,11 @@ defmodule GameBoxWeb.UploadLive do
         %{"game" => game_params},
         %{assigns: %{user_id: user_id}} = socket
       ) do
-    path =
-      case get_game_upload_path(socket) do
-        {:ok, path} -> path
-        {:error, _} -> nil
-      end
+    %{artwork: artwork, game_path: game_path} = get_paths(socket)
 
     socket =
       game_params
-      |> Map.merge(%{"path" => path, "user_id" => user_id})
+      |> Map.merge(%{"path" => game_path, "user_id" => user_id, "artwork" => artwork})
       |> Games.create_game()
       |> case do
         {:ok, _game} ->
@@ -93,6 +93,7 @@ defmodule GameBoxWeb.UploadLive do
           |> assign(:changeset, Game.changeset(%Game{}, %{}))
           |> assign(:games, Games.list_games_for_user(user_id))
           |> assign(:uploaded_files, [])
+          |> assign(:artwork_files, [])
 
         {:error, %Ecto.Changeset{} = changeset} ->
           socket
@@ -103,20 +104,29 @@ defmodule GameBoxWeb.UploadLive do
     {:noreply, socket}
   end
 
-  defp get_game_upload_path(socket) do
-    disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
-
-    result =
-      consume_uploaded_entries(socket, :game, fn %{path: path}, _entry ->
-        dest = Path.join([disk_volume_path, Path.basename(path)])
-        File.cp!(path, dest)
-        {:ok, Path.basename(path)}
-      end)
-
-    case result do
-      [path] -> {:ok, path}
-      [] -> {:error, :no_files}
+  defp get_paths(socket) do
+    get_path = fn result ->
+      case result do
+        [path] -> path
+        _ -> {:error, :no_files}
+      end
     end
+
+    art_result = handle_consume(socket, :artwork)
+    game_result = handle_consume(socket, :game)
+
+    %{artwork: get_path.(art_result), game_path: get_path.(game_result)}
+  end
+
+  defp handle_consume(socket, atom) do
+    consume_uploaded_entries(socket, atom, fn %{path: path}, _entry ->
+      dest = Path.join([@disk_volume_path, Path.basename(path)])
+
+      case File.cp(path, dest) do
+        :ok -> {:ok, Path.basename(path)}
+        {:error, _} -> {:error, nil}
+      end
+    end)
   end
 
   def error_to_string(:too_large), do: "Too large"
