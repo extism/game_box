@@ -43,6 +43,7 @@ defmodule GameBox.MixProject do
       {:gettext, "~> 0.18"},
       {:heroicons, "~> 0.5.0"},
       {:horde, "~> 0.8.7"},
+      {:html_entities, "~> 0.5"},
       {:jason, "~> 1.2"},
       {:libcluster, "~> 3.3"},
       {:phoenix_ecto, "~> 4.4"},
