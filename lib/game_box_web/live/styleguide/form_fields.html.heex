@@ -1,1 +1,48 @@
 <.h2>Forms + Form Fields</.h2> 
+
+<.h2>Form</.h2> 
+<.p>To create a working form, you must wrap the input fields below in a &lt;.simple_form> tag. You must also include the submit button within an &lt;:actions> named slot. A complete form might look like the following:</.p>
+<%
+code = 
+"""
+<.simple_form :let={f} for={:user} phx-change="validate" phx-submit="save">
+    <.input field={{f, :email}} label="Email"/>
+    <.input field={{f, :username}} label="Username" />
+    <:actions>
+      <.button>Save</.button>
+    </:actions>
+  </.simple_form>
+"""
+%> 
+
+<.h5 label="Code Example:" />
+<.code content={code} />
+
+<% 
+ attr = """
+ attr :for, :any, default: nil, doc: "the datastructure for the form"
+ attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
+
+ attr :rest, :global,
+   include: ~w(autocomplete name rel action enctype method novalidate target),
+   doc: "the arbitrary HTML attributes to apply to the form tag"
+
+ slot :inner_block, required: true
+ slot :actions, doc: "the slot for form actions, such as a submit button"
+ """
+%> 
+
+<.h5 label="Attributes/Slots:" />
+<.code content={attr} />
+
+
+
+
+<div class="max-w-2xl">
+    <.simple_form :let={f} for={:fakeform}>
+        <.input field={{f, :text_input}} label="Text Input"/>
+    
+    </.simple_form> 
+    </div>
+
+
