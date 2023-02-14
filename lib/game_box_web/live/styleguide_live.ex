@@ -1,7 +1,7 @@
 defmodule GameBoxWeb.StyleguideLive do
   use GameBoxWeb, :live_view
   # import Phoenix.Component, only: [embed_templates: 1]
-  use GameBoxWeb, :component
+  import GameBoxWeb.ColorSwatch
 
   embed_templates "styleguide/*"
 
@@ -46,7 +46,7 @@ defmodule GameBoxWeb.StyleguideLive do
     """
   end
 
-  def handle_params(params, _url, socket) do
+  def handle_params(_params, _url, socket) do
     {:noreply, socket}
   end
 
