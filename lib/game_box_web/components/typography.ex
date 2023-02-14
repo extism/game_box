@@ -24,7 +24,7 @@ defmodule GameBoxWeb.Typography do
     <h1
       class={
         get_heading_classes(
-          "text-4xl leading-10 sm:text-5xl sm:tracking-tight lg:text-6xl text-white",
+          "text-6xl font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-br from-white to-primary-light",
           assigns
         )
       }
@@ -45,7 +45,7 @@ defmodule GameBoxWeb.Typography do
 
   def h2(assigns) do
     ~H"""
-    <h2 class={get_heading_classes("text-2xl sm:text-3xl leading-10  text-white", assigns)} {@rest}>
+    <h2 class={get_heading_classes("text-2xl font-display tracking-wider", assigns)} {@rest}>
       <%= render_slot(@inner_block) || @label %>
     </h2>
     """
@@ -61,7 +61,7 @@ defmodule GameBoxWeb.Typography do
 
   def h3(assigns) do
     ~H"""
-    <h3 class={get_heading_classes("text-xl sm:text-2xl leading-7  text-white", assigns)} {@rest}>
+    <h3 class={get_heading_classes("text-xl font-display tracking-wider", assigns)} {@rest}>
       <%= render_slot(@inner_block) || @label %>
     </h3>
     """
@@ -77,7 +77,7 @@ defmodule GameBoxWeb.Typography do
 
   def h4(assigns) do
     ~H"""
-    <h4 class={get_heading_classes("text-lg leading-6", assigns)} {@rest}>
+    <h4 class={get_heading_classes("text-lg font-display tracking-wider", assigns)} {@rest}>
       <%= render_slot(@inner_block) || @label %>
     </h4>
     """
@@ -93,7 +93,7 @@ defmodule GameBoxWeb.Typography do
 
   def h5(assigns) do
     ~H"""
-    <h5 class={get_heading_classes("text-lg font-medium leading-6", assigns)} {@rest}>
+    <h5 class={get_heading_classes("font-display tracking-wider uppercase", assigns)} {@rest}>
       <%= render_slot(@inner_block) || @label %>
     </h5>
     """
@@ -120,19 +120,7 @@ defmodule GameBoxWeb.Typography do
     """
   end
 
-  defp text_base_class, do: "leading-5 text-gray-400"
-
-  attr(:class, :string, default: "", doc: "CSS class")
-  attr(:rest, :global)
-  slot(:inner_block, required: false)
-
-  def prose(assigns) do
-    ~H"""
-    <div class={build_class(["prose-invert", @class])} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </div>
-    """
-  end
+  defp text_base_class, do: "leading-5"
 
   @doc """
   Usage:
