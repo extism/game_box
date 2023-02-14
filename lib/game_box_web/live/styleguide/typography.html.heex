@@ -11,7 +11,7 @@
     <.h5 label="H5 Heading" />
   </div>
   <div>
-    <% heading_attributes = """
+    <% attributes = """
     attr(:class, :string, default: "", doc: "CSS class")
     attr(:label, :string, default: nil, doc: "label your heading")
     attr(:no_margin, :boolean, default: nil, doc: "removes margin from headings")
@@ -22,23 +22,23 @@
     """ %>
 
     <.h5 label="Attributes/Slots:" />
-    <.code content={heading_attributes} />
+    <.code content={attributes} />
   </div>
   <div>
-    <% heading_content = """
+    <% code = """
     <.h1 label="Heading 1" />
     <.h1 no_margin underline color_class="text-primary" class="other_classes" anything_else="gets passed along">Heading 1</.h1>
     """ %>
 
     <.h5 label="Code Example" />
-    <.code content={heading_content} />
+    <.code content={code} />
   </div>
 
   <div class="border-b border-1 border-zinc-600 mb-5"></div>
   <div>
     <.h2>Paragraphs</.h2>
     <.p>The quick brown fox jumps over the lazy dog.</.p>
-    <% p_attr = """
+    <% attributes = """
     attr(:class, :string, default: "", doc: "CSS class")
     attr(:rest, :global)
     slot(:inner_block, required: false)
@@ -46,15 +46,15 @@
   </div>
   <div>
     <.h5 label="Attributes/Slots" />
-    <.code content={p_attr} />
+    <.code content={attributes} />
   </div>
   <div>
-    <% p_content = """
+    <% code = """
     <.p>Text here</.p>
     <.p class="your_class">Text here</.p>
     """ %>
     <.h5 label="Code Example" />
-    <.code content={p_content} />
+    <.code content={code} />
   </div>
   <div class="border-b border-1 border-zinc-600 mb-5"></div>
   <div>
@@ -66,16 +66,16 @@
     </.ol>
   </div>
   <div>
-    <% ol_attr = """
+    <% attributes = """
     attr(:class, :string, default: "", doc: "CSS class")
     attr(:rest, :global)
     slot(:inner_block, required: false)
     """ %>
     <.h5 label="Attributes/Slots" />
-    <.code content={ol_attr} />
+    <.code content={attributes} />
   </div>
   <div>
-    <% ol_content = """
+    <% code = """
     <.ol>
         <li>List Element</li>
         <li>List Element</li>
@@ -83,7 +83,7 @@
     </.ol>
     """ %>
     <.h5 label="Code Example" />
-    <.code content={ol_content} />
+    <.code content={code} />
   </div>
   <div class="border-b border-1 border-zinc-600 mb-5"></div>
   <div>
@@ -95,16 +95,16 @@
     </.ul>
   </div>
   <div>
-    <% ul_attr = """
+    <% attributes = """
     attr(:class, :string, default: "", doc: "CSS class")
     attr(:rest, :global)
     slot(:inner_block, required: false)
     """ %>
     <.h5 label="Attributes/Slots" />
-    <.code content={ul_attr} />
+    <.code content={attributes} />
   </div>
   <div>
-    <% ul_content = """
+    <% code = """
     <.ul>
         <li>List Element</li>
         <li>List Element</li>
@@ -112,6 +112,6 @@
     </ul>
     """ %>
     <.h5 label="Code Example" />
-    <.code content={ul_content} />
+    <.code content={code} />
   </div>
 </div>

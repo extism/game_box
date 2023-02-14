@@ -4,22 +4,22 @@
     <.p>
       Custom colors can be used in conjunction with any other TailwindCSS prefix that utilizes color.
     </.p>
-    <% content = """
+    <% code = """
     <div class="bg-primary"></div> 
     <span class="text-primary"></span>
     <div class="border border-primary"></div> 
     """ %>
-    <.code content={content} />
+    <.code content={code} />
 
     <.p class="mt-10">
       The nested keys can be combined with the parent key to form class names like bg-primary-dark.
     </.p>
-    <% content = """
+    <% code = """
     <div class="bg-primary-light"></div> 
     <span class="text-primary-dark"></span>
     <div class="border border-secondary-light"></div> 
     """ %>
-    <.code content={content} />
+    <.code content={code} />
   </div>
   <div class="flex">
     <.color_swatch color_class="bg-primary" label="primary" />
