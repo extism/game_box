@@ -75,9 +75,8 @@ defmodule GameBoxWeb.Tabs do
 
     active_classes =
       if is_active,
-        do: "bg-primary-100 dark:bg-gray-800 text-primary-600 dark:text-primary-500",
-        else:
-          "text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 dark:text-gray-400 dark:hover:bg-gray-800 hover:bg-gray-100"
+        do: "bg-primary-light text-dark",
+        else: "text-gray-500 hover:text-dark hover:bg-secondary-light"
 
     build_class([base_classes, active_classes])
   end
