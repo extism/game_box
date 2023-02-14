@@ -71,7 +71,7 @@ defmodule GameBoxWeb.Tabs do
 
   # Pill CSS
   defp get_tab_class(is_active, false) do
-    base_classes = "whitespace-nowrap px-3 py-2 flex font-medium items-center text-sm rounded-md"
+    base_classes = "whitespace-nowrap px-3 py-2 flex font-medium items-center text-xl rounded-md"
 
     active_classes =
       if is_active,
@@ -84,7 +84,7 @@ defmodule GameBoxWeb.Tabs do
 
   # Underline CSS
   defp get_tab_class(is_active, underline) do
-    base_classes = "whitespace-nowrap flex items-center py-3 px-3 border-b-2 font-medium text-sm"
+    base_classes = "whitespace-nowrap flex items-center py-3 px-3 border-b-2 font-medium text-xl"
 
     active_classes =
       if is_active,

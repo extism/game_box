@@ -7,12 +7,33 @@ defmodule GameBoxWeb.StyleguideLive do
 
   embed_templates "styleguide/*"
 
+  # def mount(_params, _session, socket) do
+  #   socket = assign(socket, is_active: false)
+  #   {:ok, socket}
+  # end
+
   def render(assigns) do
     ~H"""
     <.h2>Styleguide</.h2>
-    <.tabs>
-      <.tab patch={Routes.styleguide_path(@socket, :styleguide)} label="Styleguide Home" />
-      <.tab patch={Routes.styleguide_path(@socket, :typography)} replace={true} label="Typography" />
+    <.tabs :let={is_active} class="my-10">
+      <.tab
+        patch={Routes.styleguide_path(@socket, :styleguide)}
+        replace={true}
+        label="Styleguide Home"
+        is_active={is_active?(@live_action, :styleguide)}
+      />
+      <.tab
+        patch={Routes.styleguide_path(@socket, :colors)}
+        replace={true}
+        label="Colors"
+        is_active={is_active?(@live_action, :colors)}
+      />
+      <.tab
+        patch={Routes.styleguide_path(@socket, :typography)}
+        replace={true}
+        label="Typography"
+        is_active={is_active?(@live_action, :typography)}
+      />
     </.tabs>
     <div class="mx-3">
       <%= case @live_action do %>
@@ -22,8 +43,20 @@ defmodule GameBoxWeb.StyleguideLive do
           </.p>
         <% :typography -> %>
           <.typography />
+        <% :colors -> %>
+          <.colors />
       <% end %>
     </div>
     """
+  end
+
+  def handle_params(params, _url, socket) do
+    {:noreply, socket}
+  end
+
+  defp is_active?(live_action, current) do
+    if live_action == current do
+      true
+    end
   end
 end
