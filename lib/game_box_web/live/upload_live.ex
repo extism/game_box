@@ -4,7 +4,6 @@ defmodule GameBoxWeb.UploadLive do
   alias GameBox.Games
   alias GameBox.Games.Game
 
-  @disk_volume_path Application.compile_env(:game_box, :disk_volume_path)
   @max_file_size 100_000_000
 
   @impl true
@@ -119,8 +118,10 @@ defmodule GameBoxWeb.UploadLive do
   end
 
   defp handle_consume(socket, atom) do
+    disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
+
     consume_uploaded_entries(socket, atom, fn %{path: path}, _entry ->
-      dest = Path.join([@disk_volume_path, Path.basename(path)])
+      dest = Path.join([disk_volume_path, Path.basename(path)])
 
       case File.cp(path, dest) do
         :ok -> {:ok, Path.basename(path)}
