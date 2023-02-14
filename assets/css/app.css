@@ -59,6 +59,10 @@
   font-style: normal;
 }
 
+html { 
+  font-family: "dm_monomedium", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 [type='text'] { 
   color: #fff;
 }
