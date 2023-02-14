@@ -44,7 +44,7 @@ defmodule GameBoxWeb.ArenaLiveTest do
       assert html2 =~ "Test 2"
     end
 
-    test "host can select a game", %{
+    test "host can select and unselect a game", %{
       conn: conn
     } do
       game = insert(:game)
@@ -82,7 +82,19 @@ defmodule GameBoxWeb.ArenaLiveTest do
       assert html2 =~ game.description
 
       assert html1 =~ "Start Game"
+      assert html1 =~ "Unselect Game"
       refute html2 =~ "Start Game"
+      refute html2 =~ "Unselect Game"
+
+      render_click(view1, :unselect_game, %{"game_id" => game.id})
+
+      html1 = render(view1)
+      html2 = render(view2)
+
+      assert html1 =~ game.title
+      assert html1 =~ "Choose a game to start playing"
+      refute html2 =~ game.title
+      refute html2 =~ "Choose a game to start playing"
     end
 
     test "host can start game", %{

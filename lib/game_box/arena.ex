@@ -41,6 +41,10 @@ defmodule GameBox.Arena do
     GenServer.call(via_tuple(arena_id), {:set_game, game_id})
   end
 
+  def unset_game(arena_id, game_id) do
+    GenServer.call(via_tuple(arena_id), {:unset_game, game_id})
+  end
+
   def render_game(arena_id, assigns) do
     GenServer.call(via_tuple(arena_id), {:extism, "render", assigns})
   end
@@ -198,6 +202,20 @@ defmodule GameBox.Arena do
     PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_selected)
 
     {:reply, {:ok, game_id}, Map.put(state, :game_id, game_id)}
+  end
+
+  @impl true
+  def handle_call({:unset_game, _game_id}, _from, state) do
+    %{arena_id: arena_id} = state
+
+    state =
+      state
+      |> Map.put(:plugin, nil)
+      |> Map.put(:game_id, nil)
+
+    PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_unselected)
+
+    {:reply, {:ok, arena_id}, state}
   end
 
   @impl true

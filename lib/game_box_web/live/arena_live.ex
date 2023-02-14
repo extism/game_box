@@ -51,6 +51,7 @@ defmodule GameBoxWeb.ArenaLive do
       <hr />
       <h2><%= @current_player.name %></h2>
       <%= if @is_host && @game_selected do %>
+        <button phx-click="unselect_game" phx-value-game_id={@game_selected.id}>Unselect Game</button>
         <%= if can_start_game?(assigns) do %>
           <button phx-click="start_game" phx-value-game_id={@game_selected.id}>Start Game</button>
         <% end %>
@@ -96,6 +97,9 @@ defmodule GameBoxWeb.ArenaLive do
         </div>
       <% end %>
     <% else %>
+      <%= if @is_host && @game_selected do %>
+        <button phx-click="unselect_game" phx-value-game_id={@game_selected.id}>Unselect Game</button>
+      <% end %>
       <div id="board">
         <%= Phoenix.HTML.raw(board) %>
       </div>
@@ -114,6 +118,20 @@ defmodule GameBoxWeb.ArenaLive do
 
       _result ->
         {:noreply, put_flash(socket, :error, "could not select game")}
+    end
+  end
+
+  def handle_event(
+        "unselect_game",
+        %{"game_id" => game_id},
+        %{assigns: %{arena: %{arena_id: arena_id}}} = socket
+      ) do
+    case Arena.unset_game(arena_id, game_id) do
+      {:ok, _arena_id} ->
+        {:noreply, put_flash(socket, :info, "Game unset")}
+
+      _ ->
+        {:noreply, put_flash(socket, :error, "Game not unset")}
     end
   end
 
@@ -195,6 +213,16 @@ defmodule GameBoxWeb.ArenaLive do
     {:noreply, socket}
   end
 
+  def handle_info(:game_unselected, socket) do
+    socket =
+      socket
+      |> assign(:game_selected, nil)
+      |> assign(:constraints, nil)
+      |> assign(:version, -1)
+
+    {:noreply, socket}
+  end
+
   def handle_info(:load_game_state, %{assigns: %{server_found?: false}} = socket) do
     {:noreply, push_navigate(socket, to: ~p"/")}
   end
@@ -222,7 +250,8 @@ defmodule GameBoxWeb.ArenaLive do
     |> assign(:version, -1)
     |> assign(:player_id, player_id)
     |> assign(:is_host, Arena.get_host(arena_id) == player_id)
-    |> assign(:game_started, false)
+    |> assign_new(:game_started, fn -> false end)
+    |> assign_new(:game_selected, fn -> nil end)
     |> assign_current_player()
     |> assign_other_players()
   end
