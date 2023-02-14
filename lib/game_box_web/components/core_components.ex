@@ -223,13 +223,13 @@ defmodule GameBoxWeb.CoreComponents do
   """
   attr :type, :string, default: nil
   attr :color, :string, default: "primary"
-  attr :variant, :string, default: ""
+  attr :variant, :string, default: "standard"
   attr :class, :string, default: nil
   attr :label, :string, default: ""
   attr :rest, :global, include: ~w(disabled form name value)
   slot :inner_block
 
-  def button(%{color: "primary"} = assigns) do
+  def button(%{color: "primary", variant: "standard"} = assigns) do
     ~H"""
     <button
       type={@type}
@@ -250,29 +250,13 @@ defmodule GameBoxWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 block rounded-lg bg-dark hover:bg-primary-dark py-4 px-4 mt-3",
-        "font-display tracking-wider text-xs text-dark hover:text-white ",
+        "phx-submit-loading:opacity-75 block rounded-lg bg-dark border border-primary hover:bg-primary py-4 px-4 mt-3",
+        "font-display tracking-wider text-xs text-primary hover:text-white ",
         @class
       ]}
       {@rest}
     >
       <%= render_slot(@inner_block) || @label %>
-    </button>
-    """
-  end
-
-  def button(%{color: "secondary"} = assigns) do
-    ~H"""
-    <button
-      type={@type}
-      class={[
-        "phx-submit-loading:opacity-75 block rounded-lg bg-secondary hover:bg-secondary-dark py-4 px-4 mt-3",
-        "font-display tracking-wider text-xs text-dark hover:text-white ",
-        @class
-      ]}
-      {@rest}
-    >
-      <%= render_slot(@inner_block) %>
     </button>
     """
   end
