@@ -124,7 +124,7 @@ defmodule GameBoxWeb.ArenaLive do
   def handle_event(
         "unselect_game",
         %{"game_id" => game_id},
-        %{assigns: %{arena: %{arena_id: arena_id}}} = socket
+        %{assigns: %{arena: %{arena_id: arena_id}, is_host: true}} = socket
       ) do
     case Arena.unset_game(arena_id, game_id) do
       {:ok, _arena_id} ->
@@ -133,6 +133,14 @@ defmodule GameBoxWeb.ArenaLive do
       _ ->
         {:noreply, put_flash(socket, :error, "Game not unset")}
     end
+  end
+
+  def handle_event(
+        "unselect_game",
+        _params,
+        socket
+      ) do
+    {:noreply, put_flash(socket, :error, "Only host can unset game")}
   end
 
   def handle_event("start_game", %{"game_id" => game_id}, socket) do
