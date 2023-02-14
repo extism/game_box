@@ -1,0 +1,46 @@
+<div class="flex flex-col gap-y-12">
+  <div>
+    <.h2>Colors</.h2>
+    <.p>
+      Custom colors can be used in conjunction with any other TailwindCSS prefix that utilizes color.
+    </.p>
+    <% code = """
+    <div class="bg-primary"></div> 
+    <span class="text-primary"></span>
+    <div class="border border-primary"></div> 
+    """ %>
+    <.code content={code} />
+
+    <.p class="mt-10">
+      The nested keys can be combined with the parent key to form class names like bg-primary-dark.
+    </.p>
+    <% code = """
+    <div class="bg-primary-light"></div> 
+    <span class="text-primary-dark"></span>
+    <div class="border border-secondary-light"></div> 
+    """ %>
+    <.code content={code} />
+  </div>
+  <div class="flex">
+    <.color_swatch color_class="bg-primary" label="primary" />
+    <.color_swatch color_class="bg-primary-light" label="primary-light" />
+    <.color_swatch color_class="bg-primary-dark" label="primary-dark" />
+  </div>
+
+  <div class="flex">
+    <.color_swatch color_class="bg-secondary" label="secondary" />
+    <.color_swatch color_class="bg-secondary-light" label="secondary-light" />
+    <.color_swatch color_class="bg-secondary-dark" label="secondary-dark" />
+  </div>
+
+  <div class="flex">
+    <.color_swatch color_class="bg-dark border border-zinc-300" label="dark" />
+  </div>
+
+  <div class="flex">
+    <.color_swatch color_class="bg-success" label="success" />
+    <.color_swatch color_class="bg-info" label="info" />
+    <.color_swatch color_class="bg-warning" label="warning" />
+    <.color_swatch color_class="bg-error" label="error" />
+  </div>
+</div>

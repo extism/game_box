@@ -44,7 +44,6 @@ defmodule GameBoxWeb do
         only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
 
       # Include shared imports and aliases for views
-
       unquote(view_helpers())
     end
   end
@@ -56,6 +55,8 @@ defmodule GameBoxWeb do
 
       # Letimport GameBoxWeb.CoreComponents
       import GameBoxWeb.Typography
+      import GameBoxWeb.Tabs
+      import GameBoxWeb.Code
 
       unquote(view_helpers())
     end
