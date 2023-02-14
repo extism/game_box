@@ -5,8 +5,6 @@ defmodule GameBoxWeb.StyleguideLive do
 
   embed_templates "styleguide/*"
 
-  embed_templates "styleguide/*"
-
   # def mount(_params, _session, socket) do
   #   socket = assign(socket, is_active: false)
   #   {:ok, socket}
@@ -19,14 +17,8 @@ defmodule GameBoxWeb.StyleguideLive do
       <.tab
         patch={Routes.styleguide_path(@socket, :styleguide)}
         replace={true}
-        label="Styleguide Home"
-        is_active={is_active?(@live_action, :styleguide)}
-      />
-      <.tab
-        patch={Routes.styleguide_path(@socket, :colors)}
-        replace={true}
         label="Colors"
-        is_active={is_active?(@live_action, :colors)}
+        is_active={is_active?(@live_action, :styleguide)}
       />
       <.tab
         patch={Routes.styleguide_path(@socket, :typography)}
@@ -34,17 +26,21 @@ defmodule GameBoxWeb.StyleguideLive do
         label="Typography"
         is_active={is_active?(@live_action, :typography)}
       />
+      <.tab
+        patch={Routes.styleguide_path(@socket, :buttons)}
+        replace={true}
+        label="Buttons"
+        is_active={is_active?(@live_action, :buttons)}
+      />
     </.tabs>
     <div class="mx-3">
       <%= case @live_action do %>
         <% :styleguide -> %>
-          <.p>
-            This styleguide should be referenced as the single source of truth for implementation of all elements and components. As such, this styleguide should be updated as the design system evolves. Whenever new components are created, they should also be added here.
-          </.p>
+          <.colors />
         <% :typography -> %>
           <.typography />
-        <% :colors -> %>
-          <.colors />
+        <% :buttons -> %>
+          <.buttons />
       <% end %>
     </div>
     """
