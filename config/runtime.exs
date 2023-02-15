@@ -36,6 +36,12 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
 
+  config :game_box,
+    access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+    secret_acess_key: System.get_env("AWS_SECRET_ACCESS_KEY_ID"),
+    region: System.get_env("AWS_REGION"),
+    s3_bucket: System.get_env("AWS_S3_BUCKET")
+
   config :game_box, disk_volume_path: "/data"
 
   # The secret key base is used to sign/encrypt cookies and other secrets.

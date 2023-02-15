@@ -62,7 +62,12 @@ defmodule GameBoxWeb.ArenaLive do
           <ul>
             <div class="grid grid-cols-4 gap-4">
               <%= for game <- @games do %>
-                <button phx-click="select_game" phx-value-game_id={game.id}><%= game.title %></button>
+                <div class="mb-4">
+                  <button phx-click="select_game" phx-value-game_id={game.id}>
+                    <%= game.title %>
+                  </button>
+                  <img class="max-w-full h-auto rounded-lg" src={game.artwork} />
+                </div>
               <% end %>
             </div>
           </ul>
@@ -91,7 +96,7 @@ defmodule GameBoxWeb.ArenaLive do
               <%= @game_selected.title %>
             </p>
             <p><strong>How to play: </strong><%= @game_selected.description %></p>
-            <img src={Routes.static_path(GameBoxWeb.Endpoint, "/uploads/#{@game_selected.artwork}")} />
+            <img class="max-w-full h-auto" src={@game_selected.artwork} />
             <p><strong>Creator: </strong><%= @game_selected.user.gh_login %></p>
           </div>
         </div>
