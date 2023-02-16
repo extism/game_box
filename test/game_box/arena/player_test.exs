@@ -21,7 +21,11 @@ defmodule GameBox.Arena.PlayerTest do
               %{
                 id: ^player_id,
                 name: "Test"
-              }} = Players.update_player(arena_id, player_id, %{name: "Test"})
+              }} =
+               Players.update_player(arena_id, player_id, %{
+                 name: "Test",
+                 joined_at: DateTime.utc_now() |> DateTime.to_unix()
+               })
 
       Players.monitor(arena_id, player_id)
       pid = self()

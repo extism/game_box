@@ -14,18 +14,16 @@ defmodule GameBoxWeb.ArenaLive do
     end
 
     arena = Arena.exists?(arena_id)
+    arena_state = Arena.state(arena_id)
     ready? = arena and Players.exists?(arena_id)
     game_id = arena && Arena.get_game(arena_id)
 
     socket =
       cond do
         ready? and game_id ->
-          constraints = Arena.get_constraints(arena_id, game_id)
-          {:ok, game} = Games.get_game(game_id)
-
           socket
-          |> assign(:constraints, constraints)
-          |> assign(:game_selected, game)
+          |> assign(:constraints, arena_state.constraints)
+          |> assign(:game_selected, arena_state.game)
           |> set_defaults(arena_id, player_id)
 
         ready? ->
@@ -103,15 +101,14 @@ defmodule GameBoxWeb.ArenaLive do
               </div>
               <div>
                 <.p class="font-bold">Online Players</.p>
-                <.ul>
-                  <li><%= @current_player.name %></li>
-                  <li :for={player <- @other_players}>
+                <.ol>
+                  <li :for={player <- @all_players}>
                     <%= player.name %>
                   </li>
-                </.ul>
+                </.ol>
               </div>
               <%= unless can_start_game?(assigns) do %>
-                <.button variant="outline" disabled>Waiting on more players...</.button>
+                <.p>Waiting on more players...</.p>
               <% end %>
             </div>
           </div>
@@ -155,6 +152,8 @@ defmodule GameBoxWeb.ArenaLive do
       ) do
     case Arena.set_game(arena_id, game_id) do
       {:ok, _game_id} ->
+        PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_selected)
+
         {:noreply, socket}
 
       _result ->
@@ -185,32 +184,26 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def handle_event("start_game", %{"game-id" => game_id}, socket) do
-    %{assigns: %{arena: %{arena_id: arena_id}}} = socket
-    num_players = player_count(arena_id)
-    constraints = Arena.get_constraints(arena_id, game_id)
+    %{
+      assigns: %{
+        arena: %{arena_id: arena_id},
+        total_players: num_players,
+        constraints: %{min_players: min_players}
+      }
+    } = socket
 
-    cond do
-      num_players < constraints[:min_players] ->
-        {:noreply,
-         put_flash(
-           socket,
-           :error,
-           "Not enough players to start game. Need at least " <>
-             to_string(constraints[:min_players])
-         )}
-
-      num_players > constraints[:max_players] ->
-        {:noreply,
-         put_flash(
-           socket,
-           :error,
-           "Too many players. Can have no more than " <> to_string(constraints[:max_players])
-         )}
-
-      true ->
-        :ok = Arena.load_game(arena_id, game_id)
-        Arena.broadcast_game_state(%{arena_id: arena_id, version: 0})
-        {:noreply, socket}
+    if num_players < min_players do
+      {:noreply,
+       put_flash(
+         socket,
+         :error,
+         "Not enough players to start game. Need at least " <>
+           to_string(min_players)
+       )}
+    else
+      :ok = Arena.load_game(arena_id, game_id)
+      Arena.broadcast_game_state(%{arena_id: arena_id, version: 0})
+      {:noreply, socket}
     end
   end
 
@@ -249,10 +242,9 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def handle_info(:game_selected, %{assigns: %{arena: %{arena_id: arena_id}}} = socket) do
-    game_id = Arena.get_game(arena_id)
-    constraints = Arena.get_constraints(arena_id, game_id)
+    %{game: game} = Arena.state(arena_id)
 
-    {:ok, game} = Games.get_game(game_id)
+    constraints = Arena.get_constraints(arena_id)
 
     socket =
       socket
@@ -285,7 +277,7 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def handle_info(:players_updated, socket) do
-    {:noreply, assign_other_players(socket)}
+    {:noreply, assign_all_players(socket)}
   end
 
   def handle_info(_message, socket) do
@@ -302,7 +294,7 @@ defmodule GameBoxWeb.ArenaLive do
     |> assign_new(:game_started, fn -> false end)
     |> assign_new(:game_selected, fn -> nil end)
     |> assign_current_player()
-    |> assign_other_players()
+    |> assign_all_players()
   end
 
   defp assign_current_player(socket) do
@@ -311,26 +303,16 @@ defmodule GameBoxWeb.ArenaLive do
     assign(socket, current_player: Players.get_player(arena_id, player_id))
   end
 
-  defp assign_other_players(socket) do
-    %{assigns: %{arena: %{arena_id: arena_id}, player_id: player_id}} = socket
-
-    players = Players.list_players(arena_id)
-
-    other_players =
-      players
-      |> Map.delete(player_id)
+  def assign_all_players(%{assigns: %{arena: %{arena_id: arena_id}}} = socket) do
+    players =
+      arena_id
+      |> Players.list_players()
       |> Map.values()
+      |> Enum.sort(&(&1.joined_at < &2.joined_at))
 
     socket
-    |> assign(:other_players, other_players)
+    |> assign(:all_players, players)
     |> assign(:total_players, Enum.count(players))
-  end
-
-  defp player_count(arena_id) do
-    arena_id
-    |> Players.list_players()
-    |> Map.values()
-    |> Enum.count()
   end
 
   def can_start_game?(%{constraints: %{min_players: min_players}, total_players: total_players}) do

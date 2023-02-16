@@ -32,8 +32,15 @@ defmodule GameBoxWeb.ArenaLiveTest do
 
       :ok = Players.start(arena_id)
 
-      Players.update_player(arena_id, player_one_id, %{name: "Test 1"})
-      Players.update_player(arena_id, player_two_id, %{name: "Test 2"})
+      Players.update_player(arena_id, player_one_id, %{
+        name: "Test 1",
+        joined_at: DateTime.utc_now() |> DateTime.to_unix()
+      })
+
+      Players.update_player(arena_id, player_two_id, %{
+        name: "Test 2",
+        joined_at: DateTime.utc_now() |> DateTime.to_unix()
+      })
 
       {:ok, _view1, html1} = live(conn, ~p"/arena/#{arena_id}")
       {:ok, _view2, html2} = live(conn2, ~p"/arena/#{arena_id}")
@@ -60,8 +67,15 @@ defmodule GameBoxWeb.ArenaLiveTest do
 
       :ok = Players.start(arena_id)
 
-      Players.update_player(arena_id, player_one_id, %{name: "Test 1"})
-      Players.update_player(arena_id, player_two_id, %{name: "Test 2"})
+      Players.update_player(arena_id, player_one_id, %{
+        name: "Test 1",
+        joined_at: DateTime.utc_now() |> DateTime.to_unix()
+      })
+
+      Players.update_player(arena_id, player_two_id, %{
+        name: "Test 2",
+        joined_at: DateTime.utc_now() |> DateTime.to_unix()
+      })
 
       {:ok, view1, html1} = live(conn, ~p"/arena/#{arena_id}")
       {:ok, view2, html2} = live(conn2, ~p"/arena/#{arena_id}")
@@ -114,8 +128,15 @@ defmodule GameBoxWeb.ArenaLiveTest do
 
       :ok = Players.start(arena_id)
 
-      Players.update_player(arena_id, player_one_id, %{name: "Test 1"})
-      Players.update_player(arena_id, player_two_id, %{name: "Test 2"})
+      Players.update_player(arena_id, player_one_id, %{
+        name: "Test 1",
+        joined_at: DateTime.utc_now() |> DateTime.to_unix()
+      })
+
+      Players.update_player(arena_id, player_two_id, %{
+        name: "Test 2",
+        joined_at: DateTime.utc_now() |> DateTime.to_unix()
+      })
 
       {:ok, view1, html1} = live(conn, ~p"/arena/#{arena_id}")
       {:ok, _view2, _html2} = live(conn2, ~p"/arena/#{arena_id}")
