@@ -18,6 +18,7 @@ defmodule GameBox.Games do
     Game
     |> join(:inner, [g], u in assoc(g, :user), as: :user)
     |> where([user: user], user.is_banned == false)
+    |> preload([:user])
     |> Repo.all()
   end
 
@@ -28,14 +29,25 @@ defmodule GameBox.Games do
     |> Repo.all()
   end
 
-  @spec get_game(integer()) :: {:error, :not_found} | {:ok, Game.t()}
-  def get_game(game_id) do
-    game = Repo.get(Game, game_id)
+  def get_game(game_id) when is_bitstring(game_id) do
+    game_id
+    |> String.to_integer()
+    |> get_game()
+  end
 
-    if is_nil(game) do
-      {:error, :not_found}
-    else
-      {:ok, game}
+  @spec get_game(integer()) :: {:error, :not_found} | {:ok, Game.t()}
+  def get_game(game_id) when is_integer(game_id) do
+    Game
+    |> join(:inner, [g], u in assoc(g, :user), as: :user)
+    |> where([user: user], user.is_banned == false)
+    |> preload([game, user: user], user: user)
+    |> Repo.get(game_id)
+    |> case do
+      %Game{} = game ->
+        {:ok, game}
+
+      _result ->
+        {:error, :not_found}
     end
   end
 end

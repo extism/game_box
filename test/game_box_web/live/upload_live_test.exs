@@ -38,8 +38,15 @@ defmodule GameBoxWeb.UploadLiveTest do
         |> assign(:current_user, user)
         |> put_session(:user_id, user.id)
 
-      # We need to create this directory because it is gitignored
-      File.mkdir_p("priv/static/uploads")
+      path = "tictactoe.wasm"
+      disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
+      dest = Path.join([disk_volume_path, Path.basename(path)])
+      File.mkdir_p(disk_volume_path)
+      File.cp!(path, dest)
+
+      on_exit(fn ->
+        File.rm_rf("test/uploads")
+      end)
 
       {:ok, conn: conn}
     end
@@ -72,6 +79,16 @@ defmodule GameBoxWeb.UploadLiveTest do
           }
         ])
 
+      art_upload =
+        file_input(view, "#upload-game-form", :artwork, [
+          %{
+            last_modified: :os.system_time(:millisecond),
+            name: "test-image.jpg",
+            content: File.read!("test-image.jpg"),
+            type: "jpg"
+          }
+        ])
+
       html =
         view
         |> element("form")
@@ -87,8 +104,11 @@ defmodule GameBoxWeb.UploadLiveTest do
       assert html_after_upload =~ "Tic Tac Toe"
       assert html_after_upload =~ "a classic game of tic tac toe"
 
-      assert render_submit(view, "upload_game", %{"game" => params}) =~
-               "Game successfully uploaded!"
+      render_upload(art_upload, "test-image.jpg")
+
+      render_submit(view, "upload_game", %{"game" => params})
+
+      assert_redirect(view, Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive))
     end
   end
 end

@@ -8,28 +8,33 @@ defmodule GameBoxWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <div>
-      <h2>Start or Join an Arena</h2>
-      <form id="join_arena" phx-submit="join_arena">
+      <.h2>Start or Join an Arena</.h2>
+      <form id="join_arena" phx-submit="join_arena" class="flex flex-col w-1/4">
         <div>
-          <label for="player_name">Name</label>
-          <input
+          <.input
+            label="Name"
             type="text"
             id="player_name"
             name="player_name"
             placeholder="Enter user name"
+            class="w-full"
+            value=""
+            errors={["required"]}
           />
         </div>
         <div>
-          <label for="arena_id">Arena Code</label>
-          <input
+          <.input
+            label="Arena Code"
             type="text"
             id="arena_id"
             name="arena_id"
             placeholder="4 character arena code"
+            class="w-full"
+            value=""
+            errors={["required"]}
           />
         </div>
-
-        <button type="submit">Join Arena</button>
+        <.button color="primary" type="submit">Join arena</.button>
       </form>
     </div>
     """
@@ -41,9 +46,7 @@ defmodule GameBoxWeb.HomeLive do
       Phoenix.PubSub.subscribe(GameBox.PubSub, "games")
     end
 
-    {:ok,
-     socket
-     |> assign(:player_id, session["player_id"])}
+    {:ok, assign(socket, :player_id, session["player_id"])}
   end
 
   @impl true
@@ -55,7 +58,15 @@ defmodule GameBoxWeb.HomeLive do
     else
       %{assigns: %{player_id: player_id}} = socket
       player_params = %{name: player_name, arena_id: arena_id}
-      :ok = Arena.start(arena_id)
+
+      case Arena.start(arena_id) do
+        {:ok, :initiated} ->
+          Arena.set_host(arena_id, player_id)
+
+        {:ok, :joined} ->
+          nil
+      end
+
       :ok = Players.start(arena_id)
 
       case Players.register_player(arena_id, player_id, player_params) do

@@ -23,5 +23,13 @@ config :game_box, GameBoxWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+config :game_box, disk_volume_path: "test/uploads"
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :game_box,
+  access_key_id: "test",
+  secret_access_key: "test",
+  region: "test",
+  s3_bucket: "test"

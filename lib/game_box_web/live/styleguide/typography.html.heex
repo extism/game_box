@@ -1,0 +1,117 @@
+<div class="flex flex-col gap-y-12">
+  <div>
+    <.h2>Headings</.h2>
+  </div>
+
+  <div>
+    <.h1 label="H1 Heading" />
+    <.h2 label="H2 Heading" />
+    <.h3 label="H3 Heading" />
+    <.h4 label="H4 Heading" />
+    <.h5 label="H5 Heading" />
+  </div>
+  <div>
+    <% attributes = """
+    attr(:class, :string, default: "", doc: "CSS class")
+    attr(:label, :string, default: nil, doc: "label your heading")
+    attr(:no_margin, :boolean, default: nil, doc: "removes margin from headings")
+    attr(:underline, :boolean, default: false, doc: "underlines a heading")
+    attr(:color_class, :string, default: nil, doc: "adds a color class")
+    attr(:rest, :global)
+    slot(:inner_block, required: false)
+    """ %>
+
+    <.h5 label="Attributes/Slots:" />
+    <.code content={attributes} />
+  </div>
+  <div>
+    <% code = """
+    <.h1 label="Heading 1" />
+    <.h1 no_margin underline color_class="text-primary" class="other_classes" anything_else="gets passed along">Heading 1</.h1>
+    """ %>
+
+    <.h5 label="Code Example" />
+    <.code content={code} />
+  </div>
+
+  <div class="border-b border-1 border-zinc-600 mb-5"></div>
+  <div>
+    <.h2>Paragraphs</.h2>
+    <.p>The quick brown fox jumps over the lazy dog.</.p>
+    <% attributes = """
+    attr(:class, :string, default: "", doc: "CSS class")
+    attr(:rest, :global)
+    slot(:inner_block, required: false)
+    """ %>
+  </div>
+  <div>
+    <.h5 label="Attributes/Slots" />
+    <.code content={attributes} />
+  </div>
+  <div>
+    <% code = """
+    <.p>Text here</.p>
+    <.p class="your_class">Text here</.p>
+    """ %>
+    <.h5 label="Code Example" />
+    <.code content={code} />
+  </div>
+  <div class="border-b border-1 border-zinc-600 mb-5"></div>
+  <div>
+    <.h2>Ordered Lists</.h2>
+    <.ol>
+      <li>List Element</li>
+      <li>List Element</li>
+      <li>List Element</li>
+    </.ol>
+  </div>
+  <div>
+    <% attributes = """
+    attr(:class, :string, default: "", doc: "CSS class")
+    attr(:rest, :global)
+    slot(:inner_block, required: false)
+    """ %>
+    <.h5 label="Attributes/Slots" />
+    <.code content={attributes} />
+  </div>
+  <div>
+    <% code = """
+    <.ol>
+        <li>List Element</li>
+        <li>List Element</li>
+        <li>List Element</li>
+    </.ol>
+    """ %>
+    <.h5 label="Code Example" />
+    <.code content={code} />
+  </div>
+  <div class="border-b border-1 border-zinc-600 mb-5"></div>
+  <div>
+    <.h2>Unordered Lists</.h2>
+    <.ul>
+      <li>List Element</li>
+      <li>List Element</li>
+      <li>List Element</li>
+    </.ul>
+  </div>
+  <div>
+    <% attributes = """
+    attr(:class, :string, default: "", doc: "CSS class")
+    attr(:rest, :global)
+    slot(:inner_block, required: false)
+    """ %>
+    <.h5 label="Attributes/Slots" />
+    <.code content={attributes} />
+  </div>
+  <div>
+    <% code = """
+    <.ul>
+        <li>List Element</li>
+        <li>List Element</li>
+        <li>List Element</li>
+    </ul>
+    """ %>
+    <.h5 label="Code Example" />
+    <.code content={code} />
+  </div>
+</div>

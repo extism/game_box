@@ -10,7 +10,61 @@ module.exports = {
     '../lib/*_web/**/*.*ex',
   ],
   theme: {
-    extend: {},
+    fontSize: {
+      xs: '.69rem',
+      sm: '0.875rem',
+      base: '1rem',
+      lg: '1.18rem',
+      xl: '1.25rem',
+      '2xl': '1.38rem',
+      '3xl': '1.953rem',
+      '4xl': '2.441rem',
+      '5xl': '3.052rem',
+      '6xl': '3.88rem',
+    },
+    fontFamily: {
+      display: [
+        "originalsregular",
+        "Helvetica", 
+        "Arial", 
+        "sans-serif"
+      ],
+      sans: [ 
+        "Helvetica", 
+        "Arial", 
+        "sans-serif"
+      ],
+      mono: [ 
+        "dm_monomedium",
+         "ui-monospace", 
+         "SFMono-Regular", 
+         "Menlo", 
+         "Monaco", 
+         "Consolas", 
+         "Liberation Mono", 
+         "Courier New", 
+         "monospace"
+      ]
+    },
+    extend: {
+      colors: { 
+        primary: {  
+          light: '#e3d2ff',
+          DEFAULT: '#A26CFF',
+          dark: '#8905e8'
+        },
+        secondary: {  
+          light: '#e3dcef',
+          DEFAULT: '#C7B9E0',
+          dark: '#988b9e'
+        },
+        dark:'#170124', 
+        success: '#6CFF9E',
+        info: '#0EA5E9', 
+        warning: '#FB923C', 
+        error: '#DC2626'
+      }
+    },
   },
   plugins: [
     require('@tailwindcss/forms'),

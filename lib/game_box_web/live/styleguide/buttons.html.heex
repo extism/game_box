@@ -1,0 +1,32 @@
+<div class="flex flex-col gap-y-12">
+  <div>
+    <.h2>Buttons</.h2>
+    <div class="flex">
+      <.button label="Button" class="mr-3" />
+      <.button variant="outline" label="Button" />
+    </div>
+  </div>
+  <div>
+    <% attributes = """
+    attr :type, :string, default: nil
+    attr :color, :string, default: "primary"
+    attr :variant, :string, default: "standard"
+    attr :class, :string, default: nil
+    attr :label, :string, default: ""
+    attr :rest, :global, include: ~w(disabled form name value)
+    slot :inner_block
+    """ %>
+
+    <.h5 label="Attributes/Slots:" />
+    <.code content={attributes} />
+  </div>
+
+  <div>
+    <% code = """
+    <.button>Send!</.button>
+    <.button color="primary" variant="outline" phx-click="go" class="ml-2">Send!</.button>
+    """ %>
+    <.h5 label="Code Example:" />
+    <.code content={code} />
+  </div>
+</div>
