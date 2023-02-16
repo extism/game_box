@@ -3,6 +3,7 @@ defmodule GameBoxWeb.UploadLive do
 
   alias GameBox.Games
   alias GameBox.Games.Game
+  alias GameBoxWeb.SimpleS3Upload
 
   @max_file_size 100_000_000
 
@@ -20,51 +21,133 @@ defmodule GameBoxWeb.UploadLive do
      |> assign(:changeset, Game.changeset(%Game{}, %{}))
      |> assign(:user_id, user_id)
      |> assign(:games, Games.list_games_for_user(user_id))
+     |> assign(:uploaded_files, [])
+     |> assign(:artwork_files, [])
      |> allow_upload(:game, accept: ~w(.wasm), max_file_size: @max_file_size)
-     |> allow_upload(:artwork, accept: ~w(.jpg .jpeg .png))}
+     |> allow_upload(:artwork, accept: ~w(.jpg .jpeg .png), external: &presign_upload/2)}
   end
 
   @impl true
   @spec render(any) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class="container join-arena-form">
-      <.h2>Upload a Game</.h2>
-      <.simple_form
-        :let={f}
-        id="upload-game-form"
-        for={@changeset}
-        phx-change="validate"
-        phx-submit="upload_game"
-      >
-        <.input field={{f, :title}} label="Title" />
+    <div>
+      <div class="container join-arena-form">
+        <.h2 label="Upload a Game" />
+        <.simple_form
+          :let={f}
+          id="upload-game-form"
+          for={@changeset}
+          phx-change="validate"
+          phx-submit="upload_game"
+        >
+          <.input field={{f, :title}} label="Title" />
 
-        <.input field={{f, :description}} label="Description" />
+          <.input field={{f, :description}} label="Description" />
 
-        <.live_file_input upload={@uploads.game} />
+          <.live_file_input upload={@uploads.game} />
 
-        <%= for err <- upload_errors(@uploads.game) do %>
-          <p class="alert alert-danger"><%= error_to_string(err) %></p>
-        <% end %>
+          <%= for err <- upload_errors(@uploads.game) do %>
+            <p class="alert alert-danger"><%= error_to_string(err) %></p>
+          <% end %>
+          <%= for entry <- @uploads.game.entries do %>
+            <article class="upload-entry">
+              <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
 
-        <.live_file_input upload={@uploads.artwork} />
-        <%= for err <- upload_errors(@uploads.artwork) do %>
-          <p class="alert alert-danger"><%= error_to_string(err) %></p>
-        <% end %>
-        <:actions>
-          <.button type="submit" name="save">Save</.button>
-        </:actions>
-      </.simple_form>
+              <button
+                type="button"
+                phx-click="cancel-game-upload"
+                phx-value-ref={entry.ref}
+                aria-label="cancel"
+              >
+                &times;
+              </button>
+
+              <%= for err <- upload_errors(@uploads.artwork, entry) do %>
+                <p class="alert alert-danger"><%= error_to_string(err) %></p>
+              <% end %>
+            </article>
+          <% end %>
+
+          <.live_file_input upload={@uploads.artwork} />
+
+          <%= for entry <- @uploads.artwork.entries do %>
+            <article class="upload-entry">
+              <figure>
+                <.live_img_preview entry={entry} />
+                <figcaption><%= entry.client_name %></figcaption>
+              </figure>
+
+              <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+
+              <button
+                type="button"
+                phx-click="cancel-art-upload"
+                phx-value-ref={entry.ref}
+                aria-label="cancel"
+              >
+                &times;
+              </button>
+
+              <%= for err <- upload_errors(@uploads.artwork, entry) do %>
+                <p class="alert alert-danger"><%= error_to_string(err) %></p>
+              <% end %>
+            </article>
+          <% end %>
+          <%= for err <- upload_errors(@uploads.artwork) do %>
+            <p class="alert alert-danger"><%= error_to_string(err) %></p>
+          <% end %>
+          <:actions>
+            <.button type="submit" name="save">Save</.button>
+          </:actions>
+        </.simple_form>
+      </div>
       <div class="mt-8">
-        <.h2>My Games</.h2>
-        <ul>
-          <li :for={game <- @games}>
-            <p><%= game.title %></p>
-          </li>
-        </ul>
+        <.h2 label="My Games" />
+        <div class="grid grid-cols-4 gap-4 mt-4">
+          <%= for game <- @games do %>
+            <div class="p-4">
+              <img class="object-contain h-48 w-48 rounded-lg" src={game.artwork} />
+              <.p><%= game.title %></.p>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
     """
+  end
+
+  defp presign_upload(entry, %{assigns: %{uploads: uploads}} = socket) do
+    bucket = Application.get_env(:game_box, :s3_bucket)
+    timestamp = DateTime.utc_now() |> DateTime.to_unix()
+    key = "images/#{timestamp}-#{entry.client_name}"
+
+    {:ok, fields} =
+      SimpleS3Upload.sign_form_upload(bucket,
+        key: key,
+        content_type: entry.client_type,
+        max_file_size: uploads[entry.upload_config].max_file_size,
+        expires_in: :timer.hours(1)
+      )
+
+    object_path = "https://#{bucket}.s3.amazonaws.com/#{key}"
+
+    meta = %{
+      uploader: "S3",
+      key: key,
+      url: "https://#{bucket}.s3.amazonaws.com",
+      fields: fields
+    }
+
+    {:ok, meta, assign(socket, :art_url, object_path)}
+  end
+
+  def handle_event("cancel-art-upload", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :artwork, ref)}
+  end
+
+  def handle_event("cancel-game-upload", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :game, ref)}
   end
 
   @impl Phoenix.LiveView
@@ -75,13 +158,15 @@ defmodule GameBoxWeb.UploadLive do
   def handle_event(
         "upload_game",
         %{"game" => game_params},
-        %{assigns: %{user_id: user_id}} = socket
+        socket
       ) do
-    %{artwork: artwork, game_path: game_path} = get_paths(socket)
+    art_url = Map.get(socket.assigns, :art_url)
+    user_id = Map.get(socket.assigns, :user_id)
+    game_path = get_game_upload_path(socket)
 
     socket =
       game_params
-      |> Map.merge(%{"path" => game_path, "user_id" => user_id, "artwork" => artwork})
+      |> Map.merge(%{"path" => game_path, "user_id" => user_id, "artwork" => art_url})
       |> Games.create_game()
       |> case do
         {:ok, _game} ->
@@ -89,10 +174,7 @@ defmodule GameBoxWeb.UploadLive do
 
           socket
           |> put_flash(:info, "Game successfully uploaded!")
-          |> assign(:changeset, Game.changeset(%Game{}, %{}))
-          |> assign(:games, Games.list_games_for_user(user_id))
-          |> assign(:uploaded_files, [])
-          |> assign(:artwork_files, [])
+          |> redirect(to: Routes.live_path(socket, GameBoxWeb.UploadLive))
 
         {:error, %Ecto.Changeset{} = changeset} ->
           socket
@@ -103,34 +185,28 @@ defmodule GameBoxWeb.UploadLive do
     {:noreply, socket}
   end
 
-  defp get_paths(socket) do
-    get_path = fn result ->
-      case result do
-        [path] -> path
-        _ -> {:error, :no_files}
-      end
-    end
-
-    art_result = handle_consume(socket, :artwork)
-    game_result = handle_consume(socket, :game)
-
-    %{artwork: get_path.(art_result), game_path: get_path.(game_result)}
-  end
-
-  defp handle_consume(socket, atom) do
+  defp get_game_upload_path(socket) do
     disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
 
-    consume_uploaded_entries(socket, atom, fn %{path: path}, _entry ->
-      dest = Path.join([disk_volume_path, Path.basename(path)])
+    uploads =
+      consume_uploaded_entries(socket, :game, fn %{path: path}, _entry ->
+        dest = Path.join([disk_volume_path, Path.basename(path)])
 
-      case File.cp(path, dest) do
-        :ok -> {:ok, Path.basename(path)}
-        {:error, _} -> {:error, nil}
-      end
-    end)
+        case File.cp(path, dest) do
+          :ok -> {:ok, Path.basename(path)}
+          {:error, _} -> {:error, nil}
+        end
+      end)
+
+    case uploads do
+      [path] -> path
+      _ -> nil
+    end
   end
 
   def error_to_string(:too_large), do: "Too large"
   def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
   def error_to_string(:too_many_files), do: "You have selected too many files"
+  def error_to_string(:external_client_failure), do: "Upload failed"
+  def error_to_string(_), do: "Unknown error"
 end

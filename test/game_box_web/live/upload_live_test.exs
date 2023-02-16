@@ -106,8 +106,9 @@ defmodule GameBoxWeb.UploadLiveTest do
 
       render_upload(art_upload, "test-image.jpg")
 
-      assert render_submit(view, "upload_game", %{"game" => params}) =~
-               "Game successfully uploaded!"
+      render_submit(view, "upload_game", %{"game" => params})
+
+      assert_redirect(view, Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive))
     end
   end
 end

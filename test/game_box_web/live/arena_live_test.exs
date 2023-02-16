@@ -18,7 +18,7 @@ defmodule GameBoxWeb.ArenaLiveTest do
   end
 
   describe "arena" do
-    test "host can start and select a game", %{conn: conn} do
+    test "host has option to select a game", %{conn: conn} do
       conn2 =
         Phoenix.ConnTest.build_conn()
         |> Phoenix.ConnTest.init_test_session(%{player_id: Ecto.UUID.generate()})
@@ -38,10 +38,8 @@ defmodule GameBoxWeb.ArenaLiveTest do
       {:ok, _view1, html1} = live(conn, ~p"/arena/#{arena_id}")
       {:ok, _view2, html2} = live(conn2, ~p"/arena/#{arena_id}")
 
-      assert html1 =~ "Test 1"
-      assert html1 =~ "Choose a game to start playing"
-
-      assert html2 =~ "Test 2"
+      assert html1 =~ "Select a game to get started!"
+      assert html2 =~ "Waiting for the host to select a game..."
     end
 
     test "host can select and unselect a game", %{
@@ -69,11 +67,12 @@ defmodule GameBoxWeb.ArenaLiveTest do
       {:ok, view2, html2} = live(conn2, ~p"/arena/#{arena_id}")
 
       assert html1 =~ game.title
-      assert html1 =~ "Choose a game to start playing"
-      refute html2 =~ game.title
-      refute html2 =~ "Choose a game to start playing"
+      assert html1 =~ "Select a game to get started!"
 
-      render_click(view1, :select_game, %{"game_id" => game.id})
+      assert html2 =~ game.title
+      refute html2 =~ "Select a game to get started!"
+
+      render_click(view1, :select_game, %{"game-id" => game.id})
 
       html1 = render(view1)
       html2 = render(view2)
@@ -82,19 +81,19 @@ defmodule GameBoxWeb.ArenaLiveTest do
       assert html2 =~ game.description
 
       assert html1 =~ "Start Game"
-      assert html1 =~ "Unselect Game"
+      assert html1 =~ "unselect_game"
       refute html2 =~ "Start Game"
-      refute html2 =~ "Unselect Game"
+      refute html2 =~ "unselect_game"
 
-      render_click(view1, :unselect_game, %{"game_id" => game.id})
+      render_click(view1, :unselect_game, %{"game-id" => game.id})
 
       html1 = render(view1)
       html2 = render(view2)
 
       assert html1 =~ game.title
-      assert html1 =~ "Choose a game to start playing"
-      refute html2 =~ game.title
-      refute html2 =~ "Choose a game to start playing"
+      assert html1 =~ "Select a game to get started!"
+      assert html2 =~ game.title
+      refute html2 =~ "Select a game to get started!"
     end
 
     test "host can start game", %{
@@ -122,10 +121,10 @@ defmodule GameBoxWeb.ArenaLiveTest do
       {:ok, _view2, _html2} = live(conn2, ~p"/arena/#{arena_id}")
 
       assert html1 =~ game.title
-      assert html1 =~ "Choose a game to start playing"
+      assert html1 =~ "Select a game to get started!"
 
-      render_click(view1, :select_game, %{"game_id" => game.id})
-      render_click(view1, :start_game, %{"game_id" => game.id})
+      render_click(view1, :select_game, %{"game-id" => game.id})
+      render_click(view1, :start_game, %{"game-id" => game.id})
 
       refute render(view1) =~ "Start Game"
     end
