@@ -52,28 +52,33 @@ defmodule GameBoxWeb.ArenaLive do
       <%= if @is_host && @game_selected do %>
         <.button
           phx-click="unselect_game"
-          phx-value-game_id={@game_selected.id}
+          phx-value-game-id={@game_selected.id}
           variant="outline"
           label="Pick Game"
         />
 
         <%= if can_start_game?(assigns) do %>
-          <.button phx-click="unselect_game" phx-value-game_id={@game_selected.id} label="Start Game" />
+          <.button phx-click="start_game" phx-value-game-id={@game_selected.id} label="Start Game" />
         <% end %>
       <% end %>
-      <%= if @is_host && is_nil(@game_selected) do %>
-        <%= if is_nil(@game_selected) do %>
-          <div class="grid grid-cols-4 gap-4 mt-8">
-            <%= for game <- @games do %>
-              <div class="p-4">
-                <img class="object-contain h-48 w-48 rounded-lg" src={game.artwork} />
-                <.p><%= game.title %></.p>
-                <.p>@<%= game.user.gh_login %></.p>
-                <.button phx-click="select_game" phx-value-game_id={game.id} label="Start" />
-              </div>
-            <% end %>
-          </div>
+      <%= if is_nil(@game_selected) do %>
+        <%= if @is_host do %>
+          <.p class="text-center">Select a game to get started!</.p>
+        <% else %>
+          <.p class="text-center">Waiting for the host to select a game...</.p>
         <% end %>
+        <div class="grid grid-cols-4 gap-4 mt-8">
+          <%= for game <- @games do %>
+            <div class="p-4">
+              <img class="object-contain h-48 w-48 rounded-lg" src={game.artwork} />
+              <.p><%= game.title %></.p>
+              <.p>@<%= game.user.gh_login %></.p>
+              <%= if @is_host do %>
+                <.button phx-click="select_game" phx-value-game_id={game.id} label="Start" />
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       <% end %>
       <%= if @game_selected && !@game_started do %>
         <div class="pt-4">
@@ -126,7 +131,12 @@ defmodule GameBoxWeb.ArenaLive do
       <% end %>
     <% else %>
       <%= if @is_host && @game_selected do %>
-        <button phx-click="unselect_game" phx-value-game_id={@game_selected.id}>Unselect Game</button>
+        <.button
+          phx-click="unselect_game"
+          phx-value-game-id={@game_selected.id}
+          variant="outline"
+          label="Pick Game"
+        />
       <% end %>
       <div id="board">
         <%= Phoenix.HTML.raw(board) %>
@@ -171,7 +181,7 @@ defmodule GameBoxWeb.ArenaLive do
     {:noreply, put_flash(socket, :error, "Only host can unset game")}
   end
 
-  def handle_event("start_game", %{"game_id" => game_id}, socket) do
+  def handle_event("start_game", %{"game-id" => game_id}, socket) do
     %{assigns: %{arena: %{arena_id: arena_id}}} = socket
     num_players = player_count(arena_id)
     constraints = Arena.get_constraints(arena_id, game_id)
