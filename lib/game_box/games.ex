@@ -18,6 +18,7 @@ defmodule GameBox.Games do
     Game
     |> join(:inner, [g], u in assoc(g, :user), as: :user)
     |> where([user: user], user.is_banned == false)
+    |> preload([:user])
     |> Repo.all()
   end
 

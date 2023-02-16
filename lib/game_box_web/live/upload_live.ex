@@ -33,7 +33,7 @@ defmodule GameBoxWeb.UploadLive do
     ~H"""
     <div>
       <div class="container join-arena-form">
-        <.h2>Upload a Game</.h2>
+        <.h2 label="Upload a Game" />
         <.simple_form
           :let={f}
           id="upload-game-form"
@@ -103,12 +103,12 @@ defmodule GameBoxWeb.UploadLive do
         </.simple_form>
       </div>
       <div class="mt-8">
-        <.h2>My Games</.h2>
-        <div class="grid grid-cols-3 gap-2">
+        <.h2 label="My Games" />
+        <div class="grid grid-cols-4 gap-4 mt-4">
           <%= for game <- @games do %>
-            <div class="mb-4 border-2 border-white p4">
-              <.h2 class="text-center"><%= game.title %></.h2>
-              <img class="max-w-full h-auto" src={game.artwork} />
+            <div class="p-4">
+              <img class="object-contain h-48 w-48 rounded-lg" src={game.artwork} />
+              <.p><%= game.title %></.p>
             </div>
           <% end %>
         </div>

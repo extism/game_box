@@ -46,58 +46,81 @@ defmodule GameBoxWeb.ArenaLive do
 
     ~H"""
     <%= if board == "" do %>
-      <h1>Arena: <%= @arena.arena_id %></h1>
+      <.h5 class="text-center" label="Arena" />
+      <.h1 class="text-center" label={@arena.arena_id} />
 
-      <hr />
-      <h2><%= @current_player.name %></h2>
       <%= if @is_host && @game_selected do %>
-        <button phx-click="unselect_game" phx-value-game_id={@game_selected.id}>Unselect Game</button>
+        <.button
+          phx-click="unselect_game"
+          phx-value-game_id={@game_selected.id}
+          variant="outline"
+          label="Pick Game"
+        />
+
         <%= if can_start_game?(assigns) do %>
-          <button phx-click="start_game" phx-value-game_id={@game_selected.id}>Start Game</button>
+          <.button phx-click="unselect_game" phx-value-game_id={@game_selected.id} label="Start Game" />
         <% end %>
       <% end %>
       <%= if @is_host && is_nil(@game_selected) do %>
         <%= if is_nil(@game_selected) do %>
-          <h2>Choose a game to start playing</h2>
-          <ul>
-            <div class="grid grid-cols-4 gap-4">
-              <%= for game <- @games do %>
-                <div class="mb-4">
-                  <button phx-click="select_game" phx-value-game_id={game.id}>
-                    <%= game.title %>
-                  </button>
-                  <img class="max-w-full h-auto rounded-lg" src={game.artwork} />
-                </div>
-              <% end %>
-            </div>
-          </ul>
+          <div class="grid grid-cols-4 gap-4 mt-8">
+            <%= for game <- @games do %>
+              <div class="p-4">
+                <img class="object-contain h-48 w-48 rounded-lg" src={game.artwork} />
+                <.p><%= game.title %></.p>
+                <.p>@<%= game.user.gh_login %></.p>
+                <.button phx-click="select_game" phx-value-game_id={game.id} label="Start" />
+              </div>
+            <% end %>
+          </div>
         <% end %>
       <% end %>
       <%= if @game_selected && !@game_started do %>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <div>
-              <p>
-                <strong>Player count: </strong>
-                <%= @total_players %>-<%= get_in(assigns, [:constraints, :min_players]) %>
-              </p>
+        <div class="pt-4">
+          <div class="flex align-center">
+            <.h4 label="Waiting to Play:" />
+            <.h4 class="pl-4" label={@game_selected.title} />
+          </div>
+
+          <div class="flex row">
+            <div class="basis-3/4">
+              <img class="max-w-full h-auto" src={@game_selected.artwork} />
             </div>
-            <p>Online Players</p>
-            <ul>
-              <li><%= @current_player.name %></li>
-              <li :for={player <- @other_players}>
-                <%= player.name %>
-              </li>
-            </ul>
+            <div class="basis-1/4">
+              <div>
+                <.h4 label="Details" />
+                <.p>
+                  Player count: <%= @total_players %>-<%= get_in(assigns, [:constraints, :min_players]) %>
+                </.p>
+              </div>
+              <div>
+                <.p class="font-bold">Online Players</.p>
+                <.ul>
+                  <li><%= @current_player.name %></li>
+                  <li :for={player <- @other_players}>
+                    <%= player.name %>
+                  </li>
+                </.ul>
+              </div>
+              <%= unless can_start_game?(assigns) do %>
+                <.button variant="outline" disabled>Waiting on more players...</.button>
+              <% end %>
+            </div>
           </div>
           <div>
-            <p>
-              <strong>Title: </strong>
-              <%= @game_selected.title %>
-            </p>
-            <p><strong>How to play: </strong><%= @game_selected.description %></p>
-            <img class="max-w-full h-auto" src={@game_selected.artwork} />
-            <p><strong>Creator: </strong><%= @game_selected.user.gh_login %></p>
+            <div>
+              <.h4>How to play:</.h4>
+              <.p><%= @game_selected.description %></.p>
+            </div>
+            <div>
+              <.h4>Credits</.h4>
+              <.p>
+                Game and instructions by
+                <.link href={"https://github.com/#{@game_selected.user.gh_login}"}>
+                  @<%= @game_selected.user.gh_login %>
+                </.link>
+              </.p>
+            </div>
           </div>
         </div>
       <% end %>
@@ -114,7 +137,7 @@ defmodule GameBoxWeb.ArenaLive do
 
   def handle_event(
         "select_game",
-        %{"game_id" => game_id},
+        %{"game-id" => game_id},
         %{assigns: %{arena: %{arena_id: arena_id}}} = socket
       ) do
     case Arena.set_game(arena_id, game_id) do
@@ -128,12 +151,12 @@ defmodule GameBoxWeb.ArenaLive do
 
   def handle_event(
         "unselect_game",
-        %{"game_id" => game_id},
+        %{"game-id" => game_id},
         %{assigns: %{arena: %{arena_id: arena_id}, is_host: true}} = socket
       ) do
     case Arena.unset_game(arena_id, game_id) do
       {:ok, _arena_id} ->
-        {:noreply, put_flash(socket, :info, "Game unset")}
+        {:noreply, socket}
 
       _ ->
         {:noreply, put_flash(socket, :error, "Game not unset")}
