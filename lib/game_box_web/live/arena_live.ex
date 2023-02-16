@@ -13,8 +13,9 @@ defmodule GameBoxWeb.ArenaLive do
       Players.monitor(arena_id, player_id)
     end
 
-    ready? = Players.exists?(arena_id) and Arena.exists?(arena_id)
-    game_id = Arena.get_game(arena_id)
+    arena = Arena.exists?(arena_id)
+    ready? = arena and Players.exists?(arena_id)
+    game_id = arena && Arena.get_game(arena_id)
 
     socket =
       cond do
@@ -33,7 +34,9 @@ defmodule GameBoxWeb.ArenaLive do
           |> set_defaults(arena_id, player_id)
 
         true ->
-          push_navigate(socket, to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))
+          socket
+          |> put_flash(:error, "Looks like that arena does not exist!")
+          |> push_navigate(to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))
       end
 
     {:ok, socket}
