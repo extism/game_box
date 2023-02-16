@@ -38,7 +38,7 @@ if config_env() == :prod do
 
   config :game_box,
     access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-    secret_acess_key: System.get_env("AWS_SECRET_ACCESS_KEY_ID"),
+    secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY_ID"),
     region: System.get_env("AWS_REGION"),
     s3_bucket: System.get_env("AWS_S3_BUCKET")
 
