@@ -2,7 +2,7 @@ mod game;
 
 use crate::game::*;
 use extism_pdk::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
 struct GameConfig {
@@ -58,4 +58,15 @@ pub fn render(Json(assigns): Json<Assigns>) -> FnResult<String> {
     let storage = PluginStorage::new();
     let game_state = storage.load()?;
     Ok(game_state.render(assigns))
+}
+
+#[derive(Serialize)]
+struct GameConstraints {
+    min_players: u32,
+    max_players: u32,
+}
+
+#[plugin_fn]
+pub fn get_constraints(_: ()) -> FnResult<Json<GameConstraints>> {
+    Ok(Json(GameConstraints { max_players: 2, min_players: 2}))
 }
