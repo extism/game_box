@@ -15,16 +15,16 @@
   <body class="bg-dark text-white p-10">
     <div class="max-w-6xl mx-auto">
       <nav class="mb-10">
-        <div>
+        <div class="flex row">
           <a href="/">GameBox</a>
-          <ul>
-            <li>
+          <ul class="grow flex justify-end">
+            <li class="mr-4">
               <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}>
                 Home
               </.link>
             </li>
             <%= if assigns[:current_user] do %>
-              <li>
+              <li class="mr-4">
                 <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)}>
                   Upload Game
                 </.link>
