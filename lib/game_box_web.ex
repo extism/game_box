@@ -54,6 +54,7 @@ defmodule GameBoxWeb do
         layout: {GameBoxWeb.LayoutView, :live}
 
       # Letimport GameBoxWeb.CoreComponents
+      import GameBoxWeb.Card
       import GameBoxWeb.Container
       import GameBoxWeb.Code
       import GameBoxWeb.Divider

@@ -1,18 +1,182 @@
 <div class="flex flex-col gap-y-6">
   <.h2>Content Containers</.h2>
+  <div class="mb-6">
+    <.h3>Container</.h3>
+    <.p>Utilities for setting the maximum width of an element.</.p>
+    <div class="flex flex-col gap-y-6">
+      <.container class="bg-primary text-white p-6" max_width="full">max_width="full"</.container>
+      <.container class="bg-primary text-white p-6" max_width="5xl">max_width="5xl"</.container>
+      <.container class="bg-primary text-white p-6" max_width="4xl">max_width="4xl"</.container>
+      <.container class="bg-primary text-white p-6" max_width="3xl">max_width="3xl"</.container>
+      <.container class="bg-primary text-white p-6" max_width="2xl">max_width="2xl"</.container>
+      <.container class="bg-primary text-white p-6" max_width="xl">max_width="xl"</.container>
+      <.container class="bg-primary text-white p-6" max_width="lg">max_width="lg"</.container>
+      <.container class="bg-primary text-white p-6" max_width="md">max_width="md"</.container>
+      <.container class="bg-primary text-white p-6" max_width="sm">max_width="sm"</.container>
+      <.container class="bg-primary text-white p-6" max_width="xs">max_width="xs"</.container>
+    </div>
+    <div class="mt-6">
+      <% attributes = """
+      attr(:max_width, :string, 
+          default: "lg", 
+          values: ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "full"],
+          doc: "sets container max-width"
+      )
 
-  <.h2>Container</.h2>
-  <.p>Utilities for setting the maximum width of an element.</.p>
-  <div class="flex flex-col gap-y-6">
-    <.container class="bg-primary text-white p-6" max_width="full">max_width="full"</.container>
-    <.container class="bg-primary text-white p-6" max_width="5xl">max_width="5xl"</.container>
-    <.container class="bg-primary text-white p-6" max_width="4xl">max_width="4xl"</.container>
-    <.container class="bg-primary text-white p-6" max_width="3xl">max_width="3xl"</.container>
-    <.container class="bg-primary text-white p-6" max_width="2xl">max_width="2xl"</.container>
-    <.container class="bg-primary text-white p-6" max_width="xl">max_width="xl"</.container>
-    <.container class="bg-primary text-white p-6" max_width="lg">max_width="lg"</.container>
-    <.container class="bg-primary text-white p-6" max_width="md">max_width="md"</.container>
-    <.container class="bg-primary text-white p-6" max_width="sm">max_width="sm"</.container>
-    <.container class="bg-primary text-white p-6" max_width="xs">max_width="xs"</.container>
+      attr(:class, :string, default: "", doc: "CSS class for container")
+      attr(:no_padding_on_mobile, :boolean, default: false, doc: "specify for padding on mobile")
+      attr(:rest, :global) 
+      slot(:inner_block, required: false)
+      """ %>
+      <.h5 label="Attributes/Slots:" />
+      <.code content={attributes} />
+    </div>
+    <div class="mt-6">
+      <% code = """
+      <.container max_width="full">content</.container>
+      <.container max_width="2xl">2xl</.container>
+      """ %>
+      <.h5 label="Code Example:" />
+      <.code content={code} />
+    </div>
+  </div>
+  <.divider />
+  <div>
+    <.h3>Cards</.h3>
+    <.p>
+      Cards are full-width by default. By applying a grid class on the parent div, you can specify the number of columns you want and the cards will adjust perfectly.
+    </.p>
+    <.p>
+      Cards contain four function components: card, card_media, card_content, and card_footer. You can find attributes and code for each below.
+    </.p>
+  </div>
+  <div>
+    <div class="grid grid-cols-3 gap-x-12 mb-12">
+      <.card>
+        <.card_media src="/images/tictactoe.png" />
+        <.card_content author="@bhelx" author_link="https://github.com/bhelx" heading="Tic Tac Toe">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget leo interdum, feugiat ligula eu, facilisis massa. Nunc sollicitudin massa a elit laoreet.
+        </.card_content>
+        <.card_footer>
+          <.button to="/" label="Join Now" class="w-full" />
+          <.button to="/" label="Start" variant="outline" class="w-full" />
+        </.card_footer>
+      </.card>
+
+      <.card>
+        <.card_media src="/images/tictactoe.png" />
+        <.card_content author="@bhelx" author_link="https://github.com/bhelx" heading="Tic Tac Toe">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget leo interdum, feugiat ligula eu, facilisis massa. Nunc sollicitudin massa a elit laoreet.
+        </.card_content>
+        <.card_footer>
+          <.button to="/" label="Join Now" class="w-full" />
+          <.button to="/" label="Start" variant="outline" class="w-full" />
+        </.card_footer>
+      </.card>
+
+      <.card>
+        <.card_media src="/images/tictactoe.png" />
+        <.card_content author="@bhelx" author_link="https://github.com/bhelx" heading="Tic Tac Toe">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget leo interdum, feugiat ligula eu, facilisis massa. Nunc sollicitudin massa a elit laoreet.
+        </.card_content>
+        <.card_footer>
+          <.button to="/" label="Join Now" class="w-full" />
+          <.button to="/" label="Start" variant="outline" class="w-full" />
+        </.card_footer>
+      </.card>
+    </div>
+    <div class="flex flex-col gap-y-12">
+      <div class="mt-6">
+        <.h2 class="!text-primary">Card &lt;.card></.h2>
+
+        <% attributes = """
+        attr(:class, :string, default: "", doc: "CSS class")
+        attr(:rest, :global)
+        slot(:inner_block, required: false)
+        """ %>
+        <.h5 label="Attributes/Slots:" />
+        <.code content={attributes} />
+
+        <% code = """
+        <.card class="w-1/2"></.card>
+        """ %>
+        <.h5 label="Code Example:" />
+        <.code content={code} />
+      </div>
+
+      <div>
+        <.h2 class="!text-primary">Card Media &lt;.card_media></.h2>
+        <% attributes = """
+        attr(:aspect_ratio_class, :string, default: "aspect-square", doc: "aspect ratio class")
+        attr(:src, :string, default: nil, doc: "hosted image URL")
+        attr(:class, :string, default: "", doc: "CSS class")
+        attr(:rest, :global)
+        slot(:inner_block, required: false)
+        """ %>
+        <.h5 label="Attributes/Slots:" />
+        <.code content={attributes} />
+
+        <% code = """
+        <.card>
+            <.card_media src="" aspect_ratio_class="aspect-video" />
+        </.card>
+        """ %>
+        <.h5 label="Code Example:" />
+        <.code content={code} />
+      </div>
+
+      <div class="flex flex-col">
+        <.h2 class="!text-primary">Card Content &lt;.card_content></.h2>
+        <% attributes = """
+        attr(:heading, :string, default: nil, doc: "creates a heading")
+        attr(:author, :string, default: nil, doc: "creates a author")
+        attr(:author_link, :string, default: nil, doc: "link to author's github or website")
+
+        attr(:author_color_class, :string,
+          default: "text-primary",
+          doc: "sets a author color class"
+        )
+
+        attr(:class, :string, default: "", doc: "CSS class")
+        attr(:rest, :global)
+        slot(:inner_block, required: false)
+        """ %>
+        <.h5 label="Attributes/Slots:" />
+        <.code content={attributes} />
+
+        <% code = """
+        <.card>
+            <.card_content author="@bhelx" author_link="https://github.com/bhelx" heading="Tic Tac Toe">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget leo interdum, feugiat ligula eu, facilisis massa. Nunc sollicitudin massa a elit laoreet.
+            </.card_content>
+        </.card>
+        """ %>
+        <.h5 label="Code Example:" />
+        <.code content={code} />
+      </div>
+
+      <div>
+        <.h2 class="!text-primary">Card Footer &lt;.card_footer></.h2>
+        <% attributes = """
+        attr(:class, :string, default: "", doc: "CSS class")
+        attr(:rest, :global)
+        slot(:inner_block, required: false)
+        """ %>
+        <.h5 label="Attributes/Slots:" />
+        <.code content={attributes} />
+
+        <% code = """
+        <.card>
+            <.card_footer>
+                <.button href="/" label="Footer Button" />
+              </.card_footer>
+        </.card>
+        """ %>
+        <.h5 label="Code Example:" />
+        <.code content={code} />
+      </div>
+    </div>
+
+    <div></div>
   </div>
 </div>
