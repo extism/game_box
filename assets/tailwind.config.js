@@ -9,6 +9,17 @@ module.exports = {
     '../lib/*_web.ex',
     '../lib/*_web/**/*.*ex',
   ],
+  safelist: [
+    'max-w-xs',
+    'max-w-sm',
+    'max-w-md',
+    'max-w-lg',
+    'max-w-xl',
+    'max-w-2xl',
+    'max-w-3xl',
+    'max-w-4xl',
+    'max-w-5xl'
+  ],
   theme: {
     fontSize: {
       xs: '.69rem',

@@ -14,33 +14,35 @@
   </head>
   <body class="bg-dark text-white p-10">
     <div class="max-w-6xl mx-auto">
-    <nav class="mb-10">
-      <div>
-        <a href="/">GameBox</a>
-        <ul>
-          <li>
-            <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}>
-              Home
-            </.link>
-          </li>
-          <%= if assigns[:current_user] do %>
+      <nav class="mb-10">
+        <div>
+          <a href="/">GameBox</a>
+          <ul>
             <li>
-              <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)}>
-                Upload Game
+              <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}>
+                Home
               </.link>
             </li>
-            <li>
-              <.link href={Routes.auth_path(@conn, :delete)}>Sign Out</.link>
-            </li>
-          <% else %>
-            <li>
-              <.link href={Routes.auth_path(@conn, :request, :github)}>Sign in with Github</.link>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-    </nav>
-    <%= @inner_content %>
-  </div>
+            <%= if assigns[:current_user] do %>
+              <li>
+                <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)}>
+                  Upload Game
+                </.link>
+              </li>
+              <li>
+                <.link href={Routes.auth_path(@conn, :delete)}>Sign Out</.link>
+              </li>
+            <% else %>
+              <li>
+                <.link href={Routes.auth_path(@conn, :request, :github)}>
+                  Sign in with Github
+                </.link>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </nav>
+      <%= @inner_content %>
+    </div>
   </body>
 </html>

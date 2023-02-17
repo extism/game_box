@@ -1,11 +1,15 @@
 defmodule GameBoxWeb.Container do
+  @moduledoc """
+  Utilities for setting the maximum width of an element.
+  """
+
   use Phoenix.Component
 
   import GameBoxWeb.ComponentHelpers
 
   attr(:max_width, :string,
     default: "lg",
-    values: ["sm", "md", "lg", "xl", "2xl", "full"],
+    values: ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "full"],
     doc: "sets container max-width"
   )
 
@@ -21,7 +25,7 @@ defmodule GameBoxWeb.Container do
       {@rest}
       class={
         build_class([
-          "container container-#{@max_width}",
+          "max-w-#{@max_width}",
           get_padding_class(@no_padding_on_mobile),
           @class
         ])
@@ -33,6 +37,6 @@ defmodule GameBoxWeb.Container do
   end
 
   defp get_padding_class(no_padding_on_mobile) do
-    if no_padding_on_mobile, do: "", else: "pc-container--mobile-padded"
+    if no_padding_on_mobile, do: "", else: "sm:p-4"
   end
 end
