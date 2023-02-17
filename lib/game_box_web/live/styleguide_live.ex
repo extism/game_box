@@ -1,14 +1,20 @@
 defmodule GameBoxWeb.StyleguideLive do
   use GameBoxWeb, :live_view
-  # import Phoenix.Component, only: [embed_templates: 1]
   import GameBoxWeb.ColorSwatch
+
+  alias GameBox.Styleguide
+  alias GameBox.Styleguide.ExampleData
 
   embed_templates "styleguide/*"
 
-  # def mount(_params, _session, socket) do
-  #   socket = assign(socket, is_active: false)
-  #   {:ok, socket}
-  # end
+  def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> assign(:example_data, %ExampleData{})
+      |> assign(:changeset, Styleguide.change_example_data(%ExampleData{}))
+
+    {:ok, socket}
+  end
 
   def render(assigns) do
     ~H"""
@@ -42,14 +48,27 @@ defmodule GameBoxWeb.StyleguideLive do
         <% :buttons -> %>
           <.buttons />
         <% :form_fields -> %>
-          <.form_fields />
+          <.form_fields changeset={@changeset} />
       <% end %>
     </div>
     """
   end
 
-  def handle_params(_params, _url, socket) do
+  def handle_params(params, _url, socket) do
     {:noreply, socket}
+  end
+
+  def handle_event(
+        "validate",
+        %{"example_data" => example_data_params} = params,
+        %{assigns: %{example_data: example_data}} = socket
+      ) do
+    changeset =
+      example_data
+      |> Styleguide.change_example_data(example_data_params)
+      |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, :changeset, changeset)}
   end
 
   defp is_active?(live_action, current) do
