@@ -93,7 +93,7 @@ defmodule GameBoxWeb.Typography do
 
   def h5(assigns) do
     ~H"""
-    <h5 class={get_heading_classes("font-display tracking-wider uppercase", assigns)} {@rest}>
+    <h5 class={get_heading_classes("font-display tracking-wider uppercase mt-6", assigns)} {@rest}>
       <%= render_slot(@inner_block) || @label %>
     </h5>
     """

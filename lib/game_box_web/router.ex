@@ -36,6 +36,7 @@ defmodule GameBoxWeb.Router do
     live "/styleguide/colors", StyleguideLive, :colors
     live "/styleguide/buttons", StyleguideLive, :buttons
     live "/styleguide/form", StyleguideLive, :form_fields
+    live "/styleguide/containers", StyleguideLive, :containers
 
     live_session(:default, on_mount: GameBoxWeb.InitAssigns) do
       live("/home", HomeLive)
