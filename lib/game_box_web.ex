@@ -54,9 +54,10 @@ defmodule GameBoxWeb do
         layout: {GameBoxWeb.LayoutView, :live}
 
       # Letimport GameBoxWeb.CoreComponents
+      import GameBoxWeb.Code
+      import GameBoxWeb.Divider
       import GameBoxWeb.Typography
       import GameBoxWeb.Tabs
-      import GameBoxWeb.Code
 
       unquote(view_helpers())
     end
