@@ -54,7 +54,6 @@ defmodule GameBoxWeb.StyleguideLive do
     """
   end
 
-  @spec handle_params(any, any, any) :: {:noreply, any}
   def handle_params(_params, _url, socket) do
     {:noreply, socket}
   end
