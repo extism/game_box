@@ -69,7 +69,7 @@ Called before initializing the game. This gives GameBox some metadata about the 
 
 
 ```rust
-#[derive(Deserialize)]
+#[derive(Serialize)]
 struct GameConstraints {
     min_players: u32,
     max_players: u32,
