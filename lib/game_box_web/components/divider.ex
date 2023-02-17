@@ -1,4 +1,8 @@
 defmodule GameBoxWeb.Divider do
+  @moduledoc """
+  Light gray divider used for breaking up content.
+  """
+
   use Phoenix.Component
 
   def mount(_params, _session, socket) do
