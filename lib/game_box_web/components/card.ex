@@ -18,8 +18,8 @@ defmodule GameBoxWeb.Card do
   use Phoenix.Component
 
   import GameBoxWeb.ComponentHelpers
-  import GameBoxWeb.Typography
   import GameBoxWeb.CoreComponents
+  import GameBoxWeb.Typography
 
   attr(:class, :string, default: "", doc: "CSS class")
   attr(:rest, :global)
@@ -131,7 +131,7 @@ defmodule GameBoxWeb.Card do
 
   def card_footer(assigns) do
     ~H"""
-    <div {@rest} class="pl-6 pb-6 w-full">
+    <div {@rest} class="px-6 pb-6 w-full">
       <%= render_slot(@inner_block) %>
     </div>
     """
