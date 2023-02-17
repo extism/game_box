@@ -6,7 +6,8 @@ defmodule GameBoxWeb.Card do
   #   <.card>
   #   <.card_media src="/images/tictactoe.png" />
   #   <.card_content author="@bhelx" author_link="https://github.com/bhelx" heading="Tic Tac Toe">
-  #     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget leo interdum, feugiat ligula eu, facilisis massa. Nunc sollicitudin massa a elit laoreet.
+  #     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget leo interdum, feugiat
+  #     ligula eu, facilisis massa. Nunc sollicitudin massa a elit laoreet.
   #   </.card_content>
   #   <.card_footer>
   #     <.button to="/" label="Join Now" class="w-full" />
