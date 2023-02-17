@@ -40,7 +40,7 @@
     </.simple_form>
   </div>
   <.divider />
-  <div>
+  <div class="mb-12">
     <.h2>Simple Form</.h2>
     <div class="max-w-2xl">
       <.p>
@@ -49,8 +49,6 @@
         might look like the following:
       </.p>
     </div>
-  </div>
-  <div>
     <% code = """
     <.simple_form :let={f} for={:user} phx-change="validate" phx-submit="save">
         <.input field={{f, :email}} label="Email"/>
@@ -62,8 +60,7 @@
     """ %>
     <.h5 label="Code Example:" />
     <.code content={code} />
-  </div>
-  <div class="mb-12">
+
     <% attr = """
     attr :for, :any, default: nil, doc: "the datastructure for the form"
     attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
@@ -120,7 +117,7 @@
   </div>
   <div>
     <div class="max-w-2xl mb-6">
-      <.h3>Text Input</.h3>
+      <.h3 class="!text-primary">Text Input &lt;.input /></.h3>
 
       <.p>Single line text input control. This is the default input type.</.p>
     </div>
@@ -136,7 +133,7 @@
   </div>
   <div>
     <div class="max-w-2xl mb-6">
-      <.h2>Textarea</.h2>
+      <.h3 class="!text-primary">Textarea  &lt;.input type="textarea" /></.h3>
       <.p>Multi-line text input control.</.p>
     </div>
     <div>
@@ -150,7 +147,7 @@
   </div>
   <div>
     <div class="max-w-2xl mb-6">
-      <.h2>Select</.h2>
+      <.h3 class="!text-primary">Select  &lt;.input type="select" /></.h3>
       <.p>Used to create a drop-down list.</.p>
     </div>
     <div>
@@ -164,7 +161,7 @@
   </div>
   <div>
     <div class="max-w-2xl mb-6">
-      <.h2>Checkbox</.h2>
+      <.h3 class="!text-primary">Checkbox  &lt;.input type="select" /></.h3>
       <.p>Allow users to select one or more of a limited number of options.</.p>
     </div>
     <div>
