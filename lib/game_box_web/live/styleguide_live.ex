@@ -54,13 +54,14 @@ defmodule GameBoxWeb.StyleguideLive do
     """
   end
 
-  def handle_params(params, _url, socket) do
+  @spec handle_params(any, any, any) :: {:noreply, any}
+  def handle_params(_params, _url, socket) do
     {:noreply, socket}
   end
 
   def handle_event(
         "validate",
-        %{"example_data" => example_data_params} = params,
+        %{"example_data" => example_data_params},
         %{assigns: %{example_data: example_data}} = socket
       ) do
     changeset =

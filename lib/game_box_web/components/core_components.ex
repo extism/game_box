@@ -294,7 +294,6 @@ defmodule GameBoxWeb.CoreComponents do
   slot :inner_block
 
   def input(%{field: {f, field}} = assigns) do
-    # assigns =
     assigns
     |> assign(field: nil)
     |> assign_new(:name, fn ->
