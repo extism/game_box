@@ -1,0 +1,179 @@
+<div class="flex flex-col gap-y-12">
+  <div class="max-w-2xl">
+    <.h2>Forms + Form Fields</.h2>
+
+    <.p>
+      These functions all based on Phoenix's Core Components and are located in the core_components.ex file.
+    </.p>
+  </div>
+  <.divider />
+  <div>
+    <.h3>Example Form</.h3>
+    <.p>
+      Validation is triggered on field blur or by clicking the "Test Submit" button. No data will be saved/submitted.
+    </.p>
+
+    <.simple_form
+      :let={f}
+      for={@changeset}
+      method="put"
+      phx-change="validate"
+      phx-submit="validate"
+    >
+      <.input field={{f, :email}} type="email" label="Email Text Input" phx-debounce="blur" />
+      <.input field={{f, :comment}} type="textarea" label="Comment Text Area" />
+      <.input
+        field={{f, :fruit}}
+        type="select"
+        label="Fruit Select"
+        options={["", "Apple", "Banana", "Orange"]}
+      />
+      <.input
+        field={{f, :agree}}
+        type="checkbox"
+        label="Checkbox Agreement"
+        errors={["required"]}
+      />
+      <:actions>
+        <.button>Test Submit</.button>
+      </:actions>
+    </.simple_form>
+  </div>
+  <.divider />
+  <div>
+    <.h2>Simple Form</.h2>
+    <div class="max-w-2xl">
+      <.p>
+        To create a working form, you must wrap the &lt;.input> fields in a &lt;.simple_form> tag.
+        You must also include the submit button within an &lt;:actions> named slot. A complete form
+        might look like the following:
+      </.p>
+    </div>
+  </div>
+  <div>
+    <% code = """
+    <.simple_form :let={f} for={:user} phx-change="validate" phx-submit="save">
+        <.input field={{f, :email}} label="Email"/>
+        <.input field={{f, :username}} label="Username" />
+        <:actions>
+          <.button>Save</.button>
+        </:actions>
+    </.simple_form>
+    """ %>
+    <.h5 label="Code Example:" />
+    <.code content={code} />
+  </div>
+  <div class="mb-12">
+    <% attr = """
+    attr :for, :any, default: nil, doc: "the datastructure for the form"
+    attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
+
+    attr :rest, :global,
+      include: ~w(autocomplete name rel action enctype method novalidate target),
+      doc: "the arbitrary HTML attributes to apply to the form tag"
+
+    slot :inner_block, required: true
+    slot :actions, doc: "the slot for form actions, such as a submit button"
+    """ %>
+
+    <.h5 label="Attributes/Slots:" />
+    <.code content={attr} />
+  </div>
+</div>
+
+<.divider />
+<div class="flex flex-col mt-12 gap-y-12">
+  <div class="max-w-2xl">
+    <.h2>Input</.h2>
+
+    <.p>Renders an input with label and error messages.</.p>
+
+    <.p>A `%Phoenix.HTML.Form{}` and field name may be passed to the input
+      to build input names and error messages, or all the attributes and
+      errors may be passed explicitly.</.p>
+  </div>
+  <div>
+    <% attr = """
+    attr :id, :any
+    attr :name, :any
+    attr :label, :string, default: nil
+
+    attr :type, :string,
+    default: "text",
+    values: ~w(checkbox color date datetime-local email file hidden month number password
+                range radio search select tel text textarea time url week)
+
+    attr :value, :any
+    attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+    attr :errors, :list
+    attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
+    attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
+    attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
+    attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+    attr :rest, :global, include: ~w(autocomplete cols disabled form max maxlength min minlength
+                                    pattern placeholder readonly required rows size step)
+    slot :inner_block
+    """ %>
+
+    <.h5 label="Attributes/Slots:" />
+    <.code content={attr} />
+  </div>
+  <div>
+    <div class="max-w-2xl mb-6">
+      <.h3>Text Input</.h3>
+
+      <.p>Single line text input control. This is the default input type.</.p>
+    </div>
+    <div>
+      <% code = """
+      <.input field={{f, :email}} type="email" />
+      <.input name="my-input" errors={["required"]} />
+      """ %>
+
+      <.h5 label="Code Example:" />
+      <.code content={code} />
+    </div>
+  </div>
+  <div>
+    <div class="max-w-2xl mb-6">
+      <.h2>Textarea</.h2>
+      <.p>Multi-line text input control.</.p>
+    </div>
+    <div>
+      <% code = """
+      <.input field={{f, :comments}} type="textarea" label="Comments" />
+      """ %>
+
+      <.h5 label="Code Example:" />
+      <.code content={code} />
+    </div>
+  </div>
+  <div>
+    <div class="max-w-2xl mb-6">
+      <.h2>Select</.h2>
+      <.p>Used to create a drop-down list.</.p>
+    </div>
+    <div>
+      <% code = """
+      <.input field={{f, :fruit}} type="select" label="Fruit" options={["","Apple", "Banana", "Orange"]} />
+      """ %>
+
+      <.h5 label="Code Example:" />
+      <.code content={code} />
+    </div>
+  </div>
+  <div>
+    <div class="max-w-2xl mb-6">
+      <.h2>Checkbox</.h2>
+      <.p>Allow users to select one or more of a limited number of options.</.p>
+    </div>
+    <div>
+      <% code = """
+      <.input field={{f, :agree}} type="checkbox" label="I agree" />
+      """ %>
+
+      <.h5 label="Code Example:" />
+      <.code content={code} />
+    </div>
+  </div>
+</div>

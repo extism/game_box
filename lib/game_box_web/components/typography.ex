@@ -114,7 +114,7 @@ defmodule GameBoxWeb.Typography do
 
   def p(assigns) do
     ~H"""
-    <p class={build_class([text_base_class(), "mb-2 text-secondary", @class])} {@rest}>
+    <p class={build_class([text_base_class(), "my-4 text-secondary", @class])} {@rest}>
       <%= render_slot(@inner_block) %>
     </p>
     """

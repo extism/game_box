@@ -203,7 +203,7 @@ defmodule GameBoxWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="space-y-8 mt-10">
+      <div class="space-y-4 mt-10">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -310,7 +310,7 @@ defmodule GameBoxWeb.CoreComponents do
     assigns = assign_new(assigns, :checked, fn -> input_equals?(assigns.value, "true") end)
 
     ~H"""
-    <label phx-feedback-for={@name} class="flex items-center gap-4 text-sm leading-6 text-white">
+    <label phx-feedback-for={@name} class="flex items-center gap-4 leading-6 text-white">
       <input type="hidden" name={@name} value="false" />
       <input
         type="checkbox"
@@ -323,23 +323,28 @@ defmodule GameBoxWeb.CoreComponents do
       />
       <%= @label %>
     </label>
+    <div phx-feedback-for={@name}>
+      <%= if !@checked do %>
+        <.error :for={msg <- @errors}><%= msg %></.error>
+      <% end %>
+    </div>
     """
   end
 
   def input(%{type: "select"} = assigns) do
     ~H"""
+    <.label for={@id}><%= @label %></.label>
+    <select
+      id={@id}
+      name={@name}
+      class="mt-1 block w-full py-2 px-3 bg-dark rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary-dark sm:text-sm phx-no-feedback:border-zinc-700 phx-no-feedback:focus:border-zinc-500 phx-no-feedback:focus:ring-zinc-800/5"
+      multiple={@multiple}
+      {@rest}
+    >
+      <option :if={@prompt} value=""><%= @prompt %></option>
+      <%= Form.options_for_select(@options, @value) %>
+    </select>
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
-      <select
-        id={@id}
-        name={@name}
-        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary-dark sm:text-sm"
-        multiple={@multiple}
-        {@rest}
-      >
-        <option :if={@prompt} value=""><%= @prompt %></option>
-        <%= Form.options_for_select(@options, @value) %>
-      </select>
       <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
@@ -354,9 +359,9 @@ defmodule GameBoxWeb.CoreComponents do
         name={@name}
         class={[
           input_border(@errors),
-          "mt-2 block min-h-[6rem] w-full rounded-lg border-zinc-800 py-[7px] px-[11px]",
-          "text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5"
+          "mt-2 block min-h-[6rem] w-full rounded-lg border-zinc-800 py-[7px] px-[11px] bg-dark",
+          "text-white focus:border-primary-dark focus:ring-4 sm:text-sm sm:leading-6",
+          "phx-no-feedback:border-zinc-700 phx-no-feedback:focus:border-primary-dark phx-no-feedback:focus:ring-zinc-800/5"
         ]}
         {@rest}
       >
@@ -379,7 +384,7 @@ defmodule GameBoxWeb.CoreComponents do
           input_border(@errors),
           "mt-2 block w-full rounded-lg py-[7px] px-[11px] bg-dark",
           "text-white focus:outline-none focus:ring-4 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-700 phx-no-feedback:focus:border-zinc-500 phx-no-feedback:focus:ring-zinc-800/5"
+          "phx-no-feedback:border-zinc-700 phx-no-feedback:focus:border-primary-dark  phx-no-feedback:focus:ring-zinc-800/5"
         ]}
         {@rest}
       />
@@ -392,8 +397,9 @@ defmodule GameBoxWeb.CoreComponents do
     do: ""
 
   defp input_border([_ | _] = _errors),
-    do: ""
+    do: "border-error focus:border-errorfocus:ring-error/10"
 
+  @spec label(map) :: Phoenix.LiveView.Rendered.t()
   @doc """
   Renders a label.
   """
@@ -415,8 +421,7 @@ defmodule GameBoxWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="phx-no-feedback:hidden mt-3 flex gap-3 text-sm leading-6 text-rose-600">
-      <!--<Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-rose-500" />-->
+    <p class="phx-no-feedback:hidden mt-3 flex gap-3 text-sm leading-6 text-error">
       <%= render_slot(@inner_block) %>
     </p>
     """
