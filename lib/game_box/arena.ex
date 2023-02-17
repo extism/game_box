@@ -17,8 +17,8 @@ defmodule GameBox.Arena do
     |> Enum.any?()
   end
 
-  def get_constraints(arena_id, game_id) do
-    GenServer.call(via_tuple(arena_id), {:extism, "get_constraints", game_id})
+  def get_constraints(arena_id) do
+    GenServer.call(via_tuple(arena_id), {:extism, "get_constraints"})
   end
 
   def load_game(arena_id, game_id) do
@@ -124,7 +124,8 @@ defmodule GameBox.Arena do
        ctx: Extism.Context.new(),
        plugin: nil,
        host_id: nil,
-       game_id: nil
+       game_id: nil,
+       constraints: nil
      }}
   end
 
@@ -133,25 +134,13 @@ defmodule GameBox.Arena do
     {:reply, state, state}
   end
 
-  def handle_call({:extism, "get_constraints", game_id}, _from, arena) do
-    {:ok, game} = Games.get_game(game_id)
+  def handle_call({:extism, "get_constraints"}, _from, %{game: game} = arena) do
     disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
     wasm_path = Path.join([disk_volume_path, game.path])
-
     ctx = arena[:ctx]
     {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: wasm_path}]}, false)
-
-    if Extism.Plugin.has_function(plugin, "get_constraints") do
-      {:ok, config} = Extism.Plugin.call(plugin, "get_constraints", nil)
-      {:reply, Jason.decode!(config), arena}
-    else
-      default = %{
-        min_players: 2,
-        max_players: 2
-      }
-
-      {:reply, default, arena}
-    end
+    constraints = get_constraints_from_plugin(plugin)
+    {:reply, constraints, Map.put(arena, :constraints, constraints)}
   end
 
   def handle_call({:extism, "render", assigns}, _from, arena) do
@@ -197,11 +186,14 @@ defmodule GameBox.Arena do
 
   @impl true
   def handle_call({:set_game, game_id}, _from, state) do
-    %{arena_id: arena_id} = state
+    {:ok, game} = Games.get_game(game_id)
 
-    PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_selected)
+    state =
+      state
+      |> Map.put(:game_id, game_id)
+      |> Map.put(:game, game)
 
-    {:reply, {:ok, game_id}, Map.put(state, :game_id, game_id)}
+    {:reply, {:ok, game_id}, state}
   end
 
   @impl true
@@ -220,9 +212,7 @@ defmodule GameBox.Arena do
 
   @impl true
   def handle_cast({:load_game, game_id}, state) do
-    %{arena_id: arena_id, ctx: ctx, plugin: plugin} = state
-
-    {:ok, game} = Games.get_game(game_id)
+    %{arena_id: arena_id, ctx: ctx, plugin: plugin, game: game} = state
 
     :ok = Players.start_game(arena_id, game_id)
 
@@ -233,13 +223,14 @@ defmodule GameBox.Arena do
     disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
     path = Path.join([disk_volume_path, game.path])
     {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: path}]}, false)
+    %{max_players: max_players} = get_constraints_from_plugin(plugin)
 
     player_ids =
       arena_id
       |> Players.list_players()
       |> Map.values()
-      # just choose the first 2 users and the rest can watch
-      |> Enum.take(2)
+      |> Enum.sort(fn p1, p2 -> p1.joined_at < p2.joined_at end)
+      |> Enum.take(max_players)
       |> Enum.filter(& &1.game_id)
       |> Enum.map(&Map.get(&1, :name))
 
@@ -254,5 +245,19 @@ defmodule GameBox.Arena do
   def broadcast_game_state(state) do
     %{arena_id: arena_id, version: version} = state
     PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", {:version, version})
+  end
+
+  defp get_constraints_from_plugin(plugin) do
+    with true <- Extism.Plugin.has_function(plugin, "get_constraints"),
+         {:ok, config} <- Extism.Plugin.call(plugin, "get_constraints", ""),
+         {:ok, decoded_config} <- Jason.decode(config) do
+      Map.new(decoded_config, fn {k, v} -> {String.to_atom(k), v} end)
+    else
+      _error ->
+        %{
+          min_players: 2,
+          max_players: 2
+        }
+    end
   end
 end

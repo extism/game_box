@@ -12,7 +12,8 @@ defmodule GameBox.Players do
     id: %{type: :string, required: true},
     name: %{type: :string},
     game_id: %{type: :integer},
-    pids: %{type: :array}
+    pids: %{type: :array},
+    joined_at: %{type: :integer, required: true}
   }
 
   @schema Map.new(@fields, fn {key, %{type: type}} -> {key, type} end)
@@ -100,7 +101,8 @@ defmodule GameBox.Players do
 
     cond do
       is_nil(player) and not name_taken ->
-        update.(%{id: player_id, pids: []}, params)
+        joined_at = DateTime.utc_now() |> DateTime.to_unix()
+        update.(%{id: player_id, pids: []}, Map.put(params, :joined_at, joined_at))
 
       name_taken ->
         {:reply, {:error, "Player name already taken"}, state}
