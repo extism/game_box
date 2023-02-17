@@ -14,7 +14,7 @@ defmodule GameBoxWeb.RequireAuth do
   def call(conn, _) do
     conn
     |> Controller.put_flash(:info, "You must be logged in to view this page.")
-    |> Controller.redirect(to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.WelcomeLive))
+    |> Controller.redirect(to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))
     |> halt()
   end
 end

@@ -5,7 +5,7 @@ defmodule GameBoxWeb.UploadLiveTest do
 
   describe "mount" do
     test "redirects to welcome path when unauthenticated", %{conn: conn} do
-      welcome_path = Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.WelcomeLive)
+      welcome_path = Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)
 
       assert {:error,
               {:redirect,

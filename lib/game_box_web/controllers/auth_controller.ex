@@ -13,7 +13,7 @@ defmodule GameBoxWeb.AuthController do
     conn
     |> put_flash(:info, "You have been logged out!")
     |> clear_session()
-    |> redirect(to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.WelcomeLive))
+    |> redirect(to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))
   end
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
@@ -42,6 +42,6 @@ defmodule GameBoxWeb.AuthController do
   defp handle_failure(conn) do
     conn
     |> put_flash(:error, "Failed to authenticate.")
-    |> redirect(to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.WelcomeLive))
+    |> redirect(to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))
   end
 end
