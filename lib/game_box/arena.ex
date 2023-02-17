@@ -198,7 +198,11 @@ defmodule GameBox.Arena do
 
   @impl true
   def handle_call({:unset_game, _game_id}, _from, state) do
-    %{arena_id: arena_id} = state
+    %{plugin: plugin, arena_id: arena_id} = state
+
+    unless is_nil(plugin) do
+      Extism.Plugin.free(plugin)
+    end
 
     state =
       state
