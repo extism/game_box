@@ -1,4 +1,19 @@
 defmodule GameBoxWeb.Card do
+  @moduledoc """
+  A component for displaying content in a card. Allows for media, header, author, and paragraph content.
+  """
+
+  #   <.card>
+  #   <.card_media src="/images/tictactoe.png" />
+  #   <.card_content author="@bhelx" author_link="https://github.com/bhelx" heading="Tic Tac Toe">
+  #     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget leo interdum, feugiat ligula eu, facilisis massa. Nunc sollicitudin massa a elit laoreet.
+  #   </.card_content>
+  #   <.card_footer>
+  #     <.button to="/" label="Join Now" class="w-full" />
+  #     <.button to="/" label="Start" variant="outline" class="w-full" />
+  #   </.card_footer>
+  # </.card>
+
   use Phoenix.Component
 
   import GameBoxWeb.ComponentHelpers
