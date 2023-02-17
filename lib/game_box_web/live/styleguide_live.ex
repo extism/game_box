@@ -38,6 +38,12 @@ defmodule GameBoxWeb.StyleguideLive do
         label="Form"
         is_active={is_active?(@live_action, :form_fields)}
       />
+      <.tab
+        patch={Routes.styleguide_path(@socket, :containers)}
+        replace={true}
+        label="Content Containers"
+        is_active={is_active?(@live_action, :containers)}
+      />
     </.tabs>
     <div class="mx-3">
       <%= case @live_action do %>
@@ -49,6 +55,8 @@ defmodule GameBoxWeb.StyleguideLive do
           <.buttons />
         <% :form_fields -> %>
           <.form_fields changeset={@changeset} />
+        <% :containers -> %>
+          <.containers />
       <% end %>
     </div>
     """
