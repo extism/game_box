@@ -136,7 +136,7 @@ defmodule GameBox.Arena do
 
   def handle_call({:extism, "get_constraints"}, _from, %{plugin: plugin, game: game} = arena) do
     # If the plugin is nil, we should load up a temporary plugin
-    # TODO we could perhaps remove the semantic association that
+    # we could perhaps remove the semantic association that
     # !is_nil(plugin) means that a game is started in the "render" callback
     constraints = if is_nil(plugin) do
       disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
