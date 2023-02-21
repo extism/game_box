@@ -9,7 +9,7 @@ defmodule GameBoxWeb.HomeLiveTest do
 
       view
       |> element("#join_arena")
-      |> render_submit(%{player_name: "Joe", arena_id: "ABCD"})
+      |> render_submit(%{arena_form: %{player_name: "Joe", arena_id: "ABCD"}})
 
       path = ~p"/arena/ABCD"
       assert {^path, %{}} = assert_redirect(view)
