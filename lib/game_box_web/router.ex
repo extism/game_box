@@ -30,7 +30,6 @@ defmodule GameBoxWeb.Router do
   scope "/", GameBoxWeb do
     pipe_through(:browser)
 
-    live "/", WelcomeLive
     live "/styleguide", StyleguideLive, :styleguide
     live "/styleguide/typography", StyleguideLive, :typography
     live "/styleguide/colors", StyleguideLive, :colors
@@ -39,7 +38,7 @@ defmodule GameBoxWeb.Router do
     live "/styleguide/containers", StyleguideLive, :containers
 
     live_session(:default, on_mount: GameBoxWeb.InitAssigns) do
-      live("/home", HomeLive)
+      live("/", HomeLive)
       live("/arena/:arena_id", ArenaLive)
       live("/arena/:arena_id/game/:game_id", GameLive)
     end

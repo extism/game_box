@@ -33,7 +33,7 @@ defmodule GameBoxWeb.AuthControllerTest do
 
       assert Flash.get(conn.assigns.flash, :error) == "Failed to authenticate."
 
-      assert redirected_to(conn) == Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.WelcomeLive)
+      assert redirected_to(conn) == Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)
     end
   end
 
@@ -42,7 +42,7 @@ defmodule GameBoxWeb.AuthControllerTest do
       conn = get(conn, Routes.auth_path(conn, :delete))
 
       assert Flash.get(conn.assigns.flash, :info) == "You have been logged out!"
-      assert redirected_to(conn) == Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.WelcomeLive)
+      assert redirected_to(conn) == Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)
     end
   end
 end

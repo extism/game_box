@@ -32,8 +32,9 @@ defmodule GameBoxWeb.UploadLive do
   def render(assigns) do
     ~H"""
     <div>
-      <div class="container join-arena-form">
-        <.h2 label="Upload a Game" />
+      <div class="p-8">
+        <.h3 label="Tell us how to play your game" />
+
         <.simple_form
           :let={f}
           id="upload-game-form"
@@ -41,65 +42,67 @@ defmodule GameBoxWeb.UploadLive do
           phx-change="validate"
           phx-submit="upload_game"
         >
-          <.input field={{f, :title}} label="Title" />
+          <div class="flex row gap-8">
+            <div class="basis-2/3">
+              <.input field={{f, :description}} type="textarea" placeholder="Write here..." />
+            </div>
+            <div class="basis-1/3">
+              <.input field={{f, :title}} label="Title" />
 
-          <.input field={{f, :description}} label="Description" />
+              <.label>Upload game</.label>
 
-          <.live_file_input upload={@uploads.game} />
-
-          <%= for err <- upload_errors(@uploads.game) do %>
-            <p class="alert alert-danger"><%= error_to_string(err) %></p>
-          <% end %>
-          <%= for entry <- @uploads.game.entries do %>
-            <article class="upload-entry">
-              <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
-
-              <button
-                type="button"
-                phx-click="cancel-game-upload"
-                phx-value-ref={entry.ref}
-                aria-label="cancel"
-              >
-                &times;
-              </button>
-
-              <%= for err <- upload_errors(@uploads.artwork, entry) do %>
-                <p class="alert alert-danger"><%= error_to_string(err) %></p>
+              <.live_file_input upload={@uploads.game} />
+              <%= for entry <- @uploads.game.entries do %>
+                <article class="upload-entry">
+                  <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+                  <button
+                    type="button"
+                    phx-click="cancel-game-upload"
+                    phx-value-ref={entry.ref}
+                    aria-label="cancel"
+                  >
+                    &times;
+                  </button>
+                  <%= for err <- upload_errors(@uploads.game, entry) do %>
+                    <.p class="alert alert-danger"><%= error_to_string(err) %></.p>
+                  <% end %>
+                </article>
               <% end %>
-            </article>
-          <% end %>
 
-          <.live_file_input upload={@uploads.artwork} />
+              <.label>Upload artwork</.label>
+              <.live_file_input upload={@uploads.artwork} />
+              <%= for entry <- @uploads.artwork.entries do %>
+                <article class="upload-entry">
+                  <figure>
+                    <.live_img_preview entry={entry} />
+                  </figure>
 
-          <%= for entry <- @uploads.artwork.entries do %>
-            <article class="upload-entry">
-              <figure>
-                <.live_img_preview entry={entry} />
-                <figcaption><%= entry.client_name %></figcaption>
-              </figure>
+                  <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
 
-              <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+                  <button
+                    type="button"
+                    phx-click="cancel-art-upload"
+                    phx-value-ref={entry.ref}
+                    aria-label="cancel"
+                  >
+                    &times;
+                  </button>
 
-              <button
-                type="button"
-                phx-click="cancel-art-upload"
-                phx-value-ref={entry.ref}
-                aria-label="cancel"
-              >
-                &times;
-              </button>
-
-              <%= for err <- upload_errors(@uploads.artwork, entry) do %>
-                <p class="alert alert-danger"><%= error_to_string(err) %></p>
+                  <%= for err <- upload_errors(@uploads.artwork, entry) do %>
+                    <.p class="alert alert-danger"><%= error_to_string(err) %></.p>
+                  <% end %>
+                </article>
               <% end %>
-            </article>
-          <% end %>
-          <%= for err <- upload_errors(@uploads.artwork) do %>
-            <p class="alert alert-danger"><%= error_to_string(err) %></p>
-          <% end %>
-          <:actions>
-            <.button type="submit" name="save">Save</.button>
-          </:actions>
+              <.p class="mt-6">
+                GameBox reserves the right to remove
+                your game for any reason at any time.
+                Please only submit content and games
+                that are appropriate for all ages.
+              </.p>
+
+              <.button type="submit" name="save">Save game</.button>
+            </div>
+          </div>
         </.simple_form>
       </div>
       <div class="mt-8">

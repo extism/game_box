@@ -16,7 +16,7 @@ defmodule GameBoxWeb.RequireAuthTest do
       assert conn
              |> Phoenix.Controller.fetch_flash()
              |> RequireAuth.call([])
-             |> redirected_to() =~ Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.WelcomeLive)
+             |> redirected_to() =~ Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)
     end
 
     test "redirects to welcome live when user is banned", %{conn: conn} do
@@ -26,7 +26,7 @@ defmodule GameBoxWeb.RequireAuthTest do
       assert conn
              |> Phoenix.Controller.fetch_flash()
              |> RequireAuth.call([])
-             |> redirected_to() =~ Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.WelcomeLive)
+             |> redirected_to() =~ Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)
     end
   end
 end
