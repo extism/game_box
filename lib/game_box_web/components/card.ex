@@ -120,7 +120,9 @@ defmodule GameBoxWeb.Card do
           <% end %>
         </div>
       <% end %>
-      <.p><%= render_slot(@inner_block) || @label %></.p>
+      <%= if Enum.any?(@inner_block) || not is_nil(assigns[:label]) do %>
+        <.p><%= render_slot(@inner_block) || @label %></.p>
+      <% end %>
     </div>
     """
   end

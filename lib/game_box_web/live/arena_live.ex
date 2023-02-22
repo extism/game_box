@@ -50,34 +50,33 @@ defmodule GameBoxWeb.ArenaLive do
       <.h5 class="text-center" label="Arena" />
       <.h1 class="text-center" label={@arena.arena_id} />
 
-      <%= if @is_host && @game_selected do %>
-        <.button
-          phx-click="unselect_game"
-          phx-value-game-id={@game_selected.id}
-          variant="outline"
-          label="Pick Game"
-        />
-
-        <%= if can_start_game?(assigns) do %>
-          <.button phx-click="start_game" phx-value-game-id={@game_selected.id} label="Start Game" />
-        <% end %>
-      <% end %>
       <%= if is_nil(@game_selected) do %>
         <%= if @is_host do %>
           <.p class="text-center">Select a game to get started!</.p>
         <% else %>
           <.p class="text-center">Waiting for the host to select a game...</.p>
         <% end %>
-        <div class="grid grid-cols-4 gap-4 mt-8">
+
+        <div class="grid grid-cols-3 gap-x-12 gap-y-12 mb-12">
           <%= for game <- @games do %>
-            <div class="p-4">
-              <img class="object-contain h-48 w-48 rounded-lg" src={game.artwork} />
-              <.p><%= game.title %></.p>
-              <.p>@<%= game.user.gh_login %></.p>
-              <%= if @is_host do %>
-                <.button phx-click="select_game" phx-value-game_id={game.id} label="Start" />
-              <% end %>
-            </div>
+            <.card>
+              <.card_media src={game.artwork} />
+              <.card_content
+                author={"@#{game.user.gh_login}"}
+                author_link={"https://github.com/@#{game.user.gh_login}"}
+                heading={game.title}
+              />
+              <.card_footer>
+                <%= if @is_host do %>
+                  <.button
+                    phx-click="select_game"
+                    phx-value-game_id={game.id}
+                    label="Start"
+                    class="w-full"
+                  />
+                <% end %>
+              </.card_footer>
+            </.card>
           <% end %>
         </div>
       <% end %>
@@ -88,43 +87,72 @@ defmodule GameBoxWeb.ArenaLive do
             <.h4 class="pl-4" label={@game_selected.title} />
           </div>
 
-          <div class="flex row">
-            <div class="basis-3/4">
-              <img class="max-w-full h-auto" src={@game_selected.artwork} />
-            </div>
-            <div class="basis-1/4">
-              <div>
-                <.h4 label="Details" />
-                <.p>
-                  Player count: <%= @total_players %>-<%= get_in(assigns, [:constraints, :min_players]) %>
-                </.p>
+          <div class="flex row gap-x-8 mt-8">
+            <div class="basis-2/3">
+              <img class="aspect-square" src={@game_selected.artwork} />
+              <div class="mt-12">
+                <.h4>How to play:</.h4>
+                <.p><%= @game_selected.description %></.p>
               </div>
-              <div>
-                <.p class="font-bold">Online Players</.p>
-                <.ol>
-                  <li :for={player <- @all_players}>
-                    <%= player.name %>
-                  </li>
-                </.ol>
-              </div>
-              <%= unless can_start_game?(assigns) do %>
-                <.p>Waiting on more players...</.p>
-              <% end %>
+              <.card class="mt-12">
+                <.card_content>
+                  <.h4>Credits</.h4>
+                  <.p>
+                    Game and instructions by
+                    <.link href={"https://github.com/#{@game_selected.user.gh_login}"}>
+                      @<%= @game_selected.user.gh_login %>
+                    </.link>
+                  </.p>
+                </.card_content>
+              </.card>
             </div>
-          </div>
-          <div>
-            <div>
-              <.h4>How to play:</.h4>
-              <.p><%= @game_selected.description %></.p>
-            </div>
-            <div>
-              <.h4>Credits</.h4>
-              <.p>
-                Game and instructions by
-                <.link href={"https://github.com/#{@game_selected.user.gh_login}"}>
-                  @<%= @game_selected.user.gh_login %>
-                </.link>
-              </.p>
+            <div class="basis-1/3">
+              <.card>
+                <.card_content>
+                  <div>
+                    <.h4 label="Details" />
+                    <.p>
+                      Player count: <%= @total_players %>-<%= get_in(assigns, [
+                        :constraints,
+                        :min_players
+                      ]) %>
+                    </.p>
+                  </div>
+                  <.card>
+                    <.card_content>
+                      <.p class="font-bold">Online Players</.p>
+                      <.ol>
+                        <li :for={player <- @all_players}>
+                          <%= player.name %>
+                        </li>
+                      </.ol>
+                    </.card_content>
+                  </.card>
+                  <%= unless can_start_game?(assigns) do %>
+                    <.p class="text-center">Waiting on more players...</.p>
+                  <% end %>
+                </.card_content>
+                <.card_footer>
+                  <%= if @is_host && @game_selected do %>
+                    <.button
+                      phx-click="unselect_game"
+                      phx-value-game-id={@game_selected.id}
+                      variant="outline"
+                      label="Lobby"
+                      class="w-full"
+                    />
+
+                    <%= if can_start_game?(assigns) do %>
+                      <.button
+                        phx-click="start_game"
+                        phx-value-game-id={@game_selected.id}
+                        label="Start Game"
+                        class="w-full"
+                      />
+                    <% end %>
+                  <% end %>
+                </.card_footer>
+              </.card>
             </div>
           </div>
         </div>
@@ -135,7 +163,7 @@ defmodule GameBoxWeb.ArenaLive do
           phx-click="unselect_game"
           phx-value-game-id={@game_selected.id}
           variant="outline"
-          label="Pick Game"
+          label="Lobby"
         />
       <% end %>
       <div id="board">

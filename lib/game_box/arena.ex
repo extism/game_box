@@ -138,17 +138,18 @@ defmodule GameBox.Arena do
     # If the plugin is nil, we should load up a temporary plugin
     # we could perhaps remove the semantic association that
     # !is_nil(plugin) means that a game is started in the "render" callback
-    constraints = if is_nil(plugin) do
-      disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
-      wasm_path = Path.join([disk_volume_path, game.path])
-      ctx = arena[:ctx]
-      {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: wasm_path}]}, false)
-      constraints = get_constraints_from_plugin(plugin)
-      Extism.Plugin.free(plugin)
-      constraints
-    else
-      get_constraints_from_plugin(plugin)
-    end
+    constraints =
+      if is_nil(plugin) do
+        disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
+        wasm_path = Path.join([disk_volume_path, game.path])
+        ctx = arena[:ctx]
+        {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: wasm_path}]}, false)
+        constraints = get_constraints_from_plugin(plugin)
+        Extism.Plugin.free(plugin)
+        constraints
+      else
+        get_constraints_from_plugin(plugin)
+      end
 
     {:reply, constraints, Map.put(arena, :constraints, constraints)}
   end

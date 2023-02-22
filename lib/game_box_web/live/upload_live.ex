@@ -3,6 +3,8 @@ defmodule GameBoxWeb.UploadLive do
 
   alias GameBox.Games
   alias GameBox.Games.Game
+  alias GameBox.Users
+
   alias GameBoxWeb.SimpleS3Upload
 
   @max_file_size 100_000_000
@@ -19,7 +21,7 @@ defmodule GameBoxWeb.UploadLive do
      |> assign(:uploaded_files, [])
      |> assign(:artwork_files, [])
      |> assign(:changeset, Game.changeset(%Game{}, %{}))
-     |> assign(:user_id, user_id)
+     |> assign(:user, Users.get_user(user_id))
      |> assign(:games, Games.list_games_for_user(user_id))
      |> assign(:uploaded_files, [])
      |> assign(:artwork_files, [])
@@ -46,75 +48,80 @@ defmodule GameBoxWeb.UploadLive do
             <div class="basis-2/3">
               <.input field={{f, :description}} type="textarea" placeholder="Write here..." />
             </div>
+
             <div class="basis-1/3">
-              <.input field={{f, :title}} label="Title" />
+              <.card>
+                <.card_content>
+                  <.input field={{f, :title}} label="Title" />
 
-              <.label>Upload game</.label>
+                  <.label>Upload game</.label>
 
-              <.live_file_input upload={@uploads.game} />
-              <%= for entry <- @uploads.game.entries do %>
-                <article class="upload-entry">
-                  <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
-                  <button
-                    type="button"
-                    phx-click="cancel-game-upload"
-                    phx-value-ref={entry.ref}
-                    aria-label="cancel"
-                  >
-                    &times;
-                  </button>
-                  <%= for err <- upload_errors(@uploads.game, entry) do %>
-                    <.p class="alert alert-danger"><%= error_to_string(err) %></.p>
+                  <.live_file_input upload={@uploads.game} />
+                  <%= for entry <- @uploads.game.entries do %>
+                    <article class="upload-entry">
+                      <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+                      <button
+                        type="button"
+                        phx-click="cancel-game-upload"
+                        phx-value-ref={entry.ref}
+                        aria-label="cancel"
+                      >
+                        &times;
+                      </button>
+                      <%= for err <- upload_errors(@uploads.game, entry) do %>
+                        <.p class="alert alert-danger"><%= error_to_string(err) %></.p>
+                      <% end %>
+                    </article>
                   <% end %>
-                </article>
-              <% end %>
 
-              <.label>Upload artwork</.label>
-              <.live_file_input upload={@uploads.artwork} />
-              <%= for entry <- @uploads.artwork.entries do %>
-                <article class="upload-entry">
-                  <figure>
-                    <.live_img_preview entry={entry} />
-                  </figure>
+                  <.label>Upload artwork</.label>
+                  <.live_file_input upload={@uploads.artwork} />
+                  <%= for entry <- @uploads.artwork.entries do %>
+                    <article class="upload-entry">
+                      <figure>
+                        <.live_img_preview entry={entry} />
+                      </figure>
 
-                  <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+                      <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
 
-                  <button
-                    type="button"
-                    phx-click="cancel-art-upload"
-                    phx-value-ref={entry.ref}
-                    aria-label="cancel"
-                  >
-                    &times;
-                  </button>
+                      <button
+                        type="button"
+                        phx-click="cancel-art-upload"
+                        phx-value-ref={entry.ref}
+                        aria-label="cancel"
+                      >
+                        &times;
+                      </button>
 
-                  <%= for err <- upload_errors(@uploads.artwork, entry) do %>
-                    <.p class="alert alert-danger"><%= error_to_string(err) %></.p>
+                      <%= for err <- upload_errors(@uploads.artwork, entry) do %>
+                        <.p class="alert alert-danger"><%= error_to_string(err) %></.p>
+                      <% end %>
+                    </article>
                   <% end %>
-                </article>
-              <% end %>
-              <.p class="mt-6">
-                GameBox reserves the right to remove
-                your game for any reason at any time.
-                Please only submit content and games
-                that are appropriate for all ages.
-              </.p>
-
-              <.button type="submit" name="save">Save game</.button>
+                  <.p class="mt-6">
+                    GameBox reserves the right to remove
+                    your game for any reason at any time.
+                    Please only submit content and games
+                    that are appropriate for all ages.
+                  </.p>
+                </.card_content>
+                <.card_footer>
+                  <.button class="w-full" type="submit" name="save">Save game</.button>
+                </.card_footer>
+              </.card>
             </div>
           </div>
         </.simple_form>
       </div>
-      <div class="mt-8">
-        <.h2 label="My Games" />
-        <div class="grid grid-cols-4 gap-4 mt-4">
-          <%= for game <- @games do %>
-            <div class="p-4">
-              <img class="object-contain h-48 w-48 rounded-lg" src={game.artwork} />
-              <.p><%= game.title %></.p>
-            </div>
-          <% end %>
-        </div>
+
+      <.h2 label="My Games" class="mt-12" />
+      <div class="grid grid-cols-3 gap-x-12 gap-y-12 mb-12 mt-12">
+        <%= for game <- @games do %>
+          <.card>
+            <.card_media src={game.artwork} />
+            <.card_content heading={game.title} />
+          </.card>
+        <% end %>
       </div>
     </div>
     """
@@ -164,12 +171,12 @@ defmodule GameBoxWeb.UploadLive do
         socket
       ) do
     art_url = Map.get(socket.assigns, :art_url)
-    user_id = Map.get(socket.assigns, :user_id)
+    user = Map.get(socket.assigns, :user)
     game_path = get_game_upload_path(socket)
 
     socket =
       game_params
-      |> Map.merge(%{"path" => game_path, "user_id" => user_id, "artwork" => art_url})
+      |> Map.merge(%{"path" => game_path, "user_id" => user.id, "artwork" => art_url})
       |> Games.create_game()
       |> case do
         {:ok, _game} ->
