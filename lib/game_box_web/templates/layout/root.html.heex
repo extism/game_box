@@ -12,37 +12,39 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
-  <body class="bg-dark text-white p-10">
-    <div class="max-w-6xl mx-auto">
-      <nav class="mb-10">
-        <div class="flex row">
-          <a href="/">GameBox</a>
-          <ul class="grow flex justify-end">
-            <li class="mr-4">
-              <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}>
-                Home
-              </.link>
-            </li>
-            <%= if assigns[:current_user] do %>
+  <body class="bg-dark bg-honeycomb-pattern bg-repeat-x bg-[length:100rem]">
+    <div class="min-h-screen max-w-full bg-fixed bg-50% bg-gradient-to-t from-dark">
+      <div class="max-w-6xl mx-auto text-white">
+        <nav class="my-10">
+          <div class="flex row">
+            <a href="/">GameBox</a>
+            <ul class="grow flex justify-end">
               <li class="mr-4">
-                <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)}>
-                  Upload Game
+                <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}>
+                  Home
                 </.link>
               </li>
-              <li>
-                <.link href={Routes.auth_path(@conn, :delete)}>Sign Out</.link>
-              </li>
-            <% else %>
-              <li>
-                <.link href={Routes.auth_path(@conn, :request, :github)}>
-                  Sign in with Github
-                </.link>
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      </nav>
-      <%= @inner_content %>
+              <%= if assigns[:current_user] do %>
+                <li class="mr-4">
+                  <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)}>
+                    Upload Game
+                  </.link>
+                </li>
+                <li>
+                  <.link href={Routes.auth_path(@conn, :delete)}>Sign Out</.link>
+                </li>
+              <% else %>
+                <li>
+                  <.link href={Routes.auth_path(@conn, :request, :github)}>
+                    Sign in with Github
+                  </.link>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </nav>
+        <%= @inner_content %>
+      </div>
     </div>
   </body>
 </html>

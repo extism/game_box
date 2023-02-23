@@ -58,6 +58,9 @@ module.exports = {
       ]
     },
     extend: {
+      backgroundImage: { 
+        'honeycomb-pattern': "url('/images/pattern.png')"
+      },
       colors: { 
         primary: {  
           light: '#e3d2ff',
