@@ -1,6 +1,8 @@
 defmodule GameBox.Arena do
   @moduledoc false
 
+  @enable_wasi true
+
   use GenServer
 
   require Logger
@@ -143,7 +145,7 @@ defmodule GameBox.Arena do
         disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
         wasm_path = Path.join([disk_volume_path, game.path])
         ctx = arena[:ctx]
-        {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: wasm_path}]}, false)
+        {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: wasm_path}]}, @enable_wasi)
         constraints = get_constraints_from_plugin(plugin)
         Extism.Plugin.free(plugin)
         constraints
@@ -241,7 +243,7 @@ defmodule GameBox.Arena do
 
     disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
     path = Path.join([disk_volume_path, game.path])
-    {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: path}]}, false)
+    {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: path}]}, @enable_wasi)
     %{max_players: max_players} = get_constraints_from_plugin(plugin)
 
     player_ids =
