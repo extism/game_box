@@ -1,5 +1,4 @@
 import { Question, getQuestions } from './questions'
-import { h1, li } from './dom'
 
 type Prompting = {
   name: "prompting",
