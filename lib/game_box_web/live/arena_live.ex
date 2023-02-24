@@ -396,13 +396,7 @@ defmodule GameBoxWeb.ArenaLive do
     })
   end
 
-  defp populate_subtext(game_selected, is_host) do
-    if is_nil(game_selected) do
-      if is_host do
-        "Select a game to get started!"
-      else
-        "Waiting for the host to select a game..."
-      end
-    end
-  end
+  defp populate_subtext(nil, true), do: "Select a game to get started!"
+  defp populate_subtext(nil, false), do: "Waiting for the host to select a game..."
+  defp populate_subtext(_, _), do: nil
 end
