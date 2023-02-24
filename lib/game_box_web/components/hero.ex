@@ -1,10 +1,25 @@
 defmodule GameBoxWeb.Hero do
+  @moduledoc """
+  Renders a Hero component.
+  """
+
   use Phoenix.Component
   import GameBoxWeb.Typography
 
   def mount(_params, _session, socket) do
     {:ok, socket}
   end
+
+  @doc """
+  Renders a hero section.
+
+  ## Examples
+
+  <.hero
+  subheader="Example Subheader"
+  header="Example Hero Section"
+  subtext="This is some text under the hero." />
+  """
 
   attr :subheader, :string, default: nil
   attr :header, :string, default: nil

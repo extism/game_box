@@ -40,6 +40,36 @@
       <.code content={code} />
     </div>
   </div>
+  <.divider /> 
+  <.h3>Hero</.h3>
+  <div class="flex flex-col gap-y-12">
+    <.hero
+      subheader="Styleguide"
+      header="Hero Section"
+      subtext="This is some text under the hero."
+    />
+  </div>
+
+  <div class="flex flex-col gap-y-12">
+    <div class="mt-6">
+      <.h2 class="!text-primary">Hero &lt;.hero /></.h2>
+
+      <% attributes = """
+      attr :subheader, :string, default: nil
+      attr :header, :string, default: nil
+      attr :subtext, :string, default: nil
+      attr :class, :string, default: nil, doc: "This applies to the main hero container."
+      """ %>
+      <.h5 label="Attributes/Slots:" />
+      <.code content={attributes} />
+
+      <% code = """
+      <.hero header="Header" subheader="Subheader" subtext="Some text below the hero header."  /> 
+      """ %>
+      <.h5 label="Code Example:" />
+      <.code content={code} />
+    </div>
+  </div>
   <.divider />
   <div>
     <.h3>Cards</.h3>
@@ -97,6 +127,9 @@
         </.card_footer>
       </.card>
     </div>
+    <.divider />
+   
+
     <div class="flex flex-col gap-y-12">
       <div class="mt-6">
         <.h2 class="!text-primary">Card &lt;.card></.h2>
