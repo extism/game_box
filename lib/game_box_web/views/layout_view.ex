@@ -18,7 +18,7 @@ defmodule GameBoxWeb.LayoutView do
         Home
       </.link>
     </li>
-    <%= if assigns[:current_user] do %>
+    <%= if @current_user do %>
       <li>
         <.link href={~p"/upload"} class="hover:!text-primary">
           Upload Game

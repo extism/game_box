@@ -58,7 +58,7 @@ defmodule GameBoxWeb.UploadLive do
               />
             </div>
 
-            <div class="">
+            <div>
               <.card>
                 <.card_content>
                   <.label>Upload game</.label>
