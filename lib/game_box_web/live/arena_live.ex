@@ -281,6 +281,7 @@ defmodule GameBoxWeb.ArenaLive do
       socket
       |> assign(:version, 0)
       |> assign(:arena, Arena.state(arena_id))
+      |> assign(:missing_players, false)
 
     {:noreply, socket}
   end
