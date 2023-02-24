@@ -120,13 +120,7 @@ defmodule GameBoxWeb.ArenaLive do
                   <div>
                     <.h4 label="Details" />
                     <.p>
-                      Player count: <%= @total_players %>-<%= get_in(assigns, [
-                        :constraints,
-                        :min_players
-                      ]) %>/<%= get_in(assigns, [
-                        :constraints,
-                        :max_players
-                      ]) %>
+                      Player count: <%= @total_players %> out of <%= @constraints.min_players %>-<%= @constraints.max_players %>
                     </.p>
                   </div>
                   <.card>
@@ -372,6 +366,7 @@ defmodule GameBoxWeb.ArenaLive do
     |> assign(:is_host, Arena.get_host(arena_id) == player_id)
     |> assign_new(:game_started, fn -> false end)
     |> assign_new(:game_selected, fn -> nil end)
+    |> assign_new(:constraints, fn -> %{} end)
     |> assign(:missing_players, false)
     |> assign_current_player()
     |> assign_all_players()
