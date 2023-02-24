@@ -76,6 +76,9 @@ defmodule GameBoxWeb.HomeLive do
       ) do
     %{assigns: %{player_id: player_id}} = socket
 
+    arena_id = String.upcase(arena_id)
+    player_name = String.upcase(player_name)
+
     case Arena.start(arena_id) do
       {:ok, :initiated} ->
         Arena.set_host(arena_id, player_id)
@@ -112,7 +115,7 @@ defmodule GameBoxWeb.HomeLive do
     {:noreply, assign(socket, games: games)}
   end
 
-  def validate_arena(attrs, changeset) do
+  defp validate_arena(attrs, changeset) do
     {changeset, @arena_types}
     |> Changeset.cast(attrs, Map.keys(@arena_types))
     |> Changeset.validate_required([:player_name, :arena_id])
