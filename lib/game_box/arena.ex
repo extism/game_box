@@ -127,7 +127,8 @@ defmodule GameBox.Arena do
        plugin: nil,
        host_id: nil,
        game_id: nil,
-       constraints: nil
+       constraints: nil,
+       playing: []
      }}
   end
 
@@ -145,7 +146,10 @@ defmodule GameBox.Arena do
         disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
         wasm_path = Path.join([disk_volume_path, game.path])
         ctx = arena[:ctx]
-        {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: wasm_path}]}, @enable_wasi)
+
+        {:ok, plugin} =
+          Extism.Context.new_plugin(ctx, %{wasm: [%{path: wasm_path}]}, @enable_wasi)
+
         constraints = get_constraints_from_plugin(plugin)
         Extism.Plugin.free(plugin)
         constraints
@@ -246,21 +250,28 @@ defmodule GameBox.Arena do
     {:ok, plugin} = Extism.Context.new_plugin(ctx, %{wasm: [%{path: path}]}, @enable_wasi)
     %{max_players: max_players} = get_constraints_from_plugin(plugin)
 
-    player_ids =
+    players =
       arena_id
       |> Players.list_players()
       |> Map.values()
       |> Enum.sort(fn p1, p2 -> p1.joined_at < p2.joined_at end)
       |> Enum.take(max_players)
       |> Enum.filter(& &1.game_id)
-      |> Enum.map(&Map.get(&1, :name))
+
+    player_names = Enum.map(players, &Map.get(&1, :name))
+    player_ids = Enum.map(players, &Map.get(&1, :id))
 
     {:ok, _output} =
-      Extism.Plugin.call(plugin, "init_game", Jason.encode!(%{player_ids: player_ids}))
+      Extism.Plugin.call(plugin, "init_game", Jason.encode!(%{player_ids: player_names}))
 
     PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_started)
 
-    {:noreply, Map.put(state, :plugin, plugin)}
+    state =
+      state
+      |> Map.put(:plugin, plugin)
+      |> Map.put(:playing, player_ids)
+
+    {:noreply, state}
   end
 
   def broadcast_game_state(state) do
