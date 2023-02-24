@@ -50,7 +50,7 @@ defmodule GameBoxWeb.ArenaLive do
       <.hero
         subheader="Arena"
         header={@arena.arena_id}
-        subtext={populateSubtext(@game_selected, @is_host)}
+        subtext={populate_subtext(@game_selected, @is_host)}
       />
       <%= if is_nil(@game_selected) do %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12 mb-12">
@@ -396,7 +396,7 @@ defmodule GameBoxWeb.ArenaLive do
     })
   end
 
-  defp populateSubtext(game_selected, is_host) do
+  defp populate_subtext(game_selected, is_host) do
     if is_nil(game_selected) do
       if is_host do
         "Select a game to get started!"
