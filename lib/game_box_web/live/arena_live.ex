@@ -328,7 +328,9 @@ defmodule GameBoxWeb.ArenaLive do
 
   # Each time the players are updated, if the process
   # receiving the message belongs to the host, we want to send a check in 5 seconds that
-  # ensures that all the players who began the game are still in the room.
+  # ensures that all the players who began the game are still in the room. The reason
+  # we wait 5 seconds is to allow time for a page refresh or quick navigation away and
+  # back before showing this message to the host.
   def handle_info(
         :players_updated,
         %{assigns: %{is_host: true, arena: %{playing: [_head | _tail]}}} = socket
