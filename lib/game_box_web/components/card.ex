@@ -18,7 +18,6 @@ defmodule GameBoxWeb.Card do
   use Phoenix.Component
 
   import GameBoxWeb.ComponentHelpers
-  import GameBoxWeb.CoreComponents
   import GameBoxWeb.Typography
 
   attr(:class, :string, default: "", doc: "CSS class")
@@ -52,19 +51,21 @@ defmodule GameBoxWeb.Card do
   def card_media(assigns) do
     ~H"""
     <%= if @src do %>
-      <img
-        {@rest}
-        src={@src}
-        class={
-          build_class(
-            [
-              @aspect_ratio_class,
-              @class
-            ],
-            " "
-          )
-        }
-      />
+      <div class="w-full flex justify-center">
+        <img
+          {@rest}
+          src={@src}
+          class={
+            build_class(
+              [
+                @aspect_ratio_class,
+                @class
+              ],
+              " "
+            )
+          }
+        />
+      </div>
     <% else %>
       <div
         {@rest}
