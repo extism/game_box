@@ -4,7 +4,6 @@ defmodule GameBoxWeb.Code do
   <.code />
   """
   use Phoenix.Component
-  import Phoenix.HTML, only: [raw: 1]
 
   def code(assigns) do
     ~H"""

@@ -11,38 +11,63 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
+    <script type="text/javascript">
+      function toggleMobileMenu() {
+        var element = document.getElementById("mobile-menu");
+        if(element.classList.contains("hidden")) { 
+          element.classList.remove("hidden");
+        } else { 
+          element.classList.add("hidden");
+        }  
+      }
+    </script>
   </head>
-  <body class="bg-dark text-white p-10">
-    <div class="max-w-6xl mx-auto">
-      <nav class="mb-10">
-        <div class="flex row">
-          <a href="/">GameBox</a>
-          <ul class="grow flex justify-end">
-            <li class="mr-4">
-              <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)}>
-                Home
-              </.link>
-            </li>
-            <%= if assigns[:current_user] do %>
-              <li class="mr-4">
-                <.link href={Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)}>
-                  Upload Game
-                </.link>
-              </li>
-              <li>
-                <.link href={Routes.auth_path(@conn, :delete)}>Sign Out</.link>
-              </li>
-            <% else %>
-              <li>
-                <.link href={Routes.auth_path(@conn, :request, :github)}>
-                  Sign in with Github
-                </.link>
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      </nav>
-      <%= @inner_content %>
+  <body class="bg-dark bg-honeycomb-pattern bg-repeat-x bg-[length:100rem]">
+    <div class="min-h-screen max-w-full bg-fixed bg-50% bg-gradient-to-t from-dark">
+      <div class="max-w-6xl mx-auto text-white p-10 lg:p-0">
+        <nav class="my-10">
+          <div class="flex justify-between">
+            <a href="/"><img src="/images/Gamebox-White.png" class="w-64" /></a>
+            <div class="hidden md:block">
+              <ul class="grow flex justify-end items-center font-display text-xs gap-x-12">
+                <.navigation current_user={assigns[:current_user]} />
+              </ul>
+            </div>
+            <div class="-ml-2 mr-2 flex items-center md:hidden">
+              <!-- Mobile menu button -->
+              <button
+                type="button"
+                class="inline-flex items-center justify-center rounded-md p-2 text-secondary-light hover:bg-secondary-light hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+                aria-controls="mobile-menu"
+                aria-expanded="false"
+                onclick="toggleMobileMenu()"
+              >
+                <span class="sr-only">Open main menu</span>
+                <svg
+                  class="block h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="md:hidden hidden bg-secondary-light h-full z-50" id="mobile-menu">
+            <ul class="flex flex-col items-center font-display text-xs space-y-6 py-6 my-3 mr-6 text-dark">
+              <.navigation current_user={assigns[:current_user]} />
+            </ul>
+          </div>
+        </nav>
+        <%= @inner_content %>
+      </div>
     </div>
   </body>
 </html>

@@ -359,7 +359,7 @@ defmodule GameBoxWeb.CoreComponents do
         name={@name}
         class={[
           input_border(@errors),
-          "mt-2 block min-h-[6rem] w-full rounded-lg border-zinc-800 py-[7px] px-[11px] bg-dark",
+          "mt-2 block md:min-h-[18rem] min-h-[6rem] h w-full rounded-lg border-zinc-800 py-[7px] px-[11px] bg-dark",
           "text-white focus:border-primary-dark focus:ring-4 sm:text-sm sm:leading-6",
           "phx-no-feedback:border-zinc-700 phx-no-feedback:focus:border-primary-dark phx-no-feedback:focus:ring-zinc-800/5"
         ]}

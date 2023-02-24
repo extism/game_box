@@ -11,39 +11,41 @@ defmodule GameBoxWeb.HomeLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <.h2>Start or Join an Arena</.h2>
+    <div class="flex justify-center pt-16 md:pt-32">
+      <.h1 class="text-4xl text-center">Start or join an arena</.h1>
+    </div>
+    <div class="w-full flex justify-center">
       <.simple_form
         :let={f}
         id="join_arena"
         for={@changeset}
         as="arena_form"
-        class="flex flex-col w-1/4"
+        class="w-full md:w-2/3 lg:w-1/2"
         phx-change="validate"
         phx-submit="join_arena"
       >
-        <.input
-          label="Name"
-          type="text"
-          id="player_name"
-          field={{f, :player_name}}
-          placeholder="Enter user name"
-          class="w-full"
-        />
+        <div class="flex flex-col gap-y-6">
+          <.input
+            label="Name"
+            type="text"
+            id="player_name"
+            field={{f, :player_name}}
+            placeholder="Enter user name"
+          />
+          <.input
+            label="Arena Code"
+            type="text"
+            id="arena_id"
+            field={{f, :arena_id}}
+            placeholder="4-character arena code"
+          />
 
-        <.input
-          label="Arena Code"
-          type="text"
-          id="arena_id"
-          field={{f, :arena_id}}
-          placeholder="4 character arena code"
-          class="w-full"
-        />
-        <%= if @changeset.valid? do %>
-          <.button color="primary" type="submit">Join arena</.button>
-        <% else %>
-          <.button color="primary" type="submit" disabled="true">Join arena</.button>
-        <% end %>
+          <%= if @changeset.valid? do %>
+            <.button color="primary" type="submit" class="w-full">Join arena</.button>
+          <% else %>
+            <.button color="primary" type="submit" disabled="true" class="w-full">Join arena</.button>
+          <% end %>
+        </div>
       </.simple_form>
     </div>
     """
