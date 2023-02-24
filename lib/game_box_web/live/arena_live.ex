@@ -47,18 +47,11 @@ defmodule GameBoxWeb.ArenaLive do
 
     ~H"""
     <%= if board == "" do %>
-      <div class="my-24">
-        <.h5 class="text-center !text-primary" label="Arena" />
-        <.h1 class="text-center" label={@arena.arena_id} />
-
-        <%= if is_nil(@game_selected) do %>
-          <%= if @is_host do %>
-            <.p class="text-center">Select a game to get started!</.p>
-          <% else %>
-            <.p class="text-center">Waiting for the host to select a game...</.p>
-          <% end %>
-        <% end %>
-      </div>
+      <.hero
+        subheader="Arena"
+        header={@arena.arena_id}
+        subtext={populateSubtext(@game_selected, @is_host)}
+      />
       <%= if is_nil(@game_selected) do %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12 mb-12">
           <%= for game <- @games do %>
@@ -401,5 +394,15 @@ defmodule GameBoxWeb.ArenaLive do
     Arena.render_game(arena_id, %{
       player_id: player_id
     })
+  end
+
+  defp populateSubtext(game_selected, is_host) do
+    if is_nil(game_selected) do
+      if is_host do
+        "Select a game to get started!"
+      else
+        "Waiting for the host to select a game..."
+      end
+    end
   end
 end

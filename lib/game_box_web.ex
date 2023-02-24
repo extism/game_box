@@ -57,6 +57,7 @@ defmodule GameBoxWeb do
       import GameBoxWeb.Container
       import GameBoxWeb.Code
       import GameBoxWeb.Divider
+      import GameBoxWeb.Hero
       import GameBoxWeb.Tabs
       import GameBoxWeb.Typography
 
