@@ -1,5 +1,6 @@
 defmodule GameBoxWeb.LayoutView do
   use GameBoxWeb, :view
+  import Phoenix.LiveView.JS
 
   # Phoenix LiveDashboard is available only in development by default,
   # so we instruct Elixir to not warn if the dashboard route is missing.
@@ -13,29 +14,27 @@ defmodule GameBoxWeb.LayoutView do
 
   def navigation(assigns) do
     ~H"""
-    <ul class="grow flex justify-end items-center font-display text-xs">
-      <li class="mr-12">
-        <.link href={~p"/"}>
-          Home
+    <li>
+      <.link href={~p"/"} class="hover:!text-primary">
+        Home
+      </.link>
+    </li>
+    <%= if assigns[:current_user] do %>
+      <li>
+        <.link href={~p"/upload"} class="hover:!text-primary">
+          Upload Game
         </.link>
       </li>
-      <%= if assigns[:current_user] do %>
-        <li class="mr-12">
-          <.link href={~p"/upload"}>
-            Upload Game
-          </.link>
-        </li>
-        <li>
-          <.link href={~p"/auth/delete"}>Sign Out</.link>
-        </li>
-      <% else %>
-        <li>
-          <.link href={~p"/auth/github"}>
-            Sign in with Github
-          </.link>
-        </li>
-      <% end %>
-    </ul>
+      <li>
+        <.link href={~p"/auth/delete"} class="hover:!text-primary">Sign Out</.link>
+      </li>
+    <% else %>
+      <li>
+        <.link href={~p"/auth/github"} class="hover:!text-primary">
+          Sign in with Github
+        </.link>
+      </li>
+    <% end %>
     """
   end
 end
