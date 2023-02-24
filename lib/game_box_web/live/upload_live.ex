@@ -33,10 +33,12 @@ defmodule GameBoxWeb.UploadLive do
   @spec render(any) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
+    <div class="text-center py-12">
+      <.h1 class="text-4xl">Upload a Game</.h1>
+    </div>
     <div>
-      <div class="p-8">
-        <.h3 label="Tell us how to play your game" />
-
+      <.h3 label="Tell us how to play your game" />
+      <div>
         <.simple_form
           :let={f}
           id="upload-game-form"
@@ -44,16 +46,21 @@ defmodule GameBoxWeb.UploadLive do
           phx-change="validate"
           phx-submit="upload_game"
         >
-          <div class="flex row gap-8">
-            <div class="basis-2/3">
-              <.input field={{f, :description}} type="textarea" placeholder="Write here..." />
+          <div class="grid grid-cols-3 gap-6">
+            <div class="col-span-2">
+              <.input field={{f, :title}} label="Title" />
+
+              <.input
+                field={{f, :description}}
+                type="textarea"
+                placeholder="Write here..."
+                label="Description"
+              />
             </div>
 
-            <div class="basis-1/3">
+            <div class="">
               <.card>
                 <.card_content>
-                  <.input field={{f, :title}} label="Title" />
-
                   <.label>Upload game</.label>
 
                   <.live_file_input upload={@uploads.game} />
