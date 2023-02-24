@@ -120,10 +120,7 @@ defmodule GameBoxWeb.ArenaLive do
                   <div>
                     <.h4 label="Details" />
                     <.p>
-                      Player count: <%= @total_players %>-<%= get_in(assigns, [
-                        :constraints,
-                        :min_players
-                      ]) %>
+                      Player count: <%= @total_players %> out of <%= @constraints.min_players %>-<%= @constraints.max_players %>
                     </.p>
                   </div>
                   <.card>
@@ -167,6 +164,11 @@ defmodule GameBoxWeb.ArenaLive do
       <% end %>
     <% else %>
       <%= if @is_host && @game_selected do %>
+        <%= if @missing_players do %>
+          <.p>
+            All of the players who began this game are no longer present. Please return to the lobby to reselect a game.
+          </.p>
+        <% end %>
         <.button
           phx-click="unselect_game"
           phx-value-game-id={@game_selected.id}
@@ -272,9 +274,15 @@ defmodule GameBoxWeb.ArenaLive do
     {:noreply, socket}
   end
 
-  def handle_info(:game_started, socket) do
+  def handle_info(:game_started, %{assigns: %{arena: %{arena_id: arena_id}}} = socket) do
     Logger.info("Game started")
-    {:noreply, assign(socket, version: 0)}
+
+    socket =
+      socket
+      |> assign(:version, 0)
+      |> assign(:arena, Arena.state(arena_id))
+
+    {:noreply, socket}
   end
 
   def handle_info(:game_selected, %{assigns: %{arena: %{arena_id: arena_id}}} = socket) do
@@ -312,8 +320,37 @@ defmodule GameBoxWeb.ArenaLive do
     {:noreply, assign(socket, version: version)}
   end
 
+  # Each time the players are updated, if the process
+  # receiving the message belongs to the host, we want to send a check in 5 seconds that
+  # ensures that all the players who began the game are still in the room. The reason
+  # we wait 5 seconds is to allow time for a page refresh or quick navigation away and
+  # back before showing this message to the host.
+  def handle_info(
+        :players_updated,
+        %{assigns: %{is_host: true, arena: %{playing: [_head | _tail]}}} = socket
+      ) do
+    if connected?(socket), do: Process.send_after(self(), :check_for_missing_players, 5000)
+
+    {:noreply, assign_all_players(socket)}
+  end
+
   def handle_info(:players_updated, socket) do
     {:noreply, assign_all_players(socket)}
+  end
+
+  def handle_info(
+        :check_for_missing_players,
+        %{assigns: %{arena: %{arena_id: arena_id, playing: playing}}} = socket
+      ) do
+    player_ids =
+      arena_id
+      |> Players.list_players()
+      |> Map.values()
+      |> Enum.map(& &1.id)
+
+    missing_players = Enum.any?(playing, &(not Enum.member?(player_ids, &1)))
+
+    {:noreply, assign(socket, :missing_players, missing_players)}
   end
 
   def handle_info(_message, socket) do
@@ -329,6 +366,8 @@ defmodule GameBoxWeb.ArenaLive do
     |> assign(:is_host, Arena.get_host(arena_id) == player_id)
     |> assign_new(:game_started, fn -> false end)
     |> assign_new(:game_selected, fn -> nil end)
+    |> assign_new(:constraints, fn -> %{} end)
+    |> assign(:missing_players, false)
     |> assign_current_player()
     |> assign_all_players()
   end
