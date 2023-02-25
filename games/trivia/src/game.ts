@@ -23,6 +23,8 @@ export interface LiveEvent {
   value: any
 }
 
+const questions = getQuestions()
+
 export class Game {
   players: Array<string>;
   version: number;
@@ -33,7 +35,6 @@ export class Game {
   constructor(state: any) {
     this.version = state.version || 0
     this.players = state.players
-    this.questions = state.questions || getQuestions()
     this.state = state.state || { name: "prompting", questionIndex: 0, answers: {} }
     if (state.score) {
       this.score = state.score
@@ -60,7 +61,7 @@ export class Game {
     if (this.state.answers[assigns.player_id] !== undefined)
       return "<p>Answered. Waiting on other players</p>"
 
-    let qObj = this.questions[this.state.questionIndex]
+    let qObj = questions[this.state.questionIndex]
     const question = `<h1>${qObj.prompt}</h1>`
     const answers = qObj.options.map((opt, idx) => {
       return `<li><button phx-click="answer-prompt" phx-value-idx=${idx}>${opt}</button></li>`
@@ -99,7 +100,7 @@ export class Game {
         // if everyone has answered
         if (Object.keys(this.state.answers).length === this.players.length) {
           this.recordScore()
-          if (this.state.questionIndex >= this.questions.length - 1) {
+          if (this.state.questionIndex >= questions.length - 1) {
             this.finish()
           } else {
             this.state = {
@@ -120,7 +121,7 @@ export class Game {
   recordScore() {
     if (this.state.name !== "prompting") throw Error("Expected to be in prompting state")
 
-    const answer = this.questions[this.state.questionIndex].answerIndex
+    const answer = questions[this.state.questionIndex].answerIndex
     const answers = this.state.answers
     Object.keys(answers).forEach(player => {
       if (answers[player] === answer) {
