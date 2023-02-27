@@ -52,8 +52,8 @@ defmodule GameBoxWeb.ArenaLive do
         <div class="w-full mb-12">
           <.card>
             <.card_content>
-              <div class="flex justify-start items-start">
-                <div class="w-1/2">
+              <div class="flex flex-col md:flex-row justify-start items-start">
+                <div class="w-full md:w-1/2">
                   <div class="md:border-r border-zinc-700 mr-6 pr-6">
                     <div class="font-display text-sm uppercase text-secondary tracking-wider ">
                       Arena Code
@@ -83,13 +83,19 @@ defmodule GameBoxWeb.ArenaLive do
                 </div>
                 <div>
                   <.p class="font-display tracking-wider uppercase text-xs !mb-0 !pb-2">
-                    Players Online:
+                    Players Online <span class="text-md">(8)</span>
                   </.p>
-                  <.ol>
+                  <.ol class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
                     <li :for={player <- @all_players}>
                       <%= player.name %>
                       <%= check_if_host(Arena.get_host(@arena.arena_id), player.id) %>
                     </li>
+                    <li>Player 2</li>
+                    <li>Player 3</li>
+                    <li>Player 4</li>
+                    <li>Player 5</li>
+                    <li>Player 6</li>
+                    <li>Player 7</li>
                   </.ol>
                 </div>
               </div>
@@ -98,7 +104,7 @@ defmodule GameBoxWeb.ArenaLive do
         </div>
         <div class="flex flex-col md:flex-row">
           <div class="w-full">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-12 mb-12">
               <%= for game <- @games do %>
                 <.card>
                   <.card_media :if={game.artwork} src={game.artwork} />
