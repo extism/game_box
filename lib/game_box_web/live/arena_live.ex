@@ -34,7 +34,7 @@ defmodule GameBoxWeb.ArenaLive do
         true ->
           socket
           |> put_flash(:error, "Looks like that arena does not exist or you have not joined it!")
-          |> push_navigate(to: Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))
+          |> push_navigate(to: ~p"/")
       end
 
     {:ok, socket}
