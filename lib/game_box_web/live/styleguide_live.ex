@@ -18,7 +18,7 @@ defmodule GameBoxWeb.StyleguideLive do
 
   def render(assigns) do
     ~H"""
-    <.h2>Styleguide</.h2>
+    <.hero header="Styleguide" />
     <.tabs class="my-10">
       <.tab
         patch={Routes.styleguide_path(@socket, :styleguide)}

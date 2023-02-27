@@ -33,9 +33,7 @@ defmodule GameBoxWeb.UploadLive do
   @spec render(any) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class="text-center py-12">
-      <.h1 class="text-4xl">Upload a Game</.h1>
-    </div>
+    <.hero header="Upload a Game" />
     <div>
       <.h3 label="Tell us how to play your game" />
       <div>
