@@ -113,12 +113,15 @@ defmodule GameBoxWeb.ArenaLive do
                   <div>
                     <.h4 label="Details" />
                     <.p>
-                      Player count: <%= @total_players %> out of <%= @constraints.min_players %>-<%= @constraints.max_players %>
+                      Player Count: <%= get_player_count(
+                        @constraints.min_players,
+                        @constraints.max_players
+                      ) %>
                     </.p>
                   </div>
                   <.card>
                     <.card_content>
-                      <.p class="font-bold">Online Players</.p>
+                      <.p class="font-display !text-white">Online Players</.p>
                       <.ol>
                         <li :for={player <- @all_players}>
                           <%= player.name %>
@@ -127,7 +130,9 @@ defmodule GameBoxWeb.ArenaLive do
                     </.card_content>
                   </.card>
                   <%= unless can_start_game?(assigns) do %>
-                    <.p class="text-center">Waiting on more players...</.p>
+                    <.p class="text-center !text-primary font-display text-sm">
+                      Waiting on more players...
+                    </.p>
                   <% end %>
                 </.card_content>
                 <.card_footer>
@@ -399,4 +404,12 @@ defmodule GameBoxWeb.ArenaLive do
   defp populate_subtext(nil, true), do: "Select a game to get started!"
   defp populate_subtext(nil, false), do: "Waiting for the host to select a game..."
   defp populate_subtext(_, _), do: nil
+
+  defp get_player_count(min_players, max_players) when min_players == max_players do
+    min_players
+  end
+
+  defp get_player_count(min_players, max_players) when min_players != max_players do
+    min_players <> "-" <> max_players
+  end
 end
