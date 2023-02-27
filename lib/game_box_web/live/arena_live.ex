@@ -48,49 +48,84 @@ defmodule GameBoxWeb.ArenaLive do
 
     ~H"""
     <%= if board == "" do %>
-      <%!-- <.hero
-        subheader="Arena"
-        header={@arena.arena_id}
-        subtext={populate_subtext(@game_selected, @is_host)}
-      /> --%>
-      <div class="flex justify-center items-center">
-        Your Arena Code:
-        <span class="text-primary text-2xl" id="arena-code"><%= @arena.arena_id %></span>
-        <.button
-          phx-click={JS.dispatch("gamebox:clipcopy", to: "#arena-code")}
-          class="inline"
-          variant="outline"
-        >
-          COPY
-        </.button>
-      </div>
       <%= if is_nil(@game_selected) do %>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12 mb-12">
-          <%= for game <- @games do %>
-            <.card>
-              <.card_media :if={game.artwork} src={game.artwork} />
-              <.card_media
-                :if={!game.artwork}
-                src="/images/donut.png"
-                class="flex justify-center w-48 p-6"
-              />
-              <.card_content
-                author={"@#{game.user.gh_login}"}
-                author_link={"https://github.com/@#{game.user.gh_login}"}
-                heading={game.title}
-              />
-              <.card_footer>
-                <%= if @is_host do %>
-                  <.button
-                    phx-click="select_game"
-                    phx-value-game_id={game.id}
-                    label="Start"
-                    class="w-full"
+        <div class="w-full mb-12">
+          <.card>
+            <.card_content>
+              <div class="flex justify-start items-start">
+                <div class="w-1/2">
+                  <div class="md:border-r border-zinc-700 mr-6 pr-6">
+                    <div class="font-display text-sm uppercase text-secondary tracking-wider ">
+                      Arena Code
+                    </div>
+                    <div class="flex justify-start items-center font-display gap-x-3 bg-dark my-3 ">
+                      <div class="text-primary text-2xl">
+                        <span id="arena-code"><%= @arena.arena_id %></span>
+                      </div>
+                      <div>
+                        <.button
+                          phx-click={JS.dispatch("gamebox:clipcopy", to: "#arena-code")}
+                          class="inline"
+                          variant="outline"
+                        >
+                          COPY
+                        </.button>
+                      </div>
+                    </div>
+                    <div class="border-t border-zinc-700">
+                      <.p class="text-sm leading-4">
+                        Have your friends enter this code at
+                        <.link href="http://gamebox.fly.dev" target="_blank">gamebox.fly.dev</.link>
+                        to play games together!
+                      </.p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <.p class="font-display tracking-wider uppercase text-xs !mb-0 !pb-2">
+                    Players Online:
+                  </.p>
+                  <.ol>
+                    <li :for={player <- @all_players}>
+                      <%= player.name %>
+                      <%= check_if_host(Arena.get_host(@arena.arena_id), player.id) %>
+                    </li>
+                  </.ol>
+                </div>
+              </div>
+            </.card_content>
+          </.card>
+        </div>
+        <div class="flex flex-col md:flex-row">
+          <div class="w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12 mb-12">
+              <%= for game <- @games do %>
+                <.card>
+                  <.card_media :if={game.artwork} src={game.artwork} />
+                  <.card_media
+                    :if={!game.artwork}
+                    src="/images/donut.png"
+                    class="flex justify-center w-48 p-6"
                   />
-                <% end %>
-              </.card_footer>
-            </.card>
-          <% end %>
+                  <.card_content
+                    author={"@#{game.user.gh_login}"}
+                    author_link={"https://github.com/@#{game.user.gh_login}"}
+                    heading={game.title}
+                  />
+                  <.card_footer>
+                    <%= if @is_host do %>
+                      <.button
+                        phx-click="select_game"
+                        phx-value-game_id={game.id}
+                        label="Start"
+                        class="w-full"
+                      />
+                    <% end %>
+                  </.card_footer>
+                </.card>
+              <% end %>
+            </div>
+          </div>
         </div>
       <% end %>
       <%= if @game_selected && !@game_started do %>
@@ -417,11 +452,11 @@ defmodule GameBoxWeb.ArenaLive do
   defp populate_subtext(nil, false), do: "Waiting for the host to select a game..."
   defp populate_subtext(_, _), do: nil
 
-  defp get_player_count(min_players, max_players) when min_players == max_players do
-    min_players
-  end
+  defp get_player_count(min_players, max_players) when min_players == max_players, do: min_players
 
-  defp get_player_count(min_players, max_players) when min_players != max_players do
-    min_players <> "-" <> max_players
-  end
+  defp get_player_count(min_players, max_players) when min_players != max_players,
+    do: min_players <> "-" <> max_players
+
+  defp check_if_host(arena_host, player_id) when arena_host == player_id, do: "(host)"
+  defp check_if_host(arena_host, player_id) when arena_host !== player_id, do: ""
 end
