@@ -24,7 +24,7 @@ defmodule GameBoxWeb.Typography do
     <h1
       class={
         get_heading_classes(
-          "text-4xl font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-br from-white to-secondary-dark",
+          "text-3xl md:text-4xl font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-br from-white to-secondary-dark",
           assigns
         )
       }

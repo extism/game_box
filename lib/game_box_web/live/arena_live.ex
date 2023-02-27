@@ -5,6 +5,7 @@ defmodule GameBoxWeb.ArenaLive do
   alias GameBox.Arena
   alias GameBox.Games
   alias GameBox.Players
+  alias Phoenix.LiveView.JS
   alias Phoenix.PubSub
 
   def mount(%{"arena_id" => arena_id}, _session, %{assigns: %{player_id: player_id}} = socket) do
@@ -47,11 +48,22 @@ defmodule GameBoxWeb.ArenaLive do
 
     ~H"""
     <%= if board == "" do %>
-      <.hero
+      <%!-- <.hero
         subheader="Arena"
         header={@arena.arena_id}
         subtext={populate_subtext(@game_selected, @is_host)}
-      />
+      /> --%>
+      <div class="flex justify-center items-center">
+        Your Arena Code:
+        <span class="text-primary text-2xl" id="arena-code"><%= @arena.arena_id %></span>
+        <.button
+          phx-click={JS.dispatch("gamebox:clipcopy", to: "#arena-code")}
+          class="inline"
+          variant="outline"
+        >
+          COPY
+        </.button>
+      </div>
       <%= if is_nil(@game_selected) do %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12 mb-12">
           <%= for game <- @games do %>
