@@ -194,7 +194,7 @@ defmodule GameBoxWeb.UploadLive do
 
           socket
           |> put_flash(:info, "Game successfully uploaded!")
-          |> redirect(to: Routes.live_path(socket, GameBoxWeb.UploadLive))
+          |> redirect(to: ~p"/upload")
 
         {:error, %Ecto.Changeset{} = changeset} ->
           socket

@@ -21,25 +21,25 @@ defmodule GameBoxWeb.StyleguideLive do
     <.hero header="Styleguide" />
     <.tabs class="my-10">
       <.tab
-        patch={Routes.styleguide_path(@socket, :styleguide)}
+        patch={~p"/styleguide"}
         replace={true}
         label="Colors"
         is_active={is_active?(@live_action, :styleguide)}
       />
       <.tab
-        patch={Routes.styleguide_path(@socket, :typography)}
+        patch={~p"/styleguide/typography"}
         replace={true}
         label="Typography"
         is_active={is_active?(@live_action, :typography)}
       />
       <.tab
-        patch={Routes.styleguide_path(@socket, :form_fields)}
+        patch={~p"/styleguide/form"}
         replace={true}
         label="Form"
         is_active={is_active?(@live_action, :form_fields)}
       />
       <.tab
-        patch={Routes.styleguide_path(@socket, :containers)}
+        patch={~p"/styleguide/containers"}
         replace={true}
         label="Content Containers"
         is_active={is_active?(@live_action, :containers)}
