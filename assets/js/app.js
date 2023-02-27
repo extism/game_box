@@ -35,6 +35,16 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", info => topbar.show())
 window.addEventListener("phx:page-loading-stop", info => topbar.hide())
 
+// Allow a user to copy the arena code 
+window.addEventListener("gamebox:clipcopy", (event) => {
+    if ("clipboard" in navigator) {
+      const text = event.target.textContent;
+      navigator.clipboard.writeText(text);
+    } else {
+      alert("Sorry, your browser does not support clipboard copy.");
+    }
+  });
+
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
