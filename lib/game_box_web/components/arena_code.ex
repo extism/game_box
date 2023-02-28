@@ -5,6 +5,7 @@ defmodule GameBoxWeb.ArenaCode do
   use Phoenix.Component
 
   import GameBoxWeb.Typography
+  alias GameBoxWeb.Router.Helpers, as: Routes
   alias Phoenix.LiveView.JS
 
   def arena_code(assigns) do
@@ -13,7 +14,7 @@ defmodule GameBoxWeb.ArenaCode do
     <.h1 :if={@arena_id} label={@arena_id} />
 
     <.p class="text-sm">
-      Have your friends enter this code at gamebox.fly.dev to join!
+      Have your friends enter this code at <%= @uri %> to join!
     </.p>
 
     <div>
@@ -28,7 +29,7 @@ defmodule GameBoxWeb.ArenaCode do
         <div class="copied hidden text-xs italic">Copied!</div>
       </.p>
 
-      <input type="hidden" id="arena-code" value={"gamebox.fly.dev/join?arena=#{@arena_id}"} />
+      <input type="hidden" id="arena-code" value={"#{@uri}/join?arena=#{@arena_id}"} />
     </div>
     """
   end
