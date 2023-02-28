@@ -52,12 +52,12 @@ defmodule GameBoxWeb.ArenaLive do
         <div class="w-full mb-6">
           <.card>
             <.card_content>
-              <div class="flex flex-col md:flex-row justify-start items-start">
-                <div class="w-1/3 border-r border-zinc-700 mr-6">
+              <div class="flex flex-col md:flex-row md:mb-6 justify-start items-start">
+                <div class="w-full md:w-1/3  md:border-r md:border-zinc-700 mr-6">
                   <.arena_code arena_id={@arena.arena_id} />
                 </div>
                 <div class="w-2/3">
-                  <div class="mb-6">
+                  <div class="mb-6 pt-12 md:pt-0">
                     <.p class="font-display tracking-wider uppercase text-xs !mt-0 !pt-0 !pb-2">
                       Players Online <span class="text-md">(<%= @total_players %>)</span>
                     </.p>
@@ -112,9 +112,9 @@ defmodule GameBoxWeb.ArenaLive do
       <%= if @game_selected && !@game_started do %>
         <div class="border border-zinc-700 rounded">
           <div class="flex">
-            <div class="p-6 w-full">
-              <div class="flex justify-start items-center py-6">
-                <div class="w-2/3">
+            <div class="md:p-6 w-full">
+              <div class="flex flex-col md:flex-row justify-start px-6 md:px-0 md:items-center py-6">
+                <div class="md:w-1/3">
                   <div>
                     <.h5 class="inline" label="Game:" />
                     <.h4 class="!text-secondary inline" label={@game_selected.title} />
@@ -124,7 +124,7 @@ defmodule GameBoxWeb.ArenaLive do
                     <.h4 class="!text-secondary inline !text-xs" label={@arena.arena_id} />
                   </div>
                 </div>
-                <div class="w-1/3 mb-3 pl-6">
+                <div class="w-full md:w-2/3 mb-3 md:pl-12">
                   <%= if @is_host && @game_selected do %>
                     <%= if can_start_game?(assigns) do %>
                       <div class="flex w-full gap-3">
@@ -151,11 +151,11 @@ defmodule GameBoxWeb.ArenaLive do
 
               <.divider />
 
-              <div class="flex w-full">
-                <div class="w-1/3">
-                  <img class="w-4/5" src={@game_selected.artwork} />
+              <div class="flex flex-col md:flex-row w-full p-6 md:p-0">
+                <div class="w-2/3 md:w-1/3">
+                  <img class="w-full md:w-4/5 pb-6 md:pb-0" src={@game_selected.artwork} />
                 </div>
-                <div class="w-1/3 border-r border-zinc-700">
+                <div class="w-full md:w-1/3 md:border-r md:border-zinc-700">
                   <div class="pr-12">
                     <.h4>Game Description:</.h4>
                     <.p>
@@ -176,9 +176,9 @@ defmodule GameBoxWeb.ArenaLive do
                     </div>
                   </div>
                 </div>
-                <div class="w-1/3">
-                  <div class="pl-12">
-                    <div class="pb-12">
+                <div class="w-full md:w-1/3">
+                  <div class="md:pl-12">
+                    <div class="border-t border-zinc-700 pt-6 mt-6 pb-12 md:pt-0 md:mt-0 md:border-0">
                       <.p class="font-display tracking-wider uppercase text-xs !mb-0 !pb-2">
                         Players Online <span class="text-md">(<%= @total_players %>)</span>
                       </.p>
