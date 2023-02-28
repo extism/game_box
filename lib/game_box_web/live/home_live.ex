@@ -9,6 +9,7 @@ defmodule GameBoxWeb.HomeLive do
     arena_id: :string
   }
   @impl true
+  @spec render(any) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <.hero class="pt-0 md:pt-16 !mb-0" header="Start or join an arena" />
@@ -64,6 +65,29 @@ defmodule GameBoxWeb.HomeLive do
       |> assign(:changeset, changeset)
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(
+        %{"arena" => arena},
+        _url,
+        %{assigns: %{changeset: changeset}} = socket
+      ) do
+    changeset = %{"arena_id" => arena} |> validate_arena(changeset)
+    {:noreply, assign(socket, :changeset, changeset)}
+  end
+
+  def handle_params(_, _url, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "validate",
+        %{"arena_form" => arena_params},
+        %{assigns: %{changeset: changeset}} = socket
+      ) do
+    changeset = arena_params |> validate_arena(changeset) |> Map.put(:action, :validate)
+    {:noreply, assign(socket, :changeset, changeset)}
   end
 
   @impl true
