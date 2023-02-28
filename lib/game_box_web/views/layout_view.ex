@@ -18,22 +18,11 @@ defmodule GameBoxWeb.LayoutView do
         Home
       </.link>
     </li>
-    <%= if @current_user do %>
-      <li>
-        <.link href={~p"/upload"} class="hover:!text-primary">
-          Upload Game
-        </.link>
-      </li>
-      <li>
-        <.link href={~p"/auth/delete"} class="hover:!text-primary">Sign Out</.link>
-      </li>
-    <% else %>
-      <li>
-        <.link href={~p"/auth/github"} class="hover:!text-primary">
-          Sign in with Github
-        </.link>
-      </li>
-    <% end %>
+    <li>
+      <.link href={~p"/upload"} class="hover:!text-primary">
+        Upload Game
+      </.link>
+    </li>
     """
   end
 end

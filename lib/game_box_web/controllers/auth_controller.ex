@@ -36,12 +36,12 @@ defmodule GameBoxWeb.AuthController do
     |> put_flash(:info, "Successfully authenticated #{user.gh_login}")
     |> put_session(:user_id, user.id)
     |> configure_session(renew: true)
-    |> redirect(to: ~p"/")
+    |> redirect(to: ~p"/upload")
   end
 
   defp handle_failure(conn) do
     conn
     |> put_flash(:error, "Failed to authenticate.")
-    |> redirect(to: ~p"/")
+    |> redirect(to: ~p"/signin")
   end
 end

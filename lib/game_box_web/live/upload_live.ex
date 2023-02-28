@@ -36,6 +36,14 @@ defmodule GameBoxWeb.UploadLive do
     <.hero header="Upload a Game" />
     <div>
       <.h3 label="Tell us how to play your game" />
+      <div class="flex justify-between">
+        <.p>
+          Uploading as <%= @user.gh_login %>
+        </.p>
+        <.p>
+          <.link class="underline" href={~p"/auth/delete"}>Sign out with Github</.link>
+        </.p>
+      </div>
       <div>
         <.simple_form
           :let={f}
@@ -44,7 +52,7 @@ defmodule GameBoxWeb.UploadLive do
           phx-change="validate"
           phx-submit="upload_game"
         >
-          <div class="grid grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="col-span-2">
               <.input field={{f, :title}} label="Title" />
 

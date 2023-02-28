@@ -4,14 +4,14 @@ defmodule GameBoxWeb.UploadLiveTest do
   use GameBoxWeb.ConnCase
 
   describe "mount" do
-    test "redirects to welcome path when unauthenticated", %{conn: conn} do
-      welcome_path = Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)
+    test "redirects to sign in path when unauthenticated", %{conn: conn} do
+      sign_in_path = Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.SignInLive)
 
       assert {:error,
               {:redirect,
                %{
                  flash: %{"info" => "You must be logged in to view this page."},
-                 to: ^welcome_path
+                 to: ^sign_in_path
                }}} = live(conn, Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive))
     end
 
