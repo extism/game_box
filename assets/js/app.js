@@ -38,8 +38,14 @@ window.addEventListener("phx:page-loading-stop", info => topbar.hide())
 // Allow a user to copy the arena code 
 window.addEventListener("gamebox:clipcopy", (event) => {
     if ("clipboard" in navigator) {
-      const text = event.target.textContent;
+      const text = event.target.value;
       navigator.clipboard.writeText(text);
+
+      var copied_text = document.getElementsByClassName("copied");
+      for (let i = 0; i < copied_text.length; i++) {
+        copied_text[i].classList.remove("hidden")
+      }
+
     } else {
       alert("Sorry, your browser does not support clipboard copy.");
     }
