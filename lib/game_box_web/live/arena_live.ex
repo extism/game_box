@@ -64,7 +64,7 @@ defmodule GameBoxWeb.ArenaLive do
                     <.ol class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
                       <li :for={player <- @all_players}>
                         <%= player.name %>
-                        <%= check_if_host(Arena.get_host(@arena.arena_id), player.id) %>
+                        <%= check_if_host(@arena.host_id, player.id) %>
                       </li>
                     </.ol>
                   </div>
@@ -185,7 +185,7 @@ defmodule GameBoxWeb.ArenaLive do
                       <.ol class="grid grid-cols-1">
                         <li :for={player <- @all_players}>
                           <%= player.name %>
-                          <%= check_if_host(Arena.get_host(@arena.arena_id), player.id) %>
+                          <%= check_if_host(@arena.host_id, player.id) %>
                         </li>
                       </.ol>
                     </div>
