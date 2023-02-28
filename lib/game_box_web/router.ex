@@ -42,6 +42,7 @@ defmodule GameBoxWeb.Router do
       live("/join", HomeLive)
       live("/arena/:arena_id", ArenaLive)
       live("/arena/:arena_id/game/:game_id", GameLive)
+      live("/signin", SignInLive)
     end
   end
 
