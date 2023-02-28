@@ -18,7 +18,7 @@ defmodule GameBoxWeb.ArenaCode do
 
     <div>
       <div class="w-5/6">
-        <label for="email" class="block text-sm text-secondary">Copy invite link:</label>
+        <label for="email" class="block text-sm text-secondary">Or copy invite link:</label>
         <div class="mt-1 flex rounded-md shadow-sm">
           <div class="relative flex flex-grow items-stretch focus-within:z-10">
             <input
