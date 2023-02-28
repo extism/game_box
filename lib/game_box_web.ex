@@ -53,6 +53,7 @@ defmodule GameBoxWeb do
       use Phoenix.LiveView,
         layout: {GameBoxWeb.LayoutView, :live}
 
+      import GameBoxWeb.ArenaCode
       import GameBoxWeb.Card
       import GameBoxWeb.Container
       import GameBoxWeb.Code

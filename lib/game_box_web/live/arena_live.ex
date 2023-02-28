@@ -49,60 +49,35 @@ defmodule GameBoxWeb.ArenaLive do
     ~H"""
     <%= if board == "" do %>
       <%= if is_nil(@game_selected) do %>
-        <div class="w-full mb-12">
+        <div class="w-full mb-6">
           <.card>
             <.card_content>
               <div class="flex flex-col md:flex-row justify-start items-start">
-                <div class="w-full md:w-1/2">
-                  <div class="md:border-r border-zinc-700 mr-6 pr-6">
-                    <div class="font-display text-sm uppercase text-secondary tracking-wider ">
-                      Arena Code
-                    </div>
-                    <div class="flex justify-start items-center gap-x-3 bg-dark my-3 ">
-                      <div class="font-display text-primary text-2xl tracking-widest">
-                        <span id="arena-code"><%= @arena.arena_id %></span>
-                      </div>
-                      <div>
-                        <.button
-                          phx-click={JS.dispatch("gamebox:clipcopy", to: "#arena-code")}
-                          class="inline"
-                          variant="outline"
-                        >
-                          COPY
-                        </.button>
-                      </div>
-                    </div>
-                    <div class="border-t border-zinc-700 mt-3 pt-3">
-                      <.p class="text-sm leading-4">
-                        Have your friends enter this code at
-                        <.link href="http://gamebox.fly.dev" target="_blank">gamebox.fly.dev</.link>
-                        to play games together!
-                      </.p>
-                    </div>
+                <div class="w-1/3 border-r border-zinc-700 mr-6">
+                  <.arena_code arena_id={@arena.arena_id} />
+                </div>
+                <div class="w-2/3">
+                  <div class="mb-6">
+                    <.p class="font-display tracking-wider uppercase text-xs !mt-0 !pt-0 !pb-2">
+                      Players Online <span class="text-md">(<%= @total_players %>)</span>
+                    </.p>
+                    <.ol class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                      <li :for={player <- @all_players}>
+                        <%= player.name %>
+                        <%= check_if_host(Arena.get_host(@arena.arena_id), player.id) %>
+                      </li>
+                    </.ol>
                   </div>
                 </div>
-                <div>
-                  <.p class="font-display tracking-wider uppercase text-xs !mb-0 !pb-2">
-                    Players Online <span class="text-md">(<%= @total_players %>)</span>
-                  </.p>
-                  <.ol class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                    <li :for={player <- @all_players}>
-                      <%= player.name %>
-                      <%= check_if_host(Arena.get_host(@arena.arena_id), player.id) %>
-                    </li>
-                  </.ol>
-                </div>
-              </div>
-              <div class="border-t border-zinc-700 text-center mt-6 md:mt-0">
-                <.p class="!text-primary pt-6 text-lg">
-                  <%= populate_hint(@game_selected, @is_host) %>
-                </.p>
               </div>
             </.card_content>
           </.card>
         </div>
         <div class="flex flex-col md:flex-row">
           <div class="w-full">
+            <.p class="py-3 text-lg">
+              <%= populate_hint(@game_selected, @is_host) %>
+            </.p>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-x-12 md:gap-y-12 mb-12">
               <%= for game <- @games do %>
                 <.card>
@@ -133,85 +108,122 @@ defmodule GameBoxWeb.ArenaLive do
           </div>
         </div>
       <% end %>
+
       <%= if @game_selected && !@game_started do %>
-        <div class="pt-4">
-          <div class="flex align-center">
-            <.h4 label="Waiting to Play:" />
-            <.h4 class="pl-4" label={@game_selected.title} />
-          </div>
-
-          <div class="flex row gap-x-8 mt-8 grid grid-cols-6">
-            <div class="col-span-3">
-              <img class="w-1/2" src={@game_selected.artwork} />
-              <div class="mt-12">
-                <.h4>Game Description:</.h4>
-                <.p><%= @game_selected.description %></.p>
-              </div>
-              <.card class="mt-12">
-                <.card_content>
-                  <.h4>Credits</.h4>
-                  <.p>
-                    Game and instructions by
-                    <.link href={"https://github.com/#{@game_selected.user.gh_login}"}>
-                      @<%= @game_selected.user.gh_login %>
-                    </.link>
-                  </.p>
-                </.card_content>
-              </.card>
-            </div>
-            <div class="col-span-3">
-              <.card>
-                <.card_content>
+        <div class="border border-zinc-700 rounded">
+          <div class="flex">
+            <div class="p-6 w-full">
+              <div class="flex justify-start items-center py-6">
+                <div class="w-2/3">
                   <div>
-                    <.h4 label="Game Details" />
+                    <.h5 class="inline" label="Game:" />
+                    <.h4 class="!text-secondary inline" label={@game_selected.title} />
+                  </div>
+                  <div>
+                    <.h5 class="inline text-secondary !text-xs" label="Arena:" />
+                    <.h4 class="!text-secondary inline !text-xs" label={@arena.arena_id} />
+                  </div>
+                </div>
+                <div class="w-1/3 mb-3 pl-6">
+                  <%= if @is_host && @game_selected do %>
+                    <%= if can_start_game?(assigns) do %>
+                      <div class="flex w-full gap-3">
+                        <.button
+                          phx-click="start_game"
+                          phx-value-game-id={@game_selected.id}
+                          label="Start Game"
+                          class="w-full"
+                        />
+                      </div>
+                    <% end %>
+                    <%= if !can_start_game?(assigns) do %>
+                      <.p class="italic pr-2">
+                        You don't have the right number of players for this game.
+                      </.p>
+                    <% end %>
+                  <% end %>
 
+                  <%= if !@is_host && @game_selected do %>
+                    <.p class="text-primary text-lg italic">Waiting on host to start game</.p>
+                  <% end %>
+                </div>
+              </div>
+
+              <.divider />
+
+              <div class="flex w-full">
+                <div class="w-1/3">
+                  <img class="w-4/5" src={@game_selected.artwork} />
+                </div>
+                <div class="w-1/3 border-r border-zinc-700">
+                  <div class="pr-12">
+                    <.h4>Game Description:</.h4>
                     <.p>
                       Player Count: <%= get_player_count(
                         @constraints.min_players,
                         @constraints.max_players
                       ) %>
                     </.p>
+                    <.p><%= @game_selected.description %></.p>
+                    <div class="pt-6">
+                      <.h4>Credits</.h4>
+                      <.p>
+                        Game and instructions by
+                        <.link href={"https://github.com/#{@game_selected.user.gh_login}"}>
+                          @<%= @game_selected.user.gh_login %>
+                        </.link>
+                      </.p>
+                    </div>
                   </div>
-                  <.card>
-                    <.card_content>
-                      <.p class="font-display !text-white">Players Online (<%= @total_players %>)</.p>
-                      <.ol>
+                </div>
+                <div class="w-1/3">
+                  <div class="pl-12">
+                    <div class="pb-12">
+                      <.p class="font-display tracking-wider uppercase text-xs !mb-0 !pb-2">
+                        Players Online <span class="text-md">(<%= @total_players %>)</span>
+                      </.p>
+                      <.ol class="grid grid-cols-1">
                         <li :for={player <- @all_players}>
                           <%= player.name %>
+                          <%= check_if_host(Arena.get_host(@arena.arena_id), player.id) %>
                         </li>
                       </.ol>
-                    </.card_content>
-                  </.card>
-                  <%= unless can_start_game?(assigns) do %>
-                    <.p class="text-center !text-primary font-display text-sm">
-                      Waiting on more players...
-                    </.p>
-                  <% end %>
-                </.card_content>
-                <.card_footer>
-                  <%= if @is_host && @game_selected do %>
-                    <.button
-                      phx-click="unselect_game"
-                      phx-value-game-id={@game_selected.id}
-                      variant="outline"
-                      label="Lobby"
-                      class="w-full"
-                    />
+                    </div>
 
-                    <%= if can_start_game?(assigns) do %>
-                      <.button
-                        phx-click="start_game"
-                        phx-value-game-id={@game_selected.id}
-                        label="Start Game"
-                        class="w-full"
-                      />
-                    <% end %>
-                  <% end %>
-                </.card_footer>
-              </.card>
+                    <.divider />
+
+                    <a
+                      class="text-primary cursor-pointer"
+                      phx-click={
+                        JS.toggle(
+                          to: "#invite-friends",
+                          in:
+                            {"ease-out duration-1000", "opacity-0 translate-y-full sm:translate-y-0",
+                             "opacity-100 translate-y-0"}
+                        )
+                      }
+                    >
+                      Invite More Friends
+                      <Heroicons.chevron_down solid class="h-5 w-5 stroke-current inline" />
+                    </a>
+                    <div class="pt-6 hidden" id="invite-friends">
+                      <.arena_code arena_id={@arena.arena_id} />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        <%= if @is_host && @game_selected do %>
+          <.button
+            phx-click="unselect_game"
+            phx-value-game-id={@game_selected.id}
+            variant="outline"
+            label="< Arena Lobby"
+            class="mt-6"
+          />
+        <% end %>
       <% end %>
     <% else %>
       <%= if @is_host && @game_selected do %>
@@ -239,6 +251,8 @@ defmodule GameBoxWeb.ArenaLive do
         %{"game-id" => game_id},
         %{assigns: %{arena: %{arena_id: arena_id}}} = socket
       ) do
+    IO.inspect("hey girl you selected a game")
+
     case Arena.set_game(arena_id, game_id) do
       {:ok, _game_id} ->
         PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_selected)
