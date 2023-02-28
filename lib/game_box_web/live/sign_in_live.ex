@@ -4,7 +4,7 @@ defmodule GameBoxWeb.SignInLive do
   def render(assigns) do
     ~H"""
     <.hero header="Sign In" />
-    <div class="flex flex-col items-center justify-center">
+    <div class="flex flex-col items-center justify-center text-center">
       <.p>
         To upload a game, you must first sign in through Github. Click the link below to authorize GameBox.
       </.p>
