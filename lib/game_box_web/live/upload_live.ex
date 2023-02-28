@@ -52,7 +52,7 @@ defmodule GameBoxWeb.UploadLive do
           phx-change="validate"
           phx-submit="upload_game"
         >
-          <div class="grid grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="col-span-2">
               <.input field={{f, :title}} label="Title" />
 
