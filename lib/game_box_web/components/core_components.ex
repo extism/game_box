@@ -234,7 +234,7 @@ defmodule GameBoxWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 block rounded-lg bg-primary hover:bg-primary-dark py-4 px-4 mt-3",
+        "phx-submit-loading:opacity-75 block rounded-lg bg-primary hover:bg-primary-dark py-4 px-4",
         "font-display tracking-wider text-xs text-dark hover:text-white ",
         @class
       ]}
@@ -250,7 +250,23 @@ defmodule GameBoxWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 block rounded-lg bg-dark border border-primary hover:bg-primary py-4 px-4 mt-3",
+        "phx-submit-loading:opacity-75 block rounded-lg bg-dark border border-primary hover:bg-primary py-4 px-4",
+        "font-display tracking-wider text-xs text-primary hover:text-white ",
+        @class
+      ]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) || @label %>
+    </button>
+    """
+  end
+
+  def button(%{color: "primary", variant: "tiny"} = assigns) do
+    ~H"""
+    <button
+      type={@type}
+      class={[
+        "phx-submit-loading:opacity-75 block rounded-lg bg-dark border border-primary hover:bg-primary p-2",
         "font-display tracking-wider text-xs text-primary hover:text-white ",
         @class
       ]}
