@@ -20,7 +20,7 @@ defmodule GameBoxWeb.AuthControllerTest do
       assert Flash.get(conn.assigns.flash, :info) ==
                "Successfully authenticated #{gh_login}"
 
-      assert redirected_to(conn) == Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)
+      assert redirected_to(conn) == Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.UploadLive)
     end
 
     test "can handle a fail response from github", %{conn: conn} do
@@ -33,7 +33,7 @@ defmodule GameBoxWeb.AuthControllerTest do
 
       assert Flash.get(conn.assigns.flash, :error) == "Failed to authenticate."
 
-      assert redirected_to(conn) == Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive)
+      assert redirected_to(conn) == Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.SignInLive)
     end
   end
 
