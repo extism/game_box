@@ -17,18 +17,32 @@ defmodule GameBoxWeb.ArenaCode do
     </.p>
 
     <div>
-      <.p class="text-secondary text-sm !m-0">
-        Or
-        <a
-          class="cursor-pointer underline text-primary hover:text-white"
-          phx-click={JS.dispatch("gamebox:clipcopy", to: "#arena-code")}
-        >
-          copy an invite link
-        </a>
-        <div class="copied hidden text-xs italic">Copied!</div>
-      </.p>
+      <div class="w-5/6">
+        <label for="email" class="block text-sm text-secondary">Copy invite link:</label>
+        <div class="mt-1 flex rounded-md shadow-sm">
+          <div class="relative flex flex-grow items-stretch focus-within:z-10">
+            <input
+              id="arena-code"
+              class={[
+                "block w-full rounded-lg py-[7px] px-[11px] bg-dark border border-zinc-800",
+                "text-white focus:outline-none focus:ring-4 sm:text-xs sm:leading-6",
+                "border-zinc-700 focus:border-primary-dark focus:ring-zinc-800/5"
+              ]}
+              value={"#{@uri}/join?arena=#{@arena_id}"}
+            />
+          </div>
 
-      <input type="hidden" id="arena-code" value={"#{@uri}/join?arena=#{@arena_id}"} />
+          <button
+            phx-click={JS.dispatch("gamebox:clipcopy", to: "#arena-code")}
+            type="button"
+            class="relative -ml-px inline-flex items-center rounded-r-md border border-zinc-800 bg-dark px-2 py-1 text-sm font-medium text-primary hover:bg-primary hover:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="copied hidden text-xs italic">Copied!</div>
     </div>
     """
   end
