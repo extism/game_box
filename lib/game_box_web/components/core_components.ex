@@ -261,6 +261,22 @@ defmodule GameBoxWeb.CoreComponents do
     """
   end
 
+  def button(%{color: "primary", variant: "tiny"} = assigns) do
+    ~H"""
+    <button
+      type={@type}
+      class={[
+        "phx-submit-loading:opacity-75 block rounded-lg bg-dark border border-primary hover:bg-primary p-2",
+        "font-display tracking-wider text-xs text-primary hover:text-white ",
+        @class
+      ]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) || @label %>
+    </button>
+    """
+  end
+
   @doc """
   Renders an input with label and error messages.
 
