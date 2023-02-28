@@ -81,15 +81,6 @@ defmodule GameBoxWeb.HomeLive do
     {:noreply, socket}
   end
 
-  def handle_event(
-        "validate",
-        %{"arena_form" => arena_params},
-        %{assigns: %{changeset: changeset}} = socket
-      ) do
-    changeset = arena_params |> validate_arena(changeset) |> Map.put(:action, :validate)
-    {:noreply, assign(socket, :changeset, changeset)}
-  end
-
   @impl true
   def handle_event(
         "join_arena",
