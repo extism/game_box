@@ -89,7 +89,7 @@ defmodule GameBoxWeb.ArenaLive do
                   />
                   <.card_content
                     author={"@#{game.user.gh_login}"}
-                    author_link={"https://github.com/@#{game.user.gh_login}"}
+                    author_link={"https://github.com/#{game.user.gh_login}"}
                     heading={game.title}
                   />
                   <.card_footer>
@@ -114,7 +114,7 @@ defmodule GameBoxWeb.ArenaLive do
           <div class="flex">
             <div class="md:p-6 w-full">
               <div class="flex flex-col md:flex-row justify-start px-6 md:px-0 md:items-center py-6">
-                <div class="md:w-1/3">
+                <div class="md:w-2/3">
                   <div>
                     <.h5 class="inline" label="Game:" />
                     <.h4 class="!text-secondary inline" label={@game_selected.title} />
@@ -124,7 +124,7 @@ defmodule GameBoxWeb.ArenaLive do
                     <.h4 class="!text-secondary inline !text-xs" label={@arena.arena_id} />
                   </div>
                 </div>
-                <div class="w-full md:w-2/3 mb-3 md:pl-12">
+                <div class="w-full md:w-1/3 mb-3 md:pl-12">
                   <%= if @is_host && @game_selected do %>
                     <%= if can_start_game?(assigns) do %>
                       <div class="flex w-full gap-3">
