@@ -1,4 +1,7 @@
 defmodule GameBoxWeb.ArenaCode do
+  @moduledoc """
+  A component for displaying the Arena Code and a copy link.
+  """
   use Phoenix.Component
 
   import GameBoxWeb.Typography

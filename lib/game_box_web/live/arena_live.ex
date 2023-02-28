@@ -251,8 +251,6 @@ defmodule GameBoxWeb.ArenaLive do
         %{"game-id" => game_id},
         %{assigns: %{arena: %{arena_id: arena_id}}} = socket
       ) do
-    IO.inspect("hey girl you selected a game")
-
     case Arena.set_game(arena_id, game_id) do
       {:ok, _game_id} ->
         PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", :game_selected)
