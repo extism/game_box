@@ -5,7 +5,6 @@ defmodule GameBoxWeb.ArenaCode do
   use Phoenix.Component
 
   import GameBoxWeb.Typography
-  alias GameBoxWeb.Router.Helpers, as: Routes
   alias Phoenix.LiveView.JS
 
   def arena_code(assigns) do

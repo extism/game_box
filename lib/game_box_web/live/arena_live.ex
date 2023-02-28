@@ -136,7 +136,7 @@ defmodule GameBoxWeb.ArenaLive do
                         />
                       </div>
                     <% end %>
-                    <%= if !can_start_game?(assigns) do %>
+                    <%= unless can_start_game?(assigns) do %>
                       <.p class="italic pr-2">
                         You don't have the right number of players for this game.
                       </.p>
