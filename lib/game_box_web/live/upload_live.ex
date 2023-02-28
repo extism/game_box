@@ -120,7 +120,7 @@ defmodule GameBoxWeb.UploadLive do
       </div>
 
       <.h2 label="My Games" class="mt-12" />
-      <div class="grid grid-cols-3 gap-x-12 gap-y-12 mb-12 mt-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-x-12 gap-y-12 mb-12 mt-12">
         <%= for game <- @games do %>
           <.card>
             <.card_media :if={game.artwork} src={game.artwork} />
@@ -129,6 +129,7 @@ defmodule GameBoxWeb.UploadLive do
               src="/images/donut.png"
               class="flex justify-center w-48 p-6"
             />
+
             <.card_content heading={game.title} />
           </.card>
         <% end %>

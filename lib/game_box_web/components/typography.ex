@@ -77,7 +77,12 @@ defmodule GameBoxWeb.Typography do
 
   def h4(assigns) do
     ~H"""
-    <h4 class={get_heading_classes("text-lg font-display tracking-wider", assigns)} {@rest}>
+    <h4
+      class={
+        get_heading_classes("text-md md:text-lg leading-loose font-display tracking-wider", assigns)
+      }
+      {@rest}
+    >
       <%= render_slot(@inner_block) || @label %>
     </h4>
     """

@@ -58,8 +58,8 @@ defmodule GameBoxWeb.ArenaLive do
                     <div class="font-display text-sm uppercase text-secondary tracking-wider ">
                       Arena Code
                     </div>
-                    <div class="flex justify-start items-center font-display gap-x-3 bg-dark my-3 ">
-                      <div class="text-primary text-2xl">
+                    <div class="flex justify-start items-center gap-x-3 bg-dark my-3 ">
+                      <div class="font-display text-primary text-2xl tracking-widest">
                         <span id="arena-code"><%= @arena.arena_id %></span>
                       </div>
                       <div>
@@ -72,7 +72,7 @@ defmodule GameBoxWeb.ArenaLive do
                         </.button>
                       </div>
                     </div>
-                    <div class="border-t border-zinc-700">
+                    <div class="border-t border-zinc-700 mt-3 pt-3">
                       <.p class="text-sm leading-4">
                         Have your friends enter this code at
                         <.link href="http://gamebox.fly.dev" target="_blank">gamebox.fly.dev</.link>
@@ -83,28 +83,27 @@ defmodule GameBoxWeb.ArenaLive do
                 </div>
                 <div>
                   <.p class="font-display tracking-wider uppercase text-xs !mb-0 !pb-2">
-                    Players Online <span class="text-md">(8)</span>
+                    Players Online <span class="text-md">(<%= @total_players %>)</span>
                   </.p>
                   <.ol class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
                     <li :for={player <- @all_players}>
                       <%= player.name %>
                       <%= check_if_host(Arena.get_host(@arena.arena_id), player.id) %>
                     </li>
-                    <li>Player 2</li>
-                    <li>Player 3</li>
-                    <li>Player 4</li>
-                    <li>Player 5</li>
-                    <li>Player 6</li>
-                    <li>Player 7</li>
                   </.ol>
                 </div>
+              </div>
+              <div class="border-t border-zinc-700 text-center mt-6 md:mt-0">
+                <.p class="!text-primary pt-6 text-lg">
+                  <%= populate_hint(@game_selected, @is_host) %>
+                </.p>
               </div>
             </.card_content>
           </.card>
         </div>
         <div class="flex flex-col md:flex-row">
           <div class="w-full">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-12 mb-12">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-x-12 md:gap-y-12 mb-12">
               <%= for game <- @games do %>
                 <.card>
                   <.card_media :if={game.artwork} src={game.artwork} />
@@ -141,11 +140,11 @@ defmodule GameBoxWeb.ArenaLive do
             <.h4 class="pl-4" label={@game_selected.title} />
           </div>
 
-          <div class="flex row gap-x-8 mt-8">
-            <div class="basis-2/3">
-              <img class="aspect-square" src={@game_selected.artwork} />
+          <div class="flex row gap-x-8 mt-8 grid grid-cols-6">
+            <div class="col-span-3">
+              <img class="w-1/2" src={@game_selected.artwork} />
               <div class="mt-12">
-                <.h4>How to play:</.h4>
+                <.h4>Game Description:</.h4>
                 <.p><%= @game_selected.description %></.p>
               </div>
               <.card class="mt-12">
@@ -160,11 +159,12 @@ defmodule GameBoxWeb.ArenaLive do
                 </.card_content>
               </.card>
             </div>
-            <div class="basis-1/3">
+            <div class="col-span-3">
               <.card>
                 <.card_content>
                   <div>
-                    <.h4 label="Details" />
+                    <.h4 label="Game Details" />
+
                     <.p>
                       Player Count: <%= get_player_count(
                         @constraints.min_players,
@@ -174,7 +174,7 @@ defmodule GameBoxWeb.ArenaLive do
                   </div>
                   <.card>
                     <.card_content>
-                      <.p class="font-display !text-white">Online Players</.p>
+                      <.p class="font-display !text-white">Players Online (<%= @total_players %>)</.p>
                       <.ol>
                         <li :for={player <- @all_players}>
                           <%= player.name %>
@@ -454,14 +454,15 @@ defmodule GameBoxWeb.ArenaLive do
     })
   end
 
-  defp populate_subtext(nil, true), do: "Select a game to get started!"
-  defp populate_subtext(nil, false), do: "Waiting for the host to select a game..."
-  defp populate_subtext(_, _), do: nil
+  defp populate_hint(nil, true), do: "Select a game from below to get started!"
+  defp populate_hint(nil, false), do: "Waiting for the host to select a game..."
+  defp populate_hint(_, _), do: nil
 
   defp get_player_count(min_players, max_players) when min_players == max_players, do: min_players
 
-  defp get_player_count(min_players, max_players) when min_players != max_players,
-    do: min_players <> "-" <> max_players
+  defp get_player_count(min_players, max_players) when min_players != max_players do
+    to_string(min_players) <> "-" <> to_string(max_players)
+  end
 
   defp check_if_host(arena_host, player_id) when arena_host == player_id, do: "(host)"
   defp check_if_host(arena_host, player_id) when arena_host !== player_id, do: ""
