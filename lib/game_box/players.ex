@@ -58,6 +58,8 @@ defmodule GameBox.Players do
 
   @spec exists?(arena_id :: String.t()) :: boolean()
   def exists?(arena_id) do
+    arena_id = String.downcase(arena_id)
+
     GameBox.ArenaRegistry
     |> Horde.Registry.lookup(arena_id)
     |> Enum.any?()
@@ -214,6 +216,8 @@ defmodule GameBox.Players do
   Start a new player.
   """
   def start(arena_id) do
+    arena_id = String.downcase(arena_id)
+
     case Horde.DynamicSupervisor.start_child(
            GameBox.DistributedSupervisor,
            {Players, [arena_id: arena_id]}
@@ -221,19 +225,26 @@ defmodule GameBox.Players do
       {:ok, _pid} ->
         Logger.info("Started players server #{inspect(arena_id)}")
 
-        :ok
+        {:ok, :started}
 
       :ignore ->
         Logger.info("Players server #{inspect(arena_id)} already running. Joining")
 
-        :ok
+        {:ok, :joined}
+
+      _ ->
+        {:error}
     end
   end
 
   @doc """
   Return the `:via` tuple for referencing and interacting with a specific Server.
   """
-  def via_tuple(arena_id), do: {:via, Horde.Registry, {GameBox.PlayersRegistry, arena_id}}
+  def via_tuple(arena_id) do
+    arena_id = String.downcase(arena_id)
+
+    {:via, Horde.Registry, {GameBox.PlayersRegistry, arena_id}}
+  end
 
   defp change_player(player, params) do
     {player, @schema}

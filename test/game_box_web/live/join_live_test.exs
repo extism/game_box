@@ -11,7 +11,7 @@ defmodule GameBoxWeb.JoinLiveTest do
       |> element("#join_arena")
       |> render_submit(%{arena_form: %{player_name: "Joe", arena_id: "abcd"}})
 
-      path = ~p"/arena/ABCD"
+      path = ~p"/arena/abcd"
       assert {^path, %{}} = assert_redirect(view)
       assert %{id: ^player_id, name: "JOE"} = GameBox.Players.get_player("ABCD", player_id)
       assert %{arena_id: "ABCD"} = GameBox.Arena.state("ABCD")

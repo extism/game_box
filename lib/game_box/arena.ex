@@ -14,6 +14,8 @@ defmodule GameBox.Arena do
 
   @spec exists?(arena_id :: String.t()) :: boolean()
   def exists?(arena_id) do
+    arena_id = String.downcase(arena_id)
+
     GameBox.ArenaRegistry
     |> Horde.Registry.lookup(arena_id)
     |> Enum.any?()
@@ -62,11 +64,12 @@ defmodule GameBox.Arena do
     if exists?(arena_id) do
       GenServer.call(via_tuple(arena_id), :state)
     else
-      %{arena_id: arena_id}
+      %{arena_id: String.downcase(arena_id)}
     end
   end
 
   def via_tuple(arena_id) do
+    arena_id = String.downcase(arena_id)
     {:via, Horde.Registry, {GameBox.ArenaRegistry, arena_id}}
   end
 
@@ -112,9 +115,9 @@ defmodule GameBox.Arena do
         {:ok, :initiated}
 
       :ignore ->
-        Logger.info("Game server #{inspect(arena_id)} already running. Joining")
+        Logger.info("Game server #{inspect(arena_id)} already running. Returning error")
 
-        {:ok, :joined}
+        {:error, :already_exists}
     end
   end
 

@@ -9,6 +9,8 @@ defmodule GameBoxWeb.StartLive do
     arena_id: :string
   }
 
+  @charlist 'abcdefghijklmnopqrstuvwxyz'
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -16,12 +18,12 @@ defmodule GameBoxWeb.StartLive do
     <div class="w-full flex justify-center">
       <.simple_form
         :let={f}
-        id="join_arena"
+        id="start_arena"
         for={@changeset}
         as="arena_form"
         class="w-full md:w-2/3 lg:w-1/2"
         phx-change="validate"
-        phx-submit="join_arena"
+        phx-submit="start_arena"
       >
         <div class="flex flex-col gap-y-6">
           <.input
@@ -82,34 +84,27 @@ defmodule GameBoxWeb.StartLive do
 
   @impl true
   def handle_event(
-        "join_arena",
-        %{"arena_form" => %{"player_name" => player_name, "arena_id" => arena_id}},
-        socket
+        "start_arena",
+        %{"arena_form" => %{"player_name" => player_name}},
+        %{assigns: %{player_id: player_id}} = socket
       ) do
-    %{assigns: %{player_id: player_id}} = socket
+    arena_id =
+      for _ <- 1..4,
+          into: "",
+          do: <<Enum.random(@charlist)>>
 
-    arena_id = String.upcase(arena_id)
     player_name = String.upcase(player_name)
 
-    case Arena.start(arena_id) do
-      {:ok, :initiated} ->
-        Arena.set_host(arena_id, player_id)
-
-      {:ok, :joined} ->
-        nil
-    end
-
-    :ok = Players.start(arena_id)
-
-    case Players.register_player(arena_id, player_id, %{name: player_name, arena_id: arena_id}) do
-      {:ok, _player} ->
-        {:noreply, push_redirect(socket, to: ~p"/arena/#{arena_id}")}
-
-      {:error, %Ecto.Changeset{}} ->
-        {:noreply, put_flash(socket, :error, "Invalid data was received.")}
-
-      {:error, msg} ->
-        {:noreply, put_flash(socket, :error, msg)}
+    with false <- Arena.exists?(arena_id),
+         {:ok, :initiated} <- Arena.start(arena_id),
+         {:ok, _} <- Players.start(arena_id),
+         {:ok, _player} <-
+           Players.register_player(arena_id, player_id, %{name: player_name, arena_id: arena_id}) do
+      Arena.set_host(arena_id, player_id)
+      {:noreply, push_redirect(socket, to: ~p"/arena/#{arena_id}")}
+    else
+      _error ->
+        {:noreply, put_flash(socket, :error, "Try again")}
     end
   end
 
@@ -130,12 +125,7 @@ defmodule GameBoxWeb.StartLive do
   defp validate_arena(attrs, changeset) do
     {changeset, @arena_types}
     |> Changeset.cast(attrs, Map.keys(@arena_types))
-    |> Changeset.validate_required([:player_name, :arena_id])
+    |> Changeset.validate_required([:player_name])
     |> Changeset.validate_length(:player_name, min: 2, max: 12)
-    |> Changeset.validate_length(:arena_id,
-      min: 4,
-      max: 4,
-      message: "Arena code should be exactly 4 characters"
-    )
   end
 end

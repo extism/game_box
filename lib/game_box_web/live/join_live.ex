@@ -88,32 +88,18 @@ defmodule GameBoxWeb.JoinLive do
   def handle_event(
         "join_arena",
         %{"arena_form" => %{"player_name" => player_name, "arena_id" => arena_id}},
-        socket
+        %{assigns: %{player_id: player_id}} = socket
       ) do
-    %{assigns: %{player_id: player_id}} = socket
-
-    arena_id = String.upcase(arena_id)
     player_name = String.upcase(player_name)
 
-    case Arena.start(arena_id) do
-      {:ok, :initiated} ->
-        Arena.set_host(arena_id, player_id)
+    if Arena.exists?(arena_id) do
+      case Players.start(arena_id) do
+        {:ok, _} ->
+          handle_register_player(arena_id, player_id, player_name, socket)
 
-      {:ok, :joined} ->
-        nil
-    end
-
-    :ok = Players.start(arena_id)
-
-    case Players.register_player(arena_id, player_id, %{name: player_name, arena_id: arena_id}) do
-      {:ok, _player} ->
-        {:noreply, push_redirect(socket, to: ~p"/arena/#{arena_id}")}
-
-      {:error, %Ecto.Changeset{}} ->
-        {:noreply, put_flash(socket, :error, "Invalid data was received.")}
-
-      {:error, msg} ->
-        {:noreply, put_flash(socket, :error, msg)}
+        _ ->
+          {:noreply, put_flash(socket, :error, "Unexpected error occured joining the arena.")}
+      end
     end
   end
 
@@ -141,5 +127,21 @@ defmodule GameBoxWeb.JoinLive do
       max: 4,
       message: "Arena code should be exactly 4 characters"
     )
+  end
+
+  defp handle_register_player(arena_id, player_id, player_name, socket) do
+    case Players.register_player(arena_id, player_id, %{
+           name: player_name,
+           arena_id: arena_id
+         }) do
+      {:ok, _player} ->
+        {:noreply, push_redirect(socket, to: ~p"/arena/#{arena_id}")}
+
+      {:error, %Ecto.Changeset{}} ->
+        {:noreply, put_flash(socket, :error, "Invalid data was received.")}
+
+      {:error, msg} ->
+        {:noreply, put_flash(socket, :error, msg)}
+    end
   end
 end
