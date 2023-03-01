@@ -445,7 +445,15 @@ defmodule GameBoxWeb.ArenaLive do
   defp assign_current_player(socket) do
     %{assigns: %{arena: %{arena_id: arena_id}, player_id: player_id}} = socket
 
-    assign(socket, current_player: Players.get_player(arena_id, player_id))
+    case Players.get_player(arena_id, player_id) do
+      nil ->
+        socket
+        |> put_flash(:error, "Looks like you haven't joined this arena yet!")
+        |> push_navigate(to: ~p"/join?arena=#{arena_id}")
+
+      player ->
+        assign(socket, current_player: player)
+    end
   end
 
   def assign_all_players(%{assigns: %{arena: %{arena_id: arena_id}}} = socket) do

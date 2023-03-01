@@ -67,7 +67,13 @@ defmodule GameBox.Players do
 
   @impl true
   def handle_call({:get_player, player_id}, _from, state) do
-    {:reply, Map.fetch!(state, player_id), state}
+    player =
+      case Map.fetch(state, player_id) do
+        {:ok, player} -> player
+        :error -> nil
+      end
+
+    {:reply, player, state}
   end
 
   def handle_call(:list_players, _from, players) do
