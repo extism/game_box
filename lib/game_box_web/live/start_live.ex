@@ -12,7 +12,7 @@ defmodule GameBoxWeb.StartLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.hero class="pt-0 md:pt-16 !mb-0" header="Join an arena" />
+    <.hero class="pt-0 md:pt-16 !mb-0" header="Start an arena" />
     <div class="w-full flex justify-center">
       <.simple_form
         :let={f}
