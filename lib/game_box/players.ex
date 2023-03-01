@@ -6,8 +6,8 @@ defmodule GameBox.Players do
   require Logger
 
   alias Ecto.Changeset
-  alias GameBox.Players
   alias GameBox.Arena
+  alias GameBox.Players
 
   @fields %{
     id: %{type: :string, required: true},
