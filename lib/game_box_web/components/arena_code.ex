@@ -5,6 +5,7 @@ defmodule GameBoxWeb.ArenaCode do
   use Phoenix.Component
 
   import GameBoxWeb.Typography
+  alias GameBox.Arena
   alias Phoenix.LiveView.JS
 
   def arena_code(assigns) do
@@ -28,7 +29,7 @@ defmodule GameBoxWeb.ArenaCode do
                 "text-white focus:outline-none focus:ring-4 sm:text-xs sm:leading-6",
                 "border-zinc-700 focus:border-primary-dark focus:ring-zinc-800/5"
               ]}
-              value={"#{@uri}/join?arena=#{@arena_id}"}
+              value={"#{@uri}/?arena=#{Arena.normalize_id(@arena_id)}"}
             />
           </div>
 

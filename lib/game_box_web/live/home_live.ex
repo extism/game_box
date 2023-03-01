@@ -57,10 +57,6 @@ defmodule GameBoxWeb.HomeLive do
 
   @impl true
   def mount(_params, session, socket) do
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(GameBox.PubSub, "games")
-    end
-
     changeset =
       validate_arena(%{}, Changeset.cast({%{}, @arena_types}, %{}, Map.keys(@arena_types)))
 
@@ -90,32 +86,20 @@ defmodule GameBoxWeb.HomeLive do
   def handle_event(
         "join_arena",
         %{"arena_form" => %{"player_name" => player_name, "arena_id" => arena_id}},
-        socket
+        %{assigns: %{player_id: player_id}} = socket
       ) do
-    %{assigns: %{player_id: player_id}} = socket
+    player_name = Players.format_name(player_name)
 
-    arena_id = String.upcase(arena_id)
-    player_name = String.upcase(player_name)
+    if Arena.exists?(arena_id) do
+      case Players.start(arena_id) do
+        {:ok, _} ->
+          handle_register_player(arena_id, player_id, player_name, socket)
 
-    case Arena.start(arena_id) do
-      {:ok, :initiated} ->
-        Arena.set_host(arena_id, player_id)
-
-      {:ok, :joined} ->
-        nil
-    end
-
-    :ok = Players.start(arena_id)
-
-    case Players.register_player(arena_id, player_id, %{name: player_name, arena_id: arena_id}) do
-      {:ok, _player} ->
-        {:noreply, push_redirect(socket, to: ~p"/arena/#{arena_id}")}
-
-      {:error, %Ecto.Changeset{}} ->
-        {:noreply, put_flash(socket, :error, "Invalid data was received.")}
-
-      {:error, msg} ->
-        {:noreply, put_flash(socket, :error, msg)}
+        _ ->
+          {:noreply, put_flash(socket, :error, "Unexpected error occured joining the arena.")}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "Oops! That arena does not exist.")}
     end
   end
 
@@ -143,5 +127,21 @@ defmodule GameBoxWeb.HomeLive do
       max: 4,
       message: "Arena code should be exactly 4 characters"
     )
+  end
+
+  defp handle_register_player(arena_id, player_id, player_name, socket) do
+    case Players.register_player(arena_id, player_id, %{
+           name: player_name,
+           arena_id: arena_id
+         }) do
+      {:ok, _player} ->
+        {:noreply, push_redirect(socket, to: ~p"/arena/#{arena_id}")}
+
+      {:error, %Ecto.Changeset{}} ->
+        {:noreply, put_flash(socket, :error, "Invalid data was received.")}
+
+      {:error, msg} ->
+        {:noreply, put_flash(socket, :error, msg)}
+    end
   end
 end

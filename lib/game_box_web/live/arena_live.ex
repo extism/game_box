@@ -449,7 +449,7 @@ defmodule GameBoxWeb.ArenaLive do
       nil ->
         socket
         |> put_flash(:error, "Looks like you haven't joined this arena yet!")
-        |> push_navigate(to: ~p"/join?arena=#{arena_id}")
+        |> push_navigate(to: ~p"/?arena=#{arena_id}")
 
       player ->
         assign(socket, current_player: player)
