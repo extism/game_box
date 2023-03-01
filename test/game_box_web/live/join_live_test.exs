@@ -1,10 +1,10 @@
-defmodule GameBoxWeb.HomeLiveTest do
+defmodule GameBoxWeb.JoinLiveTest do
   use GameBoxWeb.ConnCase
 
   describe "home" do
     test "join an arena", ctx do
       %{conn: conn} = ctx
-      {:ok, view, _html} = live(conn, Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.HomeLive))
+      {:ok, view, _html} = live(conn, Routes.live_path(GameBoxWeb.Endpoint, GameBoxWeb.JoinLive))
       player_id = get_session(conn, :player_id)
 
       view
