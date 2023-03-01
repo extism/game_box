@@ -7,6 +7,7 @@ defmodule GameBox.Players do
 
   alias Ecto.Changeset
   alias GameBox.Players
+  alias GameBox.Arena
 
   @fields %{
     id: %{type: :string, required: true},
@@ -27,6 +28,11 @@ defmodule GameBox.Players do
             |> Enum.map(fn {key, _} -> key end)
 
   @all @required ++ @optional
+
+  @spec format_name(player_name :: String.t()) :: String.t()
+  def format_name(player_name) do
+    String.upcase(player_name)
+  end
 
   def get_player(arena_id, player_id) do
     GenServer.call(via_tuple(arena_id), {:get_player, player_id})
@@ -58,7 +64,7 @@ defmodule GameBox.Players do
 
   @spec exists?(arena_id :: String.t()) :: boolean()
   def exists?(arena_id) do
-    arena_id = String.downcase(arena_id)
+    arena_id = Arena.normalize_id(arena_id)
 
     GameBox.ArenaRegistry
     |> Horde.Registry.lookup(arena_id)
@@ -222,7 +228,7 @@ defmodule GameBox.Players do
   Start a new player.
   """
   def start(arena_id) do
-    arena_id = String.downcase(arena_id)
+    arena_id = Arena.normalize_id(arena_id)
 
     case Horde.DynamicSupervisor.start_child(
            GameBox.DistributedSupervisor,
@@ -247,7 +253,7 @@ defmodule GameBox.Players do
   Return the `:via` tuple for referencing and interacting with a specific Server.
   """
   def via_tuple(arena_id) do
-    arena_id = String.downcase(arena_id)
+    arena_id = Arena.normalize_id(arena_id)
 
     {:via, Horde.Registry, {GameBox.PlayersRegistry, arena_id}}
   end

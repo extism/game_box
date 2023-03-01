@@ -93,7 +93,7 @@ defmodule GameBoxWeb.StartLive do
           into: "",
           do: <<Enum.random(@charlist)>>
 
-    player_name = String.upcase(player_name)
+    player_name = Players.format_name(player_name)
 
     with false <- Arena.exists?(arena_id),
          {:ok, :initiated} <- Arena.start(arena_id),

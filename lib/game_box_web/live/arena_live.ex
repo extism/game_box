@@ -54,7 +54,7 @@ defmodule GameBoxWeb.ArenaLive do
             <.card_content>
               <div class="flex flex-col md:flex-row md:mb-6 justify-start items-start">
                 <div class="w-full md:w-1/3  md:border-r md:border-zinc-700 mr-6">
-                  <.arena_code arena_id={String.upcase(@arena.arena_id)} uri={@uri.authority} />
+                  <.arena_code arena_id={Arena.format_id(@arena.arena_id)} uri={@uri.authority} />
                 </div>
                 <div class="w-2/3">
                   <div class="mb-6 pt-12 md:pt-0">
@@ -123,7 +123,7 @@ defmodule GameBoxWeb.ArenaLive do
                     <.h5 class="inline text-secondary !text-xs" label="Arena:" />
                     <.h4
                       class="!text-secondary inline !text-xs"
-                      label={String.upcase(@arena.arena_id)}
+                      label={Arena.format_id(@arena.arena_id)}
                     />
                   </div>
                 </div>
@@ -210,7 +210,7 @@ defmodule GameBoxWeb.ArenaLive do
                       <Heroicons.chevron_down solid class="h-5 w-5 stroke-current inline" />
                     </a>
                     <div class="pt-6 hidden" id="invite-friends">
-                      <.arena_code arena_id={String.upcase(@arena.arena_id)} uri={@uri.authority} />
+                      <.arena_code arena_id={Arena.format_id(@arena.arena_id)} uri={@uri.authority} />
                     </div>
                   </div>
                 </div>
