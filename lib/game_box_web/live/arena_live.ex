@@ -243,7 +243,7 @@ defmodule GameBoxWeb.ArenaLive do
         />
       <% end %>
       <div id="board">
-        <%= Phoenix.HTML.raw(board) %>
+        <gamebox-game id="gamebox-game" view={board} phx-hook="GameboxGame" />
       </div>
     <% end %>
     """

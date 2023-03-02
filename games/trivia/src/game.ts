@@ -25,6 +25,15 @@ export interface LiveEvent {
 
 const questions = getQuestions()
 
+const style = `
+<style>
+ body {background-color: coral;}
+ button {
+  background-color: red;
+  }
+</style>
+`
+
 export class Game {
   players: Array<string>;
   version: number;
@@ -67,7 +76,7 @@ export class Game {
       return `<li><button phx-click="answer-prompt" phx-value-idx=${idx}>${opt}</button></li>`
     }).join("\n")
 
-    return [question, `<ul>${answers}</ul>`].join("\n")
+    return [style, question, `<ul>${answers}</ul>`].join("\n")
   }
 
   renderScoreboard(_assigns: Assigns): string {
