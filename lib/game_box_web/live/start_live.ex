@@ -127,20 +127,18 @@ defmodule GameBoxWeb.StartLive do
     |> Changeset.validate_length(:player_name, min: 2, max: 12)
   end
 
-  defp generate_uniq_arena() do
+  defp generate_uniq_arena do
     generate = fn ->
       for _ <- 1..4,
           into: "",
           do: <<Enum.random(@charlist)>>
     end
 
-    Enum.reduce_while(1..10, "", fn _x, _acc ->
+    Enum.find_value(1..10, fn _x ->
       code = generate.()
 
-      if Arena.exists?(code) do
-        {:cont, nil}
-      else
-        {:halt, code}
+      if not Arena.exists?(code) do
+        code
       end
     end)
   end
