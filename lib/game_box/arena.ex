@@ -189,13 +189,6 @@ defmodule GameBox.Arena do
     {:reply, response, arena}
   end
 
-  # @impl true
-  # def handle_continue(:broadcast, state) do
-  #   %{arena_id: arena_id, version: version} = state
-  #   PubSub.broadcast(GameBox.PubSub, "arena:#{arena_id}", {:version, version})
-  #   {:noreply, state}
-  # end
-
   @impl true
   def handle_call({:get_host, _arena_id}, _from, state) do
     {:reply, Map.fetch!(state, :host_id), state}
