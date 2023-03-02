@@ -174,8 +174,10 @@ defmodule GameBox.Arena do
     plugin = arena[:plugin]
 
     if plugin do
-      {:ok, html} = Extism.Plugin.call(plugin, "render", Jason.encode!(assigns))
-      {:reply, html, arena}
+      case Extism.Plugin.call(plugin, "render", Jason.encode!(assigns)) do
+        {:ok, html} -> {:reply, html, arena}
+        _ -> {:reply, "", arena}
+      end
     else
       {:reply, "", arena}
     end
