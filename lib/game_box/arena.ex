@@ -15,8 +15,18 @@ defmodule GameBox.Arena do
   @spec exists?(arena_id :: String.t()) :: boolean()
   def exists?(arena_id) do
     GameBox.ArenaRegistry
-    |> Horde.Registry.lookup(arena_id)
+    |> Horde.Registry.lookup(normalize_id(arena_id))
     |> Enum.any?()
+  end
+
+  @spec format_id(arena_id :: String.t()) :: String.t()
+  def format_id(arena_id) do
+    String.upcase(arena_id)
+  end
+
+  @spec normalize_id(arena_id :: String.t()) :: String.t()
+  def normalize_id(arena_id) do
+    String.downcase(arena_id)
   end
 
   def get_constraints(arena_id) do
@@ -62,12 +72,12 @@ defmodule GameBox.Arena do
     if exists?(arena_id) do
       GenServer.call(via_tuple(arena_id), :state)
     else
-      %{arena_id: arena_id}
+      %{arena_id: normalize_id(arena_id)}
     end
   end
 
   def via_tuple(arena_id) do
-    {:via, Horde.Registry, {GameBox.ArenaRegistry, arena_id}}
+    {:via, Horde.Registry, {GameBox.ArenaRegistry, normalize_id(arena_id)}}
   end
 
   def child_spec(opts) do
@@ -112,9 +122,9 @@ defmodule GameBox.Arena do
         {:ok, :initiated}
 
       :ignore ->
-        Logger.info("Game server #{inspect(arena_id)} already running. Joining")
+        Logger.info("Game server #{inspect(arena_id)} already running. Returning error")
 
-        {:ok, :joined}
+        {:error, :already_exists}
     end
   end
 

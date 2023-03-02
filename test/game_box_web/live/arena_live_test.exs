@@ -30,7 +30,7 @@ defmodule GameBoxWeb.ArenaLiveTest do
       Arena.start(arena_id)
       Arena.set_host(arena_id, player_one_id)
 
-      :ok = Players.start(arena_id)
+      {:ok, _} = Players.start(arena_id)
 
       Players.update_player(arena_id, player_one_id, %{
         name: "Test 1",
@@ -65,7 +65,7 @@ defmodule GameBoxWeb.ArenaLiveTest do
       Arena.start(arena_id)
       Arena.set_host(arena_id, player_one_id)
 
-      :ok = Players.start(arena_id)
+      {:ok, _} = Players.start(arena_id)
 
       Players.update_player(arena_id, player_one_id, %{
         name: "Test 1",
@@ -126,7 +126,7 @@ defmodule GameBoxWeb.ArenaLiveTest do
       Arena.start(arena_id)
       Arena.set_host(arena_id, player_one_id)
 
-      :ok = Players.start(arena_id)
+      {:ok, _} = Players.start(arena_id)
 
       Players.update_player(arena_id, player_one_id, %{
         name: "Test 1",

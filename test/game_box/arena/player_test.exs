@@ -10,12 +10,12 @@ defmodule GameBox.Arena.PlayerTest do
 
     test "successfully starts", ctx do
       %{arena_id: arena_id} = ctx
-      assert :ok = Players.start(arena_id)
+      assert {:ok, _} = Players.start(arena_id)
     end
 
     test "can update and list players information", ctx do
       %{arena_id: arena_id, player_id: player_id} = ctx
-      assert :ok = Players.start(arena_id)
+      assert {:ok, _} = Players.start(arena_id)
 
       assert {:ok,
               %{

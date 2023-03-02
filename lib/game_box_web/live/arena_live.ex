@@ -54,7 +54,7 @@ defmodule GameBoxWeb.ArenaLive do
             <.card_content>
               <div class="flex flex-col md:flex-row md:mb-6 justify-start items-start">
                 <div class="w-full md:w-1/3  md:border-r md:border-zinc-700 mr-6">
-                  <.arena_code arena_id={@arena.arena_id} uri={@uri.authority} />
+                  <.arena_code arena_id={Arena.format_id(@arena.arena_id)} uri={@uri.authority} />
                 </div>
                 <div class="w-2/3">
                   <div class="mb-6 pt-12 md:pt-0">
@@ -121,7 +121,10 @@ defmodule GameBoxWeb.ArenaLive do
                   </div>
                   <div>
                     <.h5 class="inline text-secondary !text-xs" label="Arena:" />
-                    <.h4 class="!text-secondary inline !text-xs" label={@arena.arena_id} />
+                    <.h4
+                      class="!text-secondary inline !text-xs"
+                      label={Arena.format_id(@arena.arena_id)}
+                    />
                   </div>
                 </div>
                 <div class="w-full md:w-1/3 mb-3 md:pl-12">
@@ -207,7 +210,7 @@ defmodule GameBoxWeb.ArenaLive do
                       <Heroicons.chevron_down solid class="h-5 w-5 stroke-current inline" />
                     </a>
                     <div class="pt-6 hidden" id="invite-friends">
-                      <.arena_code arena_id={@arena.arena_id} uri={@uri.authority} />
+                      <.arena_code arena_id={Arena.format_id(@arena.arena_id)} uri={@uri.authority} />
                     </div>
                   </div>
                 </div>
@@ -442,7 +445,15 @@ defmodule GameBoxWeb.ArenaLive do
   defp assign_current_player(socket) do
     %{assigns: %{arena: %{arena_id: arena_id}, player_id: player_id}} = socket
 
-    assign(socket, current_player: Players.get_player(arena_id, player_id))
+    case Players.get_player(arena_id, player_id) do
+      nil ->
+        socket
+        |> put_flash(:error, "Looks like you haven't joined this arena yet!")
+        |> push_navigate(to: ~p"/?arena=#{arena_id}")
+
+      player ->
+        assign(socket, current_player: player)
+    end
   end
 
   def assign_all_players(%{assigns: %{arena: %{arena_id: arena_id}}} = socket) do
