@@ -1,5 +1,6 @@
  import { getQuestions } from './questions'
 
+
 const questions = getQuestions()
 
 export class Game {
@@ -29,7 +30,10 @@ export class Game {
   }
 
   renderPrompt(assigns) {
-    if (this.state.name != "prompting") throw Error("un")
+    if (this.state.name != "prompting") throw Error("unknown state name")
+
+    console.log("ANSWERS:")
+    console.log(this.state.answers["amy"])
 
     if (this.state.answers[assigns.player_id] !== undefined)
       return "<p>Answered. Waiting on other players</p>"
@@ -51,6 +55,7 @@ export class Game {
   }
 
   handleEvent(event) {
+    console.log("HANDLE EVENT GIRL")
     if (event.event_name !== "answer-prompt") throw Error("unknown event")
     const assigns = this.handleAnswerPrompt(event)
     this.nextState()
@@ -58,6 +63,7 @@ export class Game {
   }
 
   handleAnswerPrompt(event) {
+    
     const assigns = { player_id: event.player_id }
     if (this.state.name !== "prompting") return assigns
 
@@ -68,6 +74,7 @@ export class Game {
   }
 
   nextState() {
+    console.log("NEXT STATE GIRL")
     switch (this.state.name) { 
       case "prompting": {
         // if everyone has answered
@@ -82,6 +89,8 @@ export class Game {
               answers: {}
             }
           }
+        } else { 
+          console.log("OH NO MORE PPL NEED TO ANSWER")
         }
         break
       }

@@ -4,7 +4,7 @@
   "description": "A trivia game written in TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "build": "node esbuild.js && extism-js dist/index.js -o dist/plugin.wasm"
   },
   "keywords": [],
