@@ -12,6 +12,7 @@ defmodule GameBoxWeb.ArenaLive do
     if connected?(socket) do
       PubSub.subscribe(GameBox.PubSub, "arena:#{arena_id}")
       Players.monitor(arena_id, player_id)
+      Arena.monitor(arena_id)
     end
 
     arena = Arena.exists?(arena_id)

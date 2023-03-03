@@ -180,7 +180,17 @@ defmodule GameBox.Players do
     else
       players = put_in(players, [player.id, :pids], List.delete(player.pids, pid))
 
-      {:noreply, players, {:continue, :broadcast}}
+      players
+      |> Map.values()
+      |> Enum.flat_map(&Map.get(&1, :pids))
+      |> Enum.empty?()
+      |> case do
+        true ->
+          {:stop, :normal, %{}}
+
+        _ ->
+          {:noreply, players, {:continue, :broadcast}}
+      end
     end
   end
 
@@ -247,6 +257,11 @@ defmodule GameBox.Players do
       _ ->
         {:error}
     end
+  end
+
+  @impl true
+  def terminate(:normal, state) do
+    state
   end
 
   @doc """

@@ -19,6 +19,10 @@ defmodule GameBox.Arena do
     |> Enum.any?()
   end
 
+  def monitor(arena_id) do
+    GenServer.cast(via_tuple(arena_id), {:monitor, self()})
+  end
+
   @spec format_id(arena_id :: String.t()) :: String.t()
   def format_id(arena_id) do
     String.upcase(arena_id)
@@ -138,7 +142,8 @@ defmodule GameBox.Arena do
        host_id: nil,
        game_id: nil,
        constraints: nil,
-       playing: []
+       playing: [],
+       pids: []
      }}
   end
 
@@ -282,6 +287,34 @@ defmodule GameBox.Arena do
       |> Map.put(:playing, player_ids)
 
     {:noreply, state}
+  end
+
+  def handle_cast({:monitor, pid}, state) do
+    Process.monitor(pid)
+
+    pids =
+      state[:pids]
+      |> Enum.concat([pid])
+      |> Enum.uniq()
+
+    {:noreply, Map.put(state, :pids, pids)}
+  end
+
+  @impl true
+  def terminate(:normal, state) do
+    state
+  end
+
+  @impl true
+  def handle_info({:DOWN, _ref, :process, pid, _}, state) do
+    pids = List.delete(state.pids, pid)
+    state = Map.put(state, :pids, pids)
+
+    if Enum.empty?(pids) do
+      {:stop, :normal, state}
+    else
+      {:noreply, state}
+    end
   end
 
   def broadcast_game_state(state) do
