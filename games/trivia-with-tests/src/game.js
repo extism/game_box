@@ -1,17 +1,5 @@
  import { getQuestions } from './questions'
 
-
-// export interface Assigns {
-//   player_id: string,
-//   version?: number,
-// }
-
-// export interface LiveEvent {
-//   player_id: string,
-//   event_name: string,
-//   value: any
-// }
-
 const questions = getQuestions()
 
 export class Game {
