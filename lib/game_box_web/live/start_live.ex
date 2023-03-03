@@ -9,7 +9,7 @@ defmodule GameBoxWeb.StartLive do
     arena_id: :string
   }
 
-  @charlist 'abcdefghijklmnopqrstuvwxyz'
+  @charlist 'bcdfghjklmnpqrstvwxyz'
 
   @impl true
   def render(assigns) do
@@ -88,14 +88,11 @@ defmodule GameBoxWeb.StartLive do
         %{"arena_form" => %{"player_name" => player_name}},
         %{assigns: %{player_id: player_id}} = socket
       ) do
-    arena_id =
-      for _ <- 1..4,
-          into: "",
-          do: <<Enum.random(@charlist)>>
-
+    arena_id = generate_uniq_arena()
     player_name = Players.format_name(player_name)
 
-    with false <- Arena.exists?(arena_id),
+    with false <- is_nil(arena_id),
+         false <- Arena.exists?(arena_id),
          {:ok, :initiated} <- Arena.start(arena_id),
          {:ok, _} <- Players.start(arena_id),
          {:ok, _player} <-
@@ -104,7 +101,8 @@ defmodule GameBoxWeb.StartLive do
       {:noreply, push_redirect(socket, to: ~p"/arena/#{arena_id}")}
     else
       _error ->
-        {:noreply, put_flash(socket, :error, "Try again")}
+        {:noreply,
+         put_flash(socket, :error, "Oops! We could't start an arena. Please try again.")}
     end
   end
 
@@ -127,5 +125,21 @@ defmodule GameBoxWeb.StartLive do
     |> Changeset.cast(attrs, Map.keys(@arena_types))
     |> Changeset.validate_required([:player_name])
     |> Changeset.validate_length(:player_name, min: 2, max: 12)
+  end
+
+  defp generate_uniq_arena do
+    generate = fn ->
+      for _ <- 1..4,
+          into: "",
+          do: <<Enum.random(@charlist)>>
+    end
+
+    Enum.find_value(1..10, fn _x ->
+      code = generate.()
+
+      if not Arena.exists?(code) do
+        code
+      end
+    end)
   end
 end
