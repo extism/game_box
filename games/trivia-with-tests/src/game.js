@@ -30,7 +30,7 @@ export class Game {
   }
 
   renderPrompt(assigns) {
-    if (this.state.name != "prompting") throw Error("Expected to be in prompting state")
+
 
     if (this.state.answers[assigns.player_id] !== undefined)
       return "<p>Answered. Waiting on other players</p>"
@@ -59,14 +59,9 @@ export class Game {
   }
 
   handleAnswerPrompt(event) {
-    
     const assigns = { player_id: event.player_id }
     if (this.state.name !== "prompting") return assigns
-
-    console.log("-- Still in the prompt --")
-    console.log(this.state)
-
-    this.state.answers[event.player_id] = parseInt(event.value.idx, 2)
+    this.state.answers[event.player_id] = parseInt(event.value.idx, 10)
     this.version += 1
 
     return assigns
@@ -75,16 +70,12 @@ export class Game {
   nextState() {
      switch (this.state.name) { 
       case "prompting": {
-        // console.log("PROMPTING")
         // if everyone has answered
         if (Object.keys(this.state.answers).length === this.players.length) {
-          console.log("everyone has answered so recording score")
           this.recordScore()
           if (this.state.questionIndex >= questions.length - 1) {
-            console.log("FINISHING")
             this.finish()
           } else {
-            // console.log("STILL PROMPTING TO THE END")
             this.state = {
               name: "prompting",
               questionIndex: this.state.questionIndex + 1,
@@ -106,9 +97,6 @@ export class Game {
     const answer = questions[this.state.questionIndex].answerIndex
     const answers = this.state.answers
 
-    console.log("ANSWERS SO FAR")
-    console.dir(answers)
-
     Object.keys(answers).forEach(player => {
       if (answers[player] === answer) {
         this.score[player] += 1
@@ -119,6 +107,5 @@ export class Game {
 
   finish() {
     this.state = { name: "done" }
-
   }
 }

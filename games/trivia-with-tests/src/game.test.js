@@ -19,7 +19,6 @@ describe("Game", () => {
     expect(game.state.name).toBe("prompting")
   });
 
-
   test("render for user who has already answered", () => { 
     const game = new Game({players: ["amy", "jackson"]});
     game.state.answers["amy"] = 0
@@ -46,7 +45,7 @@ describe("Game", () => {
     expect(result).toMatch(/>5 amy/)
   })
 
-  test("render game with second 2 questinos", () => { 
+  test("play a 2-player game start-to-finish", () => { 
     const game = new Game({
       players: ["amy", "jackson"],
       score: {"amy": 0, "jackson": 0},
@@ -85,9 +84,29 @@ describe("Game", () => {
         ],
         "answerIndex": 1
       },
+      {
+        "prompt": "When was the top-down online RPG &quot;Space Station 13&quot; released?",
+        "options": [
+        "2006",
+        "2010",
+        "2000",
+        "2003"
+        ],
+        "answerIndex": 3
+      },
+      {
+        "prompt": "These two countries held a commonwealth from the 16th to 18th century.",
+        "options": [
+        "Bangladesh and Bhutan",
+        "North Korea and South Korea",
+        "Poland and Lithuania",
+        "Hutu and Rwanda"
+        ],
+        "answerIndex": 2
+      }
     ]
 
-    const event = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: 2})
+    const event = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: 3})
     expect(event.player_id).toMatch(/amy/)
 
     // Question 0
@@ -96,11 +115,14 @@ describe("Game", () => {
     expect(qObj.options).toContain("Scrooge McDuck")
     expect(qObj.answerIndex).toBe(3)
 
-    const player_1_answered = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: 3})
+    const player_1_answered = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: { "idx": 3 }})
     expect(player_1_answered.player_id).toMatch(/amy/)
 
-    const player_2_answered = game.handleEvent({player_id: "jackson", event_name: "answer-prompt", value: 2})
+    const player_2_answered = game.handleEvent({player_id: "jackson", event_name: "answer-prompt", value: { "idx": 2 }})
     expect(player_2_answered.player_id).toMatch(/jackson/)
+    
+    expect(game.score["amy"]).toBe(1)
+    expect(game.score["jackson"]).toBe(0)
 
     // Question 1
     let q1Obj = questions[game.state.questionIndex]
@@ -108,28 +130,86 @@ describe("Game", () => {
     expect(q1Obj.options).toContain("Cleopatra")
     expect(q1Obj.answerIndex).toBe(1)
 
-    const player_1_answered1 = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: 1})
-    expect(player_1_answered1.player_id).toMatch(/amy/)
-
-    const player_2_answered1 = game.handleEvent({player_id: "jackson", event_name: "answer-prompt", value: 2})
+    const player_1_answered1 = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: { "idx": 1 }})
+    expect(player_1_answered1.player_id).toMatch(/amy/) 
+    
+    const player_2_answered1 = game.handleEvent({player_id: "jackson", event_name: "answer-prompt", value: { "idx": 2 }})
     expect(player_2_answered1.player_id).toMatch(/jackson/)
 
-    // Question 2
+    expect(game.score["amy"]).toBe(2)
+    expect(game.score["jackson"]).toBe(0)
+
+    // // Question 2
     let q2Obj = questions[game.state.questionIndex]
     expect(q2Obj.prompt).toMatch("Gremlins")
     expect(q2Obj.options).toContain("Midnight")
     expect(q2Obj.answerIndex).toBe(1)
 
-    const player_1_answered2 = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: 3})
+    const player_1_answered2 = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: { "idx": 3 }})
     expect(player_1_answered2.player_id).toMatch(/amy/)
 
-    const player_2_answered2 = game.handleEvent({player_id: "jackson", event_name: "answer-prompt", value: 1})
+    const player_2_answered2 = game.handleEvent({player_id: "jackson", event_name: "answer-prompt", value: { "idx": 1 }})
     expect(player_2_answered2.player_id).toMatch(/jackson/)
 
-    console.log("::ANSWERS::")
-    console.log(game.state.answers)
+    expect(game.score["amy"]).toBe(2)
+    expect(game.score["jackson"]).toBe(1)
 
-    // /expect(game.state.name).toBe("done")
+     // // Question 3
+     let q3Obj = questions[game.state.questionIndex]
+     const player_1_answered3 = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: { "idx": 3 }})
+     game.handleEvent({player_id: "jackson", event_name: "answer-prompt", value: { "idx": 1 }})
+    
+     expect(game.score["amy"]).toBe(3)
+     expect(game.score["jackson"]).toBe(1)
 
+      // // Question 4
+    let q4Obj = questions[game.state.questionIndex]
+    const player_1_answered4 = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: { "idx": 3 }})
+    expect(player_1_answered4.player_id).toMatch(/amy/)
+    game.handleEvent({player_id: "jackson", event_name: "answer-prompt", value: { "idx": 1 }})
+    
+    expect(game.score["amy"]).toBe(3)
+    expect(game.score["jackson"]).toBe(1)
+
+    expect(game.state.name).toMatch(/done/)    
+
+  })
+
+  test("throw error if event name is not answer-prompt", () => { 
+    const game = new Game({
+      players: ["amy", "jackson"],
+      score: {"amy": 0, "jackson": 0},
+      state: { name: "prompting", questionIndex: 0, answers: {}}
+    });
+
+    function badEventName() { 
+       const event = game.handleEvent({player_id: "amy", event_name: "not-an-answer-prompt", value: 3})
+    } 
+    
+    expect(badEventName).toThrow()
+
+  })
+
+  test("throw error if state name is not prompting", () => { 
+    function badEventName() { 
+      const game = new Game({
+        players: ["amy", "jackson"],
+        score: {"amy": 0, "jackson": 0},
+        state: { name: "not-prompting", questionIndex: 0, answers: {}}
+      });
+       const event = game.recordScore({player_id: "amy"})
+    } 
+    expect(badEventName).toThrow()
+  })
+
+  test("throw error if state name is not prompting in handleAnswerPrompt", () => { 
+      const game = new Game({
+        players: ["amy", "jackson"],
+        score: {"amy": 0, "jackson": 0},
+        state: { name: "not-prompting", questionIndex: 0, answers: {}}
+      });
+    
+      const event = game.handleEvent({player_id: "amy", event_name: "answer-prompt", value: 3})
+      expect(event.player_id).toMatch(/amy/)
   })
 });
