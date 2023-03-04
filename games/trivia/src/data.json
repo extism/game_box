@@ -1,0 +1,52 @@
+[
+  {
+    "prompt": "Which of these is NOT a Disney cartoon character?",
+    "options": [
+      "Donald Duck",
+      "Daisy Duck",
+      "Scrooge McDuck",
+      "Daffy Duck"
+    ],
+    "answerIndex": 3
+  },
+  {
+    "prompt": "What album did The Lumineers release in 2016?",
+    "options": [
+      "The Lumineers",
+      "Cleopatra",
+      "Tracks From The Attic",
+      "Winter"
+    ],
+    "answerIndex": 1
+  },
+  {
+    "prompt": "In the movie Gremlins, after what time of day should you not feed Mogwai?",
+    "options": [
+      "Morning",
+      "Midnight",
+      "Evening",
+      "Afternoon"
+    ],
+    "answerIndex": 1
+  },
+  {
+    "prompt": "When was the top-down online RPG &quot;Space Station 13&quot; released?",
+    "options": [
+      "2006",
+      "2010",
+      "2000",
+      "2003"
+    ],
+    "answerIndex": 3
+  },
+  {
+    "prompt": "These two countries held a commonwealth from the 16th to 18th century.",
+    "options": [
+      "Bangladesh and Bhutan",
+      "North Korea and South Korea",
+      "Poland and Lithuania",
+      "Hutu and Rwanda"
+    ],
+    "answerIndex": 2
+  }
+]
