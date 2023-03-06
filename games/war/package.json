@@ -1,0 +1,19 @@
+{
+  "name": "war",
+  "version": "1.0.0",
+  "description": "A war game written in javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "node esbuild.js && extism-js dist/index.js -o dist/plugin.wasm",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.20.2",
+    "esbuild": "^0.17.10",
+    "jest": "^29.4.3"
+  }
+}

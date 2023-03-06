@@ -30,8 +30,6 @@ export class Game {
   }
 
   renderPrompt(assigns) {
-
-
     if (this.state.answers[assigns.player_id] !== undefined)
       return "<p>Answered. Waiting on other players</p>"
 
