@@ -125,7 +125,7 @@ export class Game {
       }
     }
 
-    this.version += 1
+    // this.version += 1
     // console.log(`VERSION: ${this.version}`)
 
     return assigns;
