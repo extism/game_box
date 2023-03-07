@@ -303,15 +303,16 @@ defmodule GameBox.Arena do
   end
 
   @impl true
-  def terminate(:normal, state) do
-    state
-  end
+  def terminate(:normal, state), do: state
 
   @impl true
   def handle_info({:DOWN, _ref, :process, pid, _}, state) do
     pids = List.delete(state.pids, pid)
 
     if Enum.empty?(pids) do
+      # In the case that the pids are empty, we fire off a send_after
+      # to ensure that no players have required the view before
+      # gracefully shutting it down.
       timeout = Application.get_env(:game_box, :tear_down_timeout)
       Process.send_after(self(), :check_if_pids_still_empty, timeout)
     end

@@ -186,6 +186,9 @@ defmodule GameBox.Players do
       |> Enum.empty?()
       |> case do
         true ->
+          # In the case that the pids are empty, we fire off a send_after
+          # to ensure that no players have required the view before
+          # gracefully shutting it down.
           timeout = Application.get_env(:game_box, :tear_down_timeout)
           Process.send_after(self(), :check_if_pids_still_empty, timeout)
           {:noreply, players}
@@ -276,9 +279,7 @@ defmodule GameBox.Players do
   end
 
   @impl true
-  def terminate(:normal, state) do
-    state
-  end
+  def terminate(:normal, state), do: state
 
   @doc """
   Return the `:via` tuple for referencing and interacting with a specific Server.

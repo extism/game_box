@@ -30,6 +30,8 @@ config :game_box, GameBoxWeb.Endpoint,
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
+config :game_box, tear_down_timeout: 3000
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
