@@ -10,6 +10,7 @@ defmodule GameBoxWeb.ArenaLive do
 
   def mount(%{"arena_id" => arena_id}, _session, %{assigns: %{player_id: player_id}} = socket) do
     if connected?(socket) do
+      arena_id = Arena.normalize_id(arena_id)
       PubSub.subscribe(GameBox.PubSub, "arena:#{arena_id}")
       Players.monitor(arena_id, player_id)
     end
