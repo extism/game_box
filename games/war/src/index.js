@@ -10,7 +10,7 @@ export function init_game() {
 }
 
 export function get_constraints() {
-  const constraints = { min_players: 1, max_players: 2 }
+  const constraints = { min_players: 2, max_players: 2 }
   outputJson(constraints)
   return 0
 }

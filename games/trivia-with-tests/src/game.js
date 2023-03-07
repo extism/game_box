@@ -6,7 +6,7 @@ const questions = getQuestions()
 export class Game {
   constructor(state) {
     
-    this.version = state.version || 0
+    // this.version = state.version || 0
     this.players = state.players
     this.state = state.state || { name: "prompting", questionIndex: 0, answers: {} }
     if (state.score) {

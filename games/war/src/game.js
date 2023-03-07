@@ -30,8 +30,8 @@ export class Game {
   }
 
   dealCards() {
-    for (let i = 0; i < 8; i = i + 2) {
-    // for (let i = 0; i < this.deck.length; i = i + 2) {
+    // for (let i = 0; i < 8; i = i + 2) {
+    for (let i = 0; i < this.deck.length; i = i + 2) {
       let card_count = i;
 
       this.players.forEach((player) => {
@@ -63,7 +63,7 @@ export class Game {
     output += `<div
                 style="
                   margin-top: 12px;
-                  margin-bottom: 12px;
+                  margin-bottom: 20px;
                   display: flex;
                   width: 100%;
                   justify-content: space-between;
@@ -83,12 +83,37 @@ export class Game {
     }</div>
               </div>`;
 
-    output += `<div style="display: flex; width: 100%">`;
+    output += `<div style="display: flex; width: 100%;">`;
 
+    let count = 0; 
     this.players.forEach((p) => {
+      
+     if(count >= 1) { 
+        output += `<div style="display: flex; width: 20%; align-items: center; justify-content: start">`
+        if (this.state.winner) {
+          output += `<button
+                      style="
+                        display: block;
+                        border-radius: 8px;
+                        background-color: #a855f7;
+                        padding: 8px 20px;
+                        color: white;
+                      "
+                      phx-click="next-round" 
+                      phx-value-round="next-round"
+                    >
+                       Next Round
+                    </button>`;
+        }
+        output += `</div>`
+      
+      } 
+      count += 1; 
+     
+
       output += ` <div
                    style="
-                      width: 50%;
+                      width: 40%;
                       flex: 1 1 0%;
                       padding-right: 40px;
                    "
@@ -112,15 +137,16 @@ export class Game {
         
         output += `<div
                     style="
+                      cursor: pointer; 
                       display: flex;
-                      height: 420px;
+                      height: 440px;
                       width: 320px;
                       flex-direction: column;
                       justify-content: space-between;
                       border-radius: 4px;
                       background-color: #fff;
-                      padding: 16px;
-                      font-size: 48px;
+                      padding: 0px 16px;
+                      font-size: 62px;
                       color: ${color};
                       `;
         if (this.state.winner == p) {
@@ -141,7 +167,7 @@ export class Game {
                     >
                       ${this.playerDecks[p][this.state.round].suit}
                     </div>
-                    <div style="text-align: right">${this.state.answers[p]} ${this.playerDecks[p][this.state.round].suit}</div>
+                    <div style="text-align: right;">${this.state.answers[p]} ${this.playerDecks[p][this.state.round].suit}</div>
                   </div>`;
         if (this.state.winner == p) {
           output += ` <span style="color: #4ade80; font-size: 24px;">WINNER!</span>`;
@@ -153,16 +179,19 @@ export class Game {
         output += `<div
                     style="
                       display: flex;
-                      height: 420px;
+                      height: 440px;
                       width: 320px;
                       flex-direction: column;
                       justify-content: space-between;
                       border-radius: 4px;
                       background-color: #fff;
-                      padding: 16px;
-                      font-size: 48px;
-                      color: #1d4ed8;
-                    "`;
+                      padding: 0px 16px;
+                      font-size: 62px;
+                      color: #1d4ed8;`
+        if (p == assigns.player_id) {
+          output += `cursor: pointer;`;
+        }
+        output += `"`;
         if (p == assigns.player_id) {
           output += `phx-click="flip-card" phx-value-player="${assigns.player_id}"`;
         }
@@ -192,7 +221,7 @@ export class Game {
                         Waiting on card flip
                         </div>`;
         }
-        output += ` <div style="text-align: right">&#10022;</div>
+        output += ` <div style="text-align: right;">&#10022;</div>
                   </div>`;
       }
 
@@ -201,24 +230,24 @@ export class Game {
 
     output += `</div>`;
 
-    if (this.state.winner) {
-      output += `<div style="margin-top: 24px; display: flex; justify-content: start">
-                    <button
-                        style="
-                          display: block;
-                          border-radius: 8px;
-                          background-color: #a855f7;
-                          padding: 8px 20px;
-                          color: white;
-                        "
-                        phx-click="next-round" 
-                        phx-value-round="next-round"
-                      >
-                        Next Round
-                      </button>
-                  </div>`;
-    }
-
+    // if (this.state.winner) {
+    //   output += `<div style="margin-top: 24px; display: flex; justify-content: start">
+    //                 <button
+    //                     style="
+    //                       display: block;
+    //                       border-radius: 8px;
+    //                       background-color: #a855f7;
+    //                       padding: 8px 20px;
+    //                       color: white;
+    //                     "
+    //                     phx-click="next-round" 
+    //                     phx-value-round="next-round"
+    //                   >
+    //                     Next Round
+    //                   </button>
+    //               </div>`;
+    // }
+  
     return output;
   }
 

@@ -3,8 +3,8 @@
 
 export function getDeck() { 
   // const suits = ["hearts", "diamonds", "spades", "clubs"]
-  const suits = ["&diams;", "&hearts;", "&clubs;", "&spades;"]
-  // const suits = ["&hearts;", "&clubs;"]
+  // const suits = ["&diams;", "&hearts;", "&clubs;", "&spades;"]
+  const suits = ["&hearts;", "&clubs;"]
   const values = [
     "2",
     "3",
@@ -14,11 +14,11 @@ export function getDeck() {
     "7",
     "8",
     "9",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14"
+    // "10",
+    // "11",
+    // "12",
+    // "13",
+    // "14"
   ];
 
   let deck = []

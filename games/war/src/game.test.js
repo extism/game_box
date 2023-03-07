@@ -35,13 +35,21 @@ describe("Game", () => {
 
     game.handleEvent({player_id: "amy", event_name: "flip-card", value: { "player": "amy" }})
     game.handleEvent({player_id: "jackson", event_name: "flip-card", value: { "player": "jackson" }})
+    
+    const render = game.render({player_id: "amy"})
+    console.log(render); 
+    
     game.handleEvent({player_id: "jackson", event_name: "next-round", value: { "player": "jackson" }})
 
-    game.render({player_id: "amy"})
+    
+    const render2 = game.render({player_id: "amy"})
+    console.log(render2); 
 
     game.handleEvent({player_id: "amy", event_name: "flip-card", value: { "player": "amy" }})
     game.handleEvent({player_id: "jackson", event_name: "flip-card", value: { "player": "jackson" }})
     game.handleEvent({player_id: "jackson", event_name: "next-round", value: { "player": "jackson" }})
+
+
 
     // game.render({player_id: "amy"})
 
@@ -51,8 +59,8 @@ describe("Game", () => {
     // game.handleEvent({player_id: "jackson", event_name: "flip-card", value: { "player": "jackson" }})
    
     const rendered5 = game.render({player_id: "amy"})
-    console.log("-----FINAL2-----")
-    console.log(rendered5)
+    // console.log("-----FINAL2-----")
+    // console.log(rendered5)
   });
 
   // test("finish hand, render scoreboard", () => { 
