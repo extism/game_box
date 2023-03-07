@@ -186,11 +186,26 @@ defmodule GameBox.Players do
       |> Enum.empty?()
       |> case do
         true ->
-          {:stop, :normal, %{}}
+          Process.send_after(self(), :check_if_pids_still_empty, 5000)
+          {:noreply, players}
 
         _ ->
           {:noreply, players, {:continue, :broadcast}}
       end
+    end
+  end
+
+  def handle_info(:check_if_pids_still_empty, players) do
+    players
+    |> Map.values()
+    |> Enum.flat_map(&Map.get(&1, :pids))
+    |> Enum.empty?()
+    |> case do
+      true ->
+        {:stop, :normal, players}
+
+      _ ->
+        {:noreply, players}
     end
   end
 

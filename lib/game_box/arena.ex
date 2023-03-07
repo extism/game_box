@@ -308,8 +308,15 @@ defmodule GameBox.Arena do
   @impl true
   def handle_info({:DOWN, _ref, :process, pid, _}, state) do
     pids = List.delete(state.pids, pid)
-    state = Map.put(state, :pids, pids)
 
+    if Enum.empty?(pids) do
+      Process.send_after(self(), :check_if_pids_still_empty, 5000)
+    end
+
+    {:noreply, Map.put(state, :pids, pids)}
+  end
+
+  def handle_info(:check_if_pids_still_empty, %{pids: pids} = state) do
     if Enum.empty?(pids) do
       {:stop, :normal, state}
     else
