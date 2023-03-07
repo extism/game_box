@@ -186,7 +186,8 @@ defmodule GameBox.Players do
       |> Enum.empty?()
       |> case do
         true ->
-          Process.send_after(self(), :check_if_pids_still_empty, 5000)
+          timeout = Application.get_env(:game_box, :tear_down_timeout)
+          Process.send_after(self(), :check_if_pids_still_empty, timeout)
           {:noreply, players}
 
         _ ->

@@ -116,6 +116,8 @@ defmodule GameBox.Arena do
   Start a new game or join an existing game.
   """
   def start(arena_id) do
+    arena_id = normalize_id(arena_id)
+
     case Horde.DynamicSupervisor.start_child(
            GameBox.DistributedSupervisor,
            {Arena, [arena_id: arena_id]}
@@ -310,7 +312,8 @@ defmodule GameBox.Arena do
     pids = List.delete(state.pids, pid)
 
     if Enum.empty?(pids) do
-      Process.send_after(self(), :check_if_pids_still_empty, 5000)
+      timeout = Application.get_env(:game_box, :tear_down_timeout)
+      Process.send_after(self(), :check_if_pids_still_empty, timeout)
     end
 
     {:noreply, Map.put(state, :pids, pids)}
