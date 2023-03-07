@@ -180,7 +180,24 @@ defmodule GameBox.Players do
     else
       players = put_in(players, [player.id, :pids], List.delete(player.pids, pid))
 
-      {:noreply, players, {:continue, :broadcast}}
+      if players_empty?(players) do
+        # In the case that the pids are empty, we fire off a send_after
+        # to ensure that no players have required the view before
+        # gracefully shutting it down.
+        timeout = Application.get_env(:game_box, :tear_down_timeout)
+        Process.send_after(self(), :check_if_pids_still_empty, timeout)
+        {:noreply, players}
+      else
+        {:noreply, players, {:continue, :broadcast}}
+      end
+    end
+  end
+
+  def handle_info(:check_if_pids_still_empty, players) do
+    if players_empty?(players) do
+      {:stop, :normal, players}
+    else
+      {:noreply, players}
     end
   end
 
@@ -249,6 +266,9 @@ defmodule GameBox.Players do
     end
   end
 
+  @impl true
+  def terminate(:normal, state), do: state
+
   @doc """
   Return the `:via` tuple for referencing and interacting with a specific Server.
   """
@@ -263,5 +283,12 @@ defmodule GameBox.Players do
     |> Changeset.cast(params, @all)
     |> Changeset.validate_required(@required)
     |> Changeset.apply_action(:update)
+  end
+
+  defp players_empty?(players) do
+    players
+    |> Map.values()
+    |> Enum.flat_map(&Map.get(&1, :pids))
+    |> Enum.empty?()
   end
 end

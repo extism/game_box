@@ -89,6 +89,7 @@ defmodule GameBoxWeb.HomeLive do
         %{assigns: %{player_id: player_id}} = socket
       ) do
     player_name = Players.format_name(player_name)
+    arena_id = Arena.normalize_id(arena_id)
 
     if Arena.exists?(arena_id) do
       case Players.start(arena_id) do

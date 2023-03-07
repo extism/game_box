@@ -19,6 +19,10 @@ defmodule GameBox.Arena do
     |> Enum.any?()
   end
 
+  def monitor(arena_id) do
+    GenServer.cast(via_tuple(arena_id), {:monitor, self()})
+  end
+
   @spec format_id(arena_id :: String.t()) :: String.t()
   def format_id(arena_id) do
     String.upcase(arena_id)
@@ -112,6 +116,8 @@ defmodule GameBox.Arena do
   Start a new game or join an existing game.
   """
   def start(arena_id) do
+    arena_id = normalize_id(arena_id)
+
     case Horde.DynamicSupervisor.start_child(
            GameBox.DistributedSupervisor,
            {Arena, [arena_id: arena_id]}
@@ -138,7 +144,8 @@ defmodule GameBox.Arena do
        host_id: nil,
        game_id: nil,
        constraints: nil,
-       playing: []
+       playing: [],
+       pids: []
      }}
   end
 
@@ -282,6 +289,43 @@ defmodule GameBox.Arena do
       |> Map.put(:playing, player_ids)
 
     {:noreply, state}
+  end
+
+  def handle_cast({:monitor, pid}, state) do
+    Process.monitor(pid)
+
+    pids =
+      state[:pids]
+      |> Enum.concat([pid])
+      |> Enum.uniq()
+
+    {:noreply, Map.put(state, :pids, pids)}
+  end
+
+  @impl true
+  def terminate(:normal, state), do: state
+
+  @impl true
+  def handle_info({:DOWN, _ref, :process, pid, _}, state) do
+    pids = List.delete(state.pids, pid)
+
+    if Enum.empty?(pids) do
+      # In the case that the pids are empty, we fire off a send_after
+      # to ensure that no players have required the view before
+      # gracefully shutting it down.
+      timeout = Application.get_env(:game_box, :tear_down_timeout)
+      Process.send_after(self(), :check_if_pids_still_empty, timeout)
+    end
+
+    {:noreply, Map.put(state, :pids, pids)}
+  end
+
+  def handle_info(:check_if_pids_still_empty, %{pids: pids} = state) do
+    if Enum.empty?(pids) do
+      {:stop, :normal, state}
+    else
+      {:noreply, state}
+    end
   end
 
   def broadcast_game_state(state) do
