@@ -5,6 +5,8 @@ defmodule GameBoxWeb.ArenaLiveTest do
   alias GameBox.Arena
   alias GameBox.Players
 
+  @arena_id "AAAA"
+
   setup do
     path = "tictactoe.wasm"
     disk_volume_path = Application.get_env(:game_box, :disk_volume_path)
@@ -27,27 +29,26 @@ defmodule GameBoxWeb.ArenaLiveTest do
         Phoenix.ConnTest.build_conn()
         |> Phoenix.ConnTest.init_test_session(%{player_id: Ecto.UUID.generate()})
 
-      arena_id = "AAAA"
       player_one_id = get_session(conn, :player_id)
       player_two_id = get_session(conn2, :player_id)
 
-      Arena.start(arena_id)
-      Arena.set_host(arena_id, player_one_id)
+      Arena.start(@arena_id)
+      Arena.set_host(@arena_id, player_one_id)
 
-      {:ok, _} = Players.start(arena_id)
+      {:ok, _} = Players.start(@arena_id)
 
-      Players.update_player(arena_id, player_one_id, %{
+      Players.update_player(@arena_id, player_one_id, %{
         name: "Test 1",
         joined_at: DateTime.utc_now() |> DateTime.to_unix()
       })
 
-      Players.update_player(arena_id, player_two_id, %{
+      Players.update_player(@arena_id, player_two_id, %{
         name: "Test 2",
         joined_at: DateTime.utc_now() |> DateTime.to_unix()
       })
 
-      {:ok, _view1, html1} = live(conn, ~p"/arena/#{arena_id}")
-      {:ok, _view2, html2} = live(conn2, ~p"/arena/#{arena_id}")
+      {:ok, _view1, html1} = live(conn, ~p"/arena/#{@arena_id}")
+      {:ok, _view2, html2} = live(conn2, ~p"/arena/#{@arena_id}")
 
       assert html1 =~ "Select a game from below to get started!"
       assert html2 =~ "Waiting for the host to select a game"
@@ -64,27 +65,26 @@ defmodule GameBoxWeb.ArenaLiveTest do
         Phoenix.ConnTest.build_conn()
         |> Phoenix.ConnTest.init_test_session(%{player_id: Ecto.UUID.generate()})
 
-      arena_id = "AAAA"
       player_one_id = get_session(conn, :player_id)
       player_two_id = get_session(conn2, :player_id)
 
-      Arena.start(arena_id)
-      Arena.set_host(arena_id, player_one_id)
+      Arena.start(@arena_id)
+      Arena.set_host(@arena_id, player_one_id)
 
-      {:ok, _} = Players.start(arena_id)
+      {:ok, _} = Players.start(@arena_id)
 
-      Players.update_player(arena_id, player_one_id, %{
+      Players.update_player(@arena_id, player_one_id, %{
         name: "Test 1",
         joined_at: DateTime.utc_now() |> DateTime.to_unix()
       })
 
-      Players.update_player(arena_id, player_two_id, %{
+      Players.update_player(@arena_id, player_two_id, %{
         name: "Test 2",
         joined_at: DateTime.utc_now() |> DateTime.to_unix()
       })
 
-      {:ok, view1, html1} = live(conn, ~p"/arena/#{arena_id}")
-      {:ok, view2, html2} = live(conn2, ~p"/arena/#{arena_id}")
+      {:ok, view1, html1} = live(conn, ~p"/arena/#{@arena_id}")
+      {:ok, view2, html2} = live(conn2, ~p"/arena/#{@arena_id}")
 
       assert html1 =~ game.title
       assert html1 =~ "Select a game from below to get started!"
@@ -127,27 +127,26 @@ defmodule GameBoxWeb.ArenaLiveTest do
         Phoenix.ConnTest.build_conn()
         |> Phoenix.ConnTest.init_test_session(%{player_id: Ecto.UUID.generate()})
 
-      arena_id = "AAAA"
       player_one_id = get_session(conn, :player_id)
       player_two_id = get_session(conn2, :player_id)
 
-      Arena.start(arena_id)
-      Arena.set_host(arena_id, player_one_id)
+      Arena.start(@arena_id)
+      Arena.set_host(@arena_id, player_one_id)
 
-      {:ok, _} = Players.start(arena_id)
+      {:ok, _} = Players.start(@arena_id)
 
-      Players.update_player(arena_id, player_one_id, %{
+      Players.update_player(@arena_id, player_one_id, %{
         name: "Test 1",
         joined_at: DateTime.utc_now() |> DateTime.to_unix()
       })
 
-      Players.update_player(arena_id, player_two_id, %{
+      Players.update_player(@arena_id, player_two_id, %{
         name: "Test 2",
         joined_at: DateTime.utc_now() |> DateTime.to_unix()
       })
 
-      {:ok, view1, html1} = live(conn, ~p"/arena/#{arena_id}")
-      {:ok, _view2, _html2} = live(conn2, ~p"/arena/#{arena_id}")
+      {:ok, view1, html1} = live(conn, ~p"/arena/#{@arena_id}")
+      {:ok, _view2, _html2} = live(conn2, ~p"/arena/#{@arena_id}")
 
       assert html1 =~ game.title
       assert html1 =~ "Select a game from below to get started!"
