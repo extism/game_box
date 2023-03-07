@@ -2,7 +2,9 @@
 
 
 export function getDeck() { 
-  const suits = ["hearts", "diamonds", "spades", "clubs"]
+  // const suits = ["hearts", "diamonds", "spades", "clubs"]
+  const suits = ["&diams;", "&hearts;", "&clubs;", "&spades;"]
+  // const suits = ["&hearts;", "&clubs;"]
   const values = [
     "2",
     "3",
