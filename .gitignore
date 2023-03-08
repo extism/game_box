@@ -7,6 +7,11 @@
 # The directory Mix downloads your dependencies sources to.
 /deps/
 
+/games/trivia-with-tests/node_modules
+/games/war/node_modules
+/games/trivia-with-tests/dist
+/games/war/dist
+
 # Where 3rd-party dependencies like ExDoc output generated docs.
 /doc/
 
