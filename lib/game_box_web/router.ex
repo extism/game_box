@@ -39,6 +39,7 @@ defmodule GameBoxWeb.Router do
 
     live_session(:default, on_mount: GameBoxWeb.InitAssigns) do
       live("/", HomeLive)
+      live("/about", AboutLive)
       live("/start", StartLive)
       live("/arena/:arena_id", ArenaLive)
       live("/arena/:arena_id/game/:game_id", GameLive)
