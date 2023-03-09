@@ -76,44 +76,64 @@ defmodule GameBoxWeb.ArenaLive do
               </div>
             </.card_content>
           </.card>
-        </div>
-        <div class="flex flex-col md:flex-row">
-          <div class="w-full">
-            <.p class="py-3 text-lg">
-              <%= populate_hint(@game_selected, @is_host) %>
-            </.p>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-x-12 md:gap-y-12 mb-12">
-              <%= for game <- @games do %>
-                <.card>
-                  <.card_media :if={game.artwork} src={game.artwork} />
-                  <.card_media
-                    :if={!game.artwork}
-                    src="/images/donut.png"
-                    class="flex justify-center w-48 p-6"
-                  />
-                  <.card_content
-                    author={"@#{game.user.gh_login}"}
-                    author_link={"https://github.com/#{game.user.gh_login}"}
-                    heading={game.title}
-                  />
-                  <.card_footer>
-                    <%= if @is_host do %>
-                      <.button
-                        phx-click="select_game"
-                        phx-value-game_id={game.id}
-                        label="Start"
-                        class="w-full"
-                      />
-                    <% end %>
-                  </.card_footer>
-                </.card>
-              <% end %>
-            </div>
+          <div class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl">
+            <%= populate_status(
+              @game_selected,
+              @is_host,
+              get_host_name(
+                @all_players,
+                @arena.host_id
+              )
+            ) %>
           </div>
         </div>
+
+        <%= if(@is_host) do %>
+          <div class="flex flex-col md:flex-row">
+            <div class="w-full">
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-x-12 md:gap-y-12 mb-12">
+                <%= for game <- @games do %>
+                  <.card>
+                    <.card_media :if={game.artwork} src={game.artwork} />
+                    <.card_media
+                      :if={!game.artwork}
+                      src="/images/donut.png"
+                      class="flex justify-center w-48 p-6"
+                    />
+                    <.card_content
+                      author={"@#{game.user.gh_login}"}
+                      author_link={"https://github.com/#{game.user.gh_login}"}
+                      heading={game.title}
+                    />
+                    <.card_footer>
+                      <%= if @is_host do %>
+                        <.button
+                          phx-click="select_game"
+                          phx-value-game_id={game.id}
+                          label="Select"
+                          class="w-full"
+                        />
+                      <% end %>
+                    </.card_footer>
+                  </.card>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
       <% end %>
 
       <%= if @game_selected && !@game_started do %>
+        <div class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl">
+          <%= populate_status(
+            @game_selected,
+            @is_host,
+            get_host_name(
+              @all_players,
+              @arena.host_id
+            )
+          ) %>
+        </div>
         <div class="border border-zinc-700 rounded">
           <div class="flex">
             <div class="md:p-6 w-full">
@@ -239,16 +259,26 @@ defmodule GameBoxWeb.ArenaLive do
             All of the players who began this game are no longer present. Please return to the lobby to reselect a game.
           </.p>
         <% end %>
-        <.button
-          phx-click="unselect_game"
-          phx-value-game-id={@game_selected.id}
-          variant="outline"
-          label="Lobby"
-        />
+        <div class="mb-6">
+          <.button
+            phx-click="unselect_game"
+            phx-value-game-id={@game_selected.id}
+            variant="outline"
+            label="< Arena Lobby"
+          />
+        </div>
       <% end %>
       <div id="board">
         <%= Phoenix.HTML.raw(board) %>
       </div>
+      <%= if !@is_host && @game_selected do %>
+        <div class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl">
+          You are currently in a game. When the game is over, <%= get_host_name(
+            @all_players,
+            @arena.host_id
+          ) %> will have the option to return to the lobby.
+        </div>
+      <% end %>
     <% end %>
     """
   end
@@ -489,9 +519,53 @@ defmodule GameBoxWeb.ArenaLive do
     })
   end
 
-  defp populate_hint(nil, true), do: "Select a game from below to get started!"
-  defp populate_hint(nil, false), do: "Waiting for the host to select a game..."
-  defp populate_hint(_, _), do: nil
+  # if game is not selected and you are the host
+  defp populate_status(
+         game_selected,
+         true,
+         host_name
+       )
+       when is_nil(game_selected) do
+    host_name <> ", select a game from below to get started!"
+  end
+
+  # if game is not selected and you are a player
+  defp populate_status(
+         game_selected,
+         false,
+         host_name
+       )
+       when is_nil(game_selected) do
+    "Waiting for " <> host_name <> " to select a game"
+  end
+
+  # if game is selected and you are a player
+  defp populate_status(
+         game_selected,
+         false,
+         host_name
+       )
+       when not is_nil(game_selected) do
+    "Waiting for " <> host_name <> " to start game"
+  end
+
+  # if game is selected and you are host
+  defp populate_status(
+         game_selected,
+         true,
+         host_name
+       )
+       when not is_nil(game_selected) do
+    host_name <> ", click the \"Start Game\" button below to begin!"
+  end
+
+  defp populate_status(
+         game_selected,
+         is_host,
+         host_name
+       ) do
+    "error retrieving status" <> inspect(game_selected)
+  end
 
   defp get_player_count(min_players, max_players) when min_players == max_players, do: min_players
 
@@ -501,4 +575,10 @@ defmodule GameBoxWeb.ArenaLive do
 
   defp check_if_host(arena_host, player_id) when arena_host == player_id, do: "(host)"
   defp check_if_host(arena_host, player_id) when arena_host !== player_id, do: ""
+
+  defp get_host_name(all_players, host) do
+    all_players
+    |> Enum.find(&(&1.id == host))
+    |> Map.get(:name)
+  end
 end

@@ -1,4 +1,4 @@
-defmodule GameBoxWeb.HomeLive do
+defmodule GameBoxWeb.JoinLive do
   use GameBoxWeb, :live_view
   alias Ecto.Changeset
   alias GameBox.Arena
@@ -48,6 +48,7 @@ defmodule GameBoxWeb.HomeLive do
       </.simple_form>
     </div>
     <div class="flex justify-center my-12">
+      <.link class="text-primary hover:underline" navigate={~p"/start"}>
         Don't have an arena code? Start an arena to generate one now &raquo;
       </.link>
     </div>
@@ -110,6 +111,11 @@ defmodule GameBoxWeb.HomeLive do
       ) do
     changeset = arena_params |> validate_arena(changeset) |> Map.put(:action, :validate)
     {:noreply, assign(socket, :changeset, changeset)}
+  end
+
+  @impl true
+  def handle_info({:games, games}, socket) do
+    {:noreply, assign(socket, games: games)}
   end
 
   defp validate_arena(attrs, changeset) do

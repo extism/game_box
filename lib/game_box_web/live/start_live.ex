@@ -67,14 +67,21 @@ defmodule GameBoxWeb.StartLive do
   @impl true
   def handle_params(
         %{"arena" => arena},
-        _url,
+        uri,
         %{assigns: %{changeset: changeset}} = socket
       ) do
     changeset = %{"arena_id" => arena} |> validate_arena(changeset)
-    {:noreply, assign(socket, :changeset, changeset)}
+
+    socket =
+      socket
+      |> assign(:changeset, changeset)
+      |> assign(:uri, URI.parse(uri))
+
+    {:noreply, socket}
   end
 
-  def handle_params(_, _url, socket) do
+  def handle_params(_, uri, socket) do
+    socket = assign(socket, :uri, URI.parse(uri))
     {:noreply, socket}
   end
 
