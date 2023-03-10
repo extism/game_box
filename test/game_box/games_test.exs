@@ -6,10 +6,10 @@ defmodule GameBox.GamesTest do
 
   setup do
     user = insert(:user)
-    _game1 = insert(:game)
+    game1 = insert(:game)
     game2 = insert(:game, user: user)
 
-    {:ok, game2: game2, user: user}
+    {:ok, game2: game2, user: user, game1: game1}
   end
 
   describe "list_games_for_user/1" do
@@ -30,6 +30,17 @@ defmodule GameBox.GamesTest do
     test "returns a game or not_found", %{game2: %{id: game_id}} do
       assert {:ok, %{id: ^game_id}} = Games.get_game(game_id)
       assert {:error, :not_found} = Games.get_game(0)
+    end
+  end
+
+  describe "delete_game/2" do
+    test "you can delete your own game", %{
+      game1: %{id: game_id_1},
+      game2: %{id: game_id_2},
+      user: %{id: user_id}
+    } do
+      assert {:ok, %{id: ^game_id_2}} = Games.delete_game(game_id_2, user_id)
+      assert {:error, :not_found} = Games.delete_game(game_id_1, user_id)
     end
   end
 end

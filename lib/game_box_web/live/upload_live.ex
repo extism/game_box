@@ -159,6 +159,8 @@ defmodule GameBoxWeb.UploadLive do
         %{"game-id" => game_id},
         %{assigns: %{user: %{id: user_id}}} = socket
       ) do
+    game_id = String.to_integer(game_id)
+
     socket =
       case Games.delete_game(game_id, user_id) do
         {:ok, _} ->
