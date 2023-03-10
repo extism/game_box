@@ -157,10 +157,6 @@ defmodule GameBoxWeb.ArenaLive do
                       </.p>
                     <% end %>
                   <% end %>
-
-                  <%= if !@is_host && @game_selected do %>
-                    <.p class="text-primary text-lg italic">Waiting on host to start game</.p>
-                  <% end %>
                 </div>
               </div>
 
