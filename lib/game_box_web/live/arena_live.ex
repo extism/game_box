@@ -547,7 +547,7 @@ defmodule GameBoxWeb.ArenaLive do
        )
        when is_nil(game_selected)
        when not is_nil(host_name) do
-    "Waiting for SOMEONE to select a game"
+    "Waiting for " <> host_name <> " to select a game"
   end
 
   # if game is selected and you are a player

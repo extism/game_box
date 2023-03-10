@@ -35,14 +35,14 @@ defmodule GameBoxWeb.AboutLive do
                 author_link={"https://github.com/#{game.user.gh_login}"}
                 heading={game.title}
               />
-              <.card_footer>
+              <%!-- <.card_footer>
                 <.button
                   phx-click="select_game"
-                  phx-value-game_id={game.id}
+                  phx-value-gamgie_id={game.id}
                   label="View Details"
                   class="w-full"
                 />
-              </.card_footer>
+              </.card_footer> --%>
             </.card>
           <% end %>
         </div>
