@@ -8,6 +8,7 @@ defmodule GameBoxWeb.ArenaLive do
   alias Phoenix.LiveView.JS
   alias Phoenix.PubSub
 
+  @impl true
   def mount(%{"arena_id" => arena_id}, _session, %{assigns: %{player_id: player_id}} = socket) do
     arena_id = Arena.normalize_id(arena_id)
 
@@ -45,6 +46,7 @@ defmodule GameBoxWeb.ArenaLive do
     {:ok, socket}
   end
 
+  @impl true
   def render(assigns) do
     # NOTE: don't put this in the heex template or it will be cached
     # ignore warnings from phoenix
@@ -267,9 +269,11 @@ defmodule GameBoxWeb.ArenaLive do
     """
   end
 
+  @impl true
   def handle_params(_unsigned_params, uri, socket),
     do: {:noreply, assign(socket, uri: URI.parse(uri))}
 
+  @impl true
   def handle_event(
         "select_game",
         %{"game-id" => game_id},
@@ -515,27 +519,23 @@ defmodule GameBoxWeb.ArenaLive do
     })
   end
 
-  defp populate_status(%{host: nil} = assigns) do
+  defp populate_status(%{host: nil}) do
     "THE HOST IS NO LONGER IN THE ARENA. In order to continue playing, you can start a new arena and invite your friends to join."
   end
 
-  defp populate_status(%{game_selected: nil, is_host: true, host: %{name: host_name}} = assigns) do
+  defp populate_status(%{game_selected: nil, is_host: true, host: %{name: host_name}}) do
     "#{host_name}, select a game from below to get started!"
   end
 
-  defp populate_status(
-         %{game_selected: %{id: _}, is_host: true, host: %{name: host_name}} = assigns
-       ) do
+  defp populate_status(%{game_selected: %{id: _}, is_host: true, host: %{name: host_name}}) do
     "#{host_name}, click the \"Start Game\" button below to begin!"
   end
 
-  defp populate_status(%{game_selected: nil, is_host: false, host: %{name: host_name}} = assigns) do
+  defp populate_status(%{game_selected: nil, is_host: false, host: %{name: host_name}}) do
     "Waiting for #{host_name} to select a game."
   end
 
-  defp populate_status(
-         %{game_selected: %{id: _}, is_host: false, host: %{name: host_name}} = assigns
-       ) do
+  defp populate_status(%{game_selected: %{id: _}, is_host: false, host: %{name: host_name}}) do
     "Waiting for #{host_name} to start a game."
   end
 
