@@ -11,6 +11,7 @@
 /games/war/node_modules
 /games/trivia-with-tests/dist
 /games/war/dist
+/games/guess-the-song/
 
 # Where 3rd-party dependencies like ExDoc output generated docs.
 /doc/
