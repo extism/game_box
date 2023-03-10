@@ -4,7 +4,7 @@
       <a href="/"><img src="/images/Gamebox-White.png" class="w-64" /></a>
       <div class="hidden md:block">
         <ul class="grow flex justify-end items-center font-display text-xs gap-x-12">
-          <.navigation current_user={assigns[:current_user]} uri={assigns[:uri]} />
+          <.navigation current_user={assigns[:current_user]} />
         </ul>
       </div>
       <div class="-ml-2 mr-2 flex items-center md:hidden">
@@ -36,7 +36,7 @@
     </div>
     <div class="md:hidden hidden bg-secondary-light h-full z-50" id="mobile-menu">
       <ul class="flex flex-col items-center font-display text-xs space-y-6 py-6 my-3 mr-6 text-dark">
-        <.navigation current_user={assigns[:current_user]} assigns={assigns} />
+        <.navigation current_user={assigns[:current_user]} />
       </ul>
     </div>
   </nav>

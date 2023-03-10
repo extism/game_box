@@ -4,11 +4,7 @@ defmodule GameBoxWeb.AboutLive do
   alias GameBox.Games
 
   def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> assign(:games, Games.list_games())
-
-    {:ok, socket}
+    {:ok, assign(socket, :games, Games.list_games())}
   end
 
   def render(assigns) do
@@ -35,14 +31,14 @@ defmodule GameBoxWeb.AboutLive do
                 author_link={"https://github.com/#{game.user.gh_login}"}
                 heading={game.title}
               />
-              <%!-- <.card_footer>
+              <.card_footer>
                 <.button
                   phx-click="select_game"
                   phx-value-gamgie_id={game.id}
                   label="View Details"
                   class="w-full"
                 />
-              </.card_footer> --%>
+              </.card_footer>
             </.card>
           <% end %>
         </div>
