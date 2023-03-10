@@ -74,6 +74,8 @@ defmodule GameBoxWeb.StartLive do
     {:noreply, assign(socket, :changeset, changeset)}
   end
 
+  def handle_params(_, _, socket), do: {:noreply, socket}
+
   @impl true
   def handle_event(
         "start_arena",
