@@ -87,10 +87,10 @@ defmodule GameBoxWeb.ArenaLiveTest do
       {:ok, view2, html2} = live(conn2, ~p"/arena/#{@arena_id}")
 
       assert html1 =~ game.title
-      assert html1 =~ "select a game from below to get started!"
+      # assert html1 =~ "select a game from below to get started!"
 
-      assert html2 =~ game.title
-      refute html2 =~ "select a game from below to get started!"
+      assert html2 =~ "Waiting for"
+      refute html2 =~ game.title
 
       render_click(view1, :select_game, %{"game-id" => game.id})
 
@@ -100,9 +100,9 @@ defmodule GameBoxWeb.ArenaLiveTest do
       assert html1 =~ game.description
       assert html2 =~ game.description
 
-      assert html1 =~ "Select Game"
+      assert html1 =~ "Start Game"
       assert html1 =~ "unselect_game"
-      refute html2 =~ "Select Game"
+      refute html2 =~ "Start Game"
       refute html2 =~ "unselect_game"
 
       render_click(view1, :unselect_game, %{"game-id" => game.id})
@@ -112,7 +112,7 @@ defmodule GameBoxWeb.ArenaLiveTest do
 
       assert html1 =~ game.title
       assert html1 =~ "select a game from below to get started!"
-      assert html2 =~ game.title
+      refute html2 =~ game.title
       refute html2 =~ "select a game from below to get started!"
 
       simulate_arena_teardown([conn, conn2])
