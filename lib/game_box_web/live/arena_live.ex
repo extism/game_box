@@ -12,6 +12,7 @@ defmodule GameBoxWeb.ArenaLive do
     arena_id = Arena.normalize_id(arena_id)
 
     if connected?(socket) do
+      PubSub.subscribe(GameBox.PubSub, "games")
       PubSub.subscribe(GameBox.PubSub, "arena:#{arena_id}")
       Players.monitor(arena_id, player_id)
       Arena.monitor(arena_id)
@@ -424,6 +425,11 @@ defmodule GameBoxWeb.ArenaLive do
     missing_players = Enum.any?(playing, &(not Enum.member?(player_ids, &1)))
 
     {:noreply, assign(socket, :missing_players, missing_players)}
+  end
+
+  @impl true
+  def handle_info({:games, games}, socket) do
+    {:noreply, assign(socket, games: games)}
   end
 
   def handle_info(_message, socket) do

@@ -50,4 +50,13 @@ defmodule GameBox.Games do
         {:error, :not_found}
     end
   end
+
+  @spec delete_game(integer(), integer()) :: {:ok, Game.t()} | {:error, Ecto.Changeset.t()}
+
+  def delete_game(game_id, user_id) do
+    Game
+    |> where([g], g.user_id == ^user_id)
+    |> Repo.get(String.to_integer(game_id))
+    |> Repo.delete()
+  end
 end
