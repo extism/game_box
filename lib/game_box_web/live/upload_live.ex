@@ -139,6 +139,15 @@ defmodule GameBoxWeb.UploadLive do
             />
 
             <.card_content heading={game.title} />
+            <div class="flex w-full p-4">
+              <.button
+                phx-click="delete_game"
+                phx-value-game_id={game.id}
+                label="Delete Game"
+                class="w-full"
+                data-confirm={"Are you sure you want to delete #{game.title}?"}
+              />
+            </div>
           </.card>
         <% end %>
       </div>
@@ -146,29 +155,27 @@ defmodule GameBoxWeb.UploadLive do
     """
   end
 
-  defp presign_upload(entry, %{assigns: %{uploads: uploads}} = socket) do
-    bucket = Application.get_env(:game_box, :s3_bucket)
-    timestamp = DateTime.utc_now() |> DateTime.to_unix()
-    key = "images/#{timestamp}-#{entry.client_name}"
+  def handle_event(
+        "delete_game",
+        %{"game-id" => game_id},
+        %{assigns: %{user: %{id: user_id}}} = socket
+      ) do
+    game_id = String.to_integer(game_id)
 
-    {:ok, fields} =
-      SimpleS3Upload.sign_form_upload(bucket,
-        key: key,
-        content_type: entry.client_type,
-        max_file_size: uploads[entry.upload_config].max_file_size,
-        expires_in: :timer.hours(1)
-      )
+    socket =
+      case Games.delete_game(game_id, user_id) do
+        {:ok, _} ->
+          Phoenix.PubSub.broadcast(GameBox.PubSub, "games", {:games, Games.list_games()})
 
-    object_path = "https://#{bucket}.s3.amazonaws.com/#{key}"
+          socket
+          |> assign(:games, Games.list_games_for_user(user_id))
+          |> put_flash(:info, "Game deleted.")
 
-    meta = %{
-      uploader: "S3",
-      key: key,
-      url: "https://#{bucket}.s3.amazonaws.com",
-      fields: fields
-    }
+        {:error, _} ->
+          put_flash(socket, :error, "Could not delete game")
+      end
 
-    {:ok, meta, assign(socket, :art_url, object_path)}
+    {:noreply, socket}
   end
 
   def handle_event("cancel-art-upload", %{"ref" => ref}, socket) do
@@ -238,4 +245,29 @@ defmodule GameBoxWeb.UploadLive do
   def error_to_string(:too_many_files), do: "You have selected too many files"
   def error_to_string(:external_client_failure), do: "Upload failed"
   def error_to_string(_), do: "Unknown error"
+
+  defp presign_upload(entry, %{assigns: %{uploads: uploads}} = socket) do
+    bucket = Application.get_env(:game_box, :s3_bucket)
+    timestamp = DateTime.utc_now() |> DateTime.to_unix()
+    key = "images/#{timestamp}-#{entry.client_name}"
+
+    {:ok, fields} =
+      SimpleS3Upload.sign_form_upload(bucket,
+        key: key,
+        content_type: entry.client_type,
+        max_file_size: uploads[entry.upload_config].max_file_size,
+        expires_in: :timer.hours(1)
+      )
+
+    object_path = "https://#{bucket}.s3.amazonaws.com/#{key}"
+
+    meta = %{
+      uploader: "S3",
+      key: key,
+      url: "https://#{bucket}.s3.amazonaws.com",
+      fields: fields
+    }
+
+    {:ok, meta, assign(socket, :art_url, object_path)}
+  end
 end

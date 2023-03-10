@@ -113,11 +113,6 @@ defmodule GameBoxWeb.HomeLive do
     {:noreply, assign(socket, :changeset, changeset)}
   end
 
-  @impl true
-  def handle_info({:games, games}, socket) do
-    {:noreply, assign(socket, games: games)}
-  end
-
   defp validate_arena(attrs, changeset) do
     {changeset, @arena_types}
     |> Changeset.cast(attrs, Map.keys(@arena_types))

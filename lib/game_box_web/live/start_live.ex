@@ -53,10 +53,6 @@ defmodule GameBoxWeb.StartLive do
 
   @impl true
   def mount(_params, session, socket) do
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(GameBox.PubSub, "games")
-    end
-
     changeset =
       validate_arena(%{}, Changeset.cast({%{}, @arena_types}, %{}, Map.keys(@arena_types)))
 
@@ -113,11 +109,6 @@ defmodule GameBoxWeb.StartLive do
       ) do
     changeset = arena_params |> validate_arena(changeset) |> Map.put(:action, :validate)
     {:noreply, assign(socket, :changeset, changeset)}
-  end
-
-  @impl true
-  def handle_info({:games, games}, socket) do
-    {:noreply, assign(socket, games: games)}
   end
 
   defp validate_arena(attrs, changeset) do
