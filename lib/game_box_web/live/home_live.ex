@@ -48,6 +48,7 @@ defmodule GameBoxWeb.HomeLive do
       </.simple_form>
     </div>
     <div class="flex justify-center my-12">
+      <.link class="text-primary hover:underline" navigate={~p"/start"}>
         Don't have an arena code? Start an arena to generate one now &raquo;
       </.link>
     </div>
