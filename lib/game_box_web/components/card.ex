@@ -35,7 +35,7 @@ defmodule GameBoxWeb.Card do
         ])
       }
     >
-      <div class="">
+      <div class="flex flex-col justify-between h-full">
         <%= render_slot(@inner_block) %>
       </div>
     </div>
@@ -100,7 +100,7 @@ defmodule GameBoxWeb.Card do
       {@rest}
       class={
         build_class([
-          "p-6",
+          "p-6 flex-grow flex-1",
           @class
         ])
       }
