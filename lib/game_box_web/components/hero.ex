@@ -31,7 +31,7 @@ defmodule GameBoxWeb.Hero do
     <div class={"#{@class} my-24"}>
       <.h5 :if={@subheader} class="text-center !text-primary" label={@subheader} />
       <.h1 :if={@header} class="text-center" label={@header} />
-      <.p :if={@subtext} class="text-center"><%= @subtext %></.p>
+      <.p :if={@subtext} class="text-center mt-10"><%= @subtext %></.p>
     </div>
     """
   end

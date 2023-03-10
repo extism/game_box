@@ -5,17 +5,18 @@ defmodule GameBoxWeb.LayoutView do
   # so we instruct Elixir to not warn if the dashboard route is missing.
   @compile {:no_warn_undefined, {Routes, :live_dashboard_path, 2}}
 
-  def mount(_params, _session, socket) do
-    {:ok, socket}
-  end
-
   attr :suffix, :string, default: nil
 
   def navigation(assigns) do
     ~H"""
     <li>
       <.link href={~p"/"} class="hover:!text-primary">
-        Home
+        Join/Start Arena
+      </.link>
+    </li>
+    <li>
+      <.link href={~p"/about"} class="hover:!text-primary">
+        About
       </.link>
     </li>
     <li>

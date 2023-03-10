@@ -35,7 +35,7 @@ defmodule GameBoxWeb.Card do
         ])
       }
     >
-      <div class="">
+      <div class="flex flex-col justify-between h-full">
         <%= render_slot(@inner_block) %>
       </div>
     </div>
@@ -51,20 +51,10 @@ defmodule GameBoxWeb.Card do
   def card_media(assigns) do
     ~H"""
     <%= if @src do %>
-      <div class="w-full flex justify-center">
-        <img
-          {@rest}
-          src={@src}
-          class={
-            build_class(
-              [
-                @aspect_ratio_class,
-                @class
-              ],
-              " "
-            )
-          }
-        />
+      <div
+        class="w-full flex justify-center h-64 bg-cover bg-center"
+        style={"background-image:url(#{@src})"}
+      >
       </div>
     <% else %>
       <div
@@ -100,7 +90,7 @@ defmodule GameBoxWeb.Card do
       {@rest}
       class={
         build_class([
-          "p-6",
+          "p-6 flex-grow flex-1",
           @class
         ])
       }

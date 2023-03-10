@@ -8,6 +8,7 @@ defmodule GameBoxWeb.ArenaLive do
   alias Phoenix.LiveView.JS
   alias Phoenix.PubSub
 
+  @impl true
   def mount(%{"arena_id" => arena_id}, _session, %{assigns: %{player_id: player_id}} = socket) do
     arena_id = Arena.normalize_id(arena_id)
 
@@ -45,6 +46,7 @@ defmodule GameBoxWeb.ArenaLive do
     {:ok, socket}
   end
 
+  @impl true
   def render(assigns) do
     # NOTE: don't put this in the heex template or it will be cached
     # ignore warnings from phoenix
@@ -76,44 +78,50 @@ defmodule GameBoxWeb.ArenaLive do
               </div>
             </.card_content>
           </.card>
-        </div>
-        <div class="flex flex-col md:flex-row">
-          <div class="w-full">
-            <.p class="py-3 text-lg">
-              <%= populate_hint(@game_selected, @is_host) %>
-            </.p>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-x-12 md:gap-y-12 mb-12">
-              <%= for game <- @games do %>
-                <.card>
-                  <.card_media :if={game.artwork} src={game.artwork} />
-                  <.card_media
-                    :if={!game.artwork}
-                    src="/images/donut.png"
-                    class="flex justify-center w-48 p-6"
-                  />
-                  <.card_content
-                    author={"@#{game.user.gh_login}"}
-                    author_link={"https://github.com/#{game.user.gh_login}"}
-                    heading={game.title}
-                  />
-                  <.card_footer>
-                    <%= if @is_host do %>
-                      <.button
-                        phx-click="select_game"
-                        phx-value-game_id={game.id}
-                        label="Start"
-                        class="w-full"
-                      />
-                    <% end %>
-                  </.card_footer>
-                </.card>
-              <% end %>
-            </div>
+          <div class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl">
+            <%= populate_status(assigns) %>
           </div>
         </div>
+
+        <%= if(@is_host) do %>
+          <div class="flex flex-col md:flex-row">
+            <div class="w-full">
+              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-6 md:gap-x-12 md:gap-y-12 mb-12">
+                <%= for game <- @games do %>
+                  <.card>
+                    <.card_media :if={game.artwork} src={game.artwork} />
+                    <.card_media
+                      :if={!game.artwork}
+                      src="/images/donut.png"
+                      class="flex justify-center w-48 p-6"
+                    />
+                    <.card_content
+                      author={"@#{game.user.gh_login}"}
+                      author_link={"https://github.com/#{game.user.gh_login}"}
+                      heading={game.title}
+                    />
+                    <.card_footer>
+                      <%= if @is_host do %>
+                        <.button
+                          phx-click="select_game"
+                          phx-value-game_id={game.id}
+                          label="Select"
+                          class="w-full"
+                        />
+                      <% end %>
+                    </.card_footer>
+                  </.card>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
       <% end %>
 
       <%= if @game_selected && !@game_started do %>
+        <div class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl">
+          <%= populate_status(assigns) %>
+        </div>
         <div class="border border-zinc-700 rounded">
           <div class="flex">
             <div class="md:p-6 w-full">
@@ -148,10 +156,6 @@ defmodule GameBoxWeb.ArenaLive do
                         You don't have the right number of players for this game.
                       </.p>
                     <% end %>
-                  <% end %>
-
-                  <%= if !@is_host && @game_selected do %>
-                    <.p class="text-primary text-lg italic">Waiting on host to start game</.p>
                   <% end %>
                 </div>
               </div>
@@ -239,23 +243,33 @@ defmodule GameBoxWeb.ArenaLive do
             All of the players who began this game are no longer present. Please return to the lobby to reselect a game.
           </.p>
         <% end %>
-        <.button
-          phx-click="unselect_game"
-          phx-value-game-id={@game_selected.id}
-          variant="outline"
-          label="Lobby"
-        />
+        <div class="mb-6">
+          <.button
+            phx-click="unselect_game"
+            phx-value-game-id={@game_selected.id}
+            variant="outline"
+            label="< Arena Lobby"
+          />
+        </div>
       <% end %>
       <div id="board">
         <%= Phoenix.HTML.raw(board) %>
+      </div>
+      <div
+        :if={!@is_host && @game_selected && @host}
+        class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl"
+      >
+        You are currently in a game. When the game is over, <%= @host.name %> will have the option to return to the lobby.
       </div>
     <% end %>
     """
   end
 
+  @impl true
   def handle_params(_unsigned_params, uri, socket),
     do: {:noreply, assign(socket, uri: URI.parse(uri))}
 
+  @impl true
   def handle_event(
         "select_game",
         %{"game-id" => game_id},
@@ -409,7 +423,12 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def handle_info(:players_updated, socket) do
-    {:noreply, assign_all_players(socket)}
+    socket =
+      socket
+      |> assign_all_players()
+      |> assign_host()
+
+    {:noreply, socket}
   end
 
   def handle_info(
@@ -449,6 +468,13 @@ defmodule GameBoxWeb.ArenaLive do
     |> assign(:missing_players, false)
     |> assign_current_player()
     |> assign_all_players()
+    |> assign_host()
+  end
+
+  defp assign_host(%{assigns: %{all_players: all_players, arena: %{host_id: host_id}}} = socket) do
+    host = Enum.find(all_players, &(&1.id == host_id))
+
+    assign(socket, :host, host)
   end
 
   defp assign_current_player(socket) do
@@ -489,9 +515,25 @@ defmodule GameBoxWeb.ArenaLive do
     })
   end
 
-  defp populate_hint(nil, true), do: "Select a game from below to get started!"
-  defp populate_hint(nil, false), do: "Waiting for the host to select a game..."
-  defp populate_hint(_, _), do: nil
+  defp populate_status(%{host: nil}) do
+    "THE HOST IS NO LONGER IN THE ARENA. In order to continue playing, you can start a new arena and invite your friends to join."
+  end
+
+  defp populate_status(%{game_selected: nil, is_host: true, host: %{name: host_name}}) do
+    "#{host_name}, select a game from below to get started!"
+  end
+
+  defp populate_status(%{game_selected: %{id: _}, is_host: true, host: %{name: host_name}}) do
+    "#{host_name}, click the \"Start Game\" button below to begin!"
+  end
+
+  defp populate_status(%{game_selected: nil, is_host: false, host: %{name: host_name}}) do
+    "Waiting for #{host_name} to select a game."
+  end
+
+  defp populate_status(%{game_selected: %{id: _}, is_host: false, host: %{name: host_name}}) do
+    "Waiting for #{host_name} to start a game."
+  end
 
   defp get_player_count(min_players, max_players) when min_players == max_players, do: min_players
 
