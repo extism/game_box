@@ -77,14 +77,7 @@ defmodule GameBoxWeb.ArenaLive do
             </.card_content>
           </.card>
           <div class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl">
-            <%= populate_status(
-              @game_selected,
-              @is_host,
-              get_host_name(
-                @all_players,
-                @arena.host_id
-              )
-            ) %>
+            <%= populate_status(assigns) %>
           </div>
         </div>
 
@@ -125,14 +118,7 @@ defmodule GameBoxWeb.ArenaLive do
 
       <%= if @game_selected && !@game_started do %>
         <div class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl">
-          <%= populate_status(
-            @game_selected,
-            @is_host,
-            get_host_name(
-              @all_players,
-              @arena.host_id
-            )
-          ) %>
+          <%= populate_status(assigns) %>
         </div>
         <div class="border border-zinc-700 rounded">
           <div class="flex">
@@ -271,14 +257,12 @@ defmodule GameBoxWeb.ArenaLive do
       <div id="board">
         <%= Phoenix.HTML.raw(board) %>
       </div>
-      <%= if !@is_host && @game_selected do %>
-        <div class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl">
-          You are currently in a game. When the game is over, <%= get_host_name(
-            @all_players,
-            @arena.host_id
-          ) %> will have the option to return to the lobby.
-        </div>
-      <% end %>
+      <div
+        :if={!@is_host && @game_selected && @host}
+        class="w-full py-3 px-3 my-6 border-b border-zinc-700 bg-primary-darker text-center !text-xl"
+      >
+        You are currently in a game. When the game is over, <%= @host.name %> will have the option to return to the lobby.
+      </div>
     <% end %>
     """
   end
@@ -439,7 +423,12 @@ defmodule GameBoxWeb.ArenaLive do
   end
 
   def handle_info(:players_updated, socket) do
-    {:noreply, assign_all_players(socket)}
+    socket =
+      socket
+      |> assign_all_players()
+      |> assign_host()
+
+    {:noreply, socket}
   end
 
   def handle_info(
@@ -479,6 +468,13 @@ defmodule GameBoxWeb.ArenaLive do
     |> assign(:missing_players, false)
     |> assign_current_player()
     |> assign_all_players()
+    |> assign_host()
+  end
+
+  defp assign_host(%{assigns: %{all_players: all_players, arena: %{host_id: host_id}}} = socket) do
+    host = Enum.find(all_players, &(&1.id == host_id))
+
+    assign(socket, :host, host)
   end
 
   defp assign_current_player(socket) do
@@ -519,63 +515,28 @@ defmodule GameBoxWeb.ArenaLive do
     })
   end
 
-  # if host left
-  defp populate_status(
-         _,
-         _,
-         host_name
-       )
-       when is_nil(host_name) do
+  defp populate_status(%{host: nil} = assigns) do
     "THE HOST IS NO LONGER IN THE ARENA. In order to continue playing, you can start a new arena and invite your friends to join."
   end
 
-  # if game is not selected and you are the host
-  defp populate_status(
-         game_selected,
-         true,
-         host_name
-       )
-       when is_nil(game_selected) do
-    host_name <> ", select a game from below to get started!"
-  end
-
-  # if game is not selected and you are a player
-  defp populate_status(
-         game_selected,
-         false,
-         host_name
-       )
-       when is_nil(game_selected)
-       when not is_nil(host_name) do
-    "Waiting for " <> host_name <> " to select a game"
-  end
-
-  # if game is selected and you are a player
-  defp populate_status(
-         game_selected,
-         false,
-         host_name
-       )
-       when not is_nil(game_selected) do
-    "Waiting for " <> host_name <> " to start game"
-  end
-
-  # if game is selected and you are host
-  defp populate_status(
-         game_selected,
-         true,
-         host_name
-       )
-       when not is_nil(game_selected) do
-    host_name <> ", click the \"Start Game\" button below to begin!"
+  defp populate_status(%{game_selected: nil, is_host: true, host: %{name: host_name}} = assigns) do
+    "#{host_name}, select a game from below to get started!"
   end
 
   defp populate_status(
-         game_selected,
-         is_host,
-         host_name
+         %{game_selected: %{id: _}, is_host: true, host: %{name: host_name}} = assigns
        ) do
-    "error retrieving status" <> inspect(game_selected)
+    "#{host_name}, click the \"Start Game\" button below to begin!"
+  end
+
+  defp populate_status(%{game_selected: nil, is_host: false, host: %{name: host_name}} = assigns) do
+    "Waiting for #{host_name} to select a game."
+  end
+
+  defp populate_status(
+         %{game_selected: %{id: _}, is_host: false, host: %{name: host_name}} = assigns
+       ) do
+    "Waiting for #{host_name} to start a game."
   end
 
   defp get_player_count(min_players, max_players) when min_players == max_players, do: min_players
@@ -586,23 +547,4 @@ defmodule GameBoxWeb.ArenaLive do
 
   defp check_if_host(arena_host, player_id) when arena_host == player_id, do: "(host)"
   defp check_if_host(arena_host, player_id) when arena_host !== player_id, do: ""
-
-  defp get_host_name(all_players, host) do
-    hostname =
-      all_players
-      |> Enum.find(&(&1.id == host))
-
-    if !is_nil(hostname) do
-      hostname
-      |> Map.get(:name)
-    else
-      nil
-    end
-
-    # |> Map.get(:name)
-  end
-
-  # defp get_host_name(all_players, nil) do
-  #   %{}
-  # end
 end
