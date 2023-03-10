@@ -145,6 +145,7 @@ defmodule GameBoxWeb.UploadLive do
                 phx-value-game_id={game.id}
                 label="Delete Game"
                 class="w-full"
+                data-confirm={"Are you sure you want to delete #{game.title}?"}
               />
             </div>
           </.card>
