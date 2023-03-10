@@ -51,20 +51,10 @@ defmodule GameBoxWeb.Card do
   def card_media(assigns) do
     ~H"""
     <%= if @src do %>
-      <div class="w-full flex justify-center">
-        <img
-          {@rest}
-          src={@src}
-          class={
-            build_class(
-              [
-                @aspect_ratio_class,
-                @class
-              ],
-              " "
-            )
-          }
-        />
+      <div
+        class="w-full flex justify-center h-64 bg-cover bg-center"
+        style={"background-image:url(#{@src})"}
+      >
       </div>
     <% else %>
       <div
