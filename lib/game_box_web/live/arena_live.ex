@@ -592,7 +592,7 @@ defmodule GameBoxWeb.ArenaLive do
       all_players
       |> Enum.find(&(&1.id == host))
 
-    if(!is_nil(hostname)) do
+    if !is_nil(hostname) do
       hostname
       |> Map.get(:name)
     else
