@@ -26,10 +26,4 @@ defmodule GameBoxWeb.LayoutView do
     </li>
     """
   end
-
-  def check_data_confirm(assigns) do
-    if !is_nil(assigns[:uri]) && Map.get(assigns[:uri], :path) == "/start" do
-      true
-    end
-  end
 end
