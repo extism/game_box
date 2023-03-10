@@ -519,6 +519,16 @@ defmodule GameBoxWeb.ArenaLive do
     })
   end
 
+  # if host left
+  defp populate_status(
+         _,
+         _,
+         host_name
+       )
+       when is_nil(host_name) do
+    "THE HOST IS NO LONGER IN THE ARENA. In order to continue playing, you can start a new arena and invite your friends to join."
+  end
+
   # if game is not selected and you are the host
   defp populate_status(
          game_selected,
@@ -535,8 +545,9 @@ defmodule GameBoxWeb.ArenaLive do
          false,
          host_name
        )
-       when is_nil(game_selected) do
-    "Waiting for " <> host_name <> " to select a game"
+       when is_nil(game_selected)
+       when not is_nil(host_name) do
+    "Waiting for SOMEONE to select a game"
   end
 
   # if game is selected and you are a player
@@ -577,8 +588,21 @@ defmodule GameBoxWeb.ArenaLive do
   defp check_if_host(arena_host, player_id) when arena_host !== player_id, do: ""
 
   defp get_host_name(all_players, host) do
-    all_players
-    |> Enum.find(&(&1.id == host))
-    |> Map.get(:name)
+    hostname =
+      all_players
+      |> Enum.find(&(&1.id == host))
+
+    if(!is_nil(hostname)) do
+      hostname
+      |> Map.get(:name)
+    else
+      nil
+    end
+
+    # |> Map.get(:name)
   end
+
+  # defp get_host_name(all_players, nil) do
+  #   %{}
+  # end
 end
