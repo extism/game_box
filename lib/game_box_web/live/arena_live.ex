@@ -253,7 +253,7 @@ defmodule GameBoxWeb.ArenaLive do
         </div>
       <% end %>
       <div id="board">
-        <%= Phoenix.HTML.raw(board) %>
+        <gamebox-game id="gamebox-game" view={board} phx-hook="GameboxGame" />
       </div>
       <div
         :if={!@is_host && @game_selected && @host}
