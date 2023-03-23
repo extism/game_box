@@ -107,6 +107,7 @@ defmodule GameBoxWeb.ArenaLive do
                           phx-value-game_id={game.id}
                           label="Select"
                           class="w-full"
+                          phx-disable-with="Loading game..."
                         />
                       <% end %>
                     </.card_footer>
@@ -146,6 +147,7 @@ defmodule GameBoxWeb.ArenaLive do
                         <.button
                           phx-click="start_game"
                           phx-value-game-id={@game_selected.id}
+                          phx-disable-with="Starting game..."
                           label="Start Game"
                           class="w-full"
                         />

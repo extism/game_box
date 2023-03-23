@@ -1,52 +1,52 @@
 [
   {
-    "prompt": "Which of these is NOT a Disney cartoon character?",
+    "prompt": "Which of the following former Yugoslavian states is landlocked?",
     "options": [
-      "Donald Duck",
-      "Daisy Duck",
-      "Scrooge McDuck",
-      "Daffy Duck"
-    ],
-    "answerIndex": 3
-  },
-  {
-    "prompt": "What album did The Lumineers release in 2016?",
-    "options": [
-      "The Lumineers",
-      "Cleopatra",
-      "Tracks From The Attic",
-      "Winter"
+      "Bosnia and Herzegovina",
+      "Serbia",
+      "Croatia",
+      "Montenegro"
     ],
     "answerIndex": 1
   },
   {
-    "prompt": "In the movie Gremlins, after what time of day should you not feed Mogwai?",
+    "prompt": "Harvard University is located in which city?",
     "options": [
-      "Morning",
-      "Midnight",
-      "Evening",
-      "Afternoon"
-    ],
-    "answerIndex": 1
-  },
-  {
-    "prompt": "When was the top-down online RPG &quot;Space Station 13&quot; released?",
-    "options": [
-      "2006",
-      "2010",
-      "2000",
-      "2003"
-    ],
-    "answerIndex": 3
-  },
-  {
-    "prompt": "These two countries held a commonwealth from the 16th to 18th century.",
-    "options": [
-      "Bangladesh and Bhutan",
-      "North Korea and South Korea",
-      "Poland and Lithuania",
-      "Hutu and Rwanda"
+      "Providence",
+      "New York",
+      "Cambridge",
+      "Washington D.C."
     ],
     "answerIndex": 2
+  },
+  {
+    "prompt": "What is the name of New Zealand&#039;s indigenous people?",
+    "options": [
+      "Samoans",
+      "Maori",
+      "Vikings",
+      "Polynesians"
+    ],
+    "answerIndex": 1
+  },
+  {
+    "prompt": "Which country was NOT part of the Soviet Union?",
+    "options": [
+      "Romania",
+      "Belarus",
+      "Tajikistan",
+      "Turkmenistan"
+    ],
+    "answerIndex": 0
+  },
+  {
+    "prompt": "The longest shared border in the world can be found between which two nations?",
+    "options": [
+      "India and Pakistan",
+      "Canada and the United States",
+      "Chile and Argentina",
+      "Russia and China"
+    ],
+    "answerIndex": 1
   }
 ]

@@ -25,6 +25,30 @@ export interface LiveEvent {
 
 const questions = getQuestions()
 
+const STYLE = `
+<style>
+h1.question {
+  font-size: 1.5rem;
+}
+
+ul.answers {
+  list-style: circle;
+}
+
+li.answer {
+  line-height: 2;
+}
+
+li.answer > button {
+  text-decoration: underline;
+}
+
+p.stats {
+  margin-top: 15px;
+}
+</style>
+`
+
 export class Game {
   players: Array<string>;
   version: number;
@@ -47,10 +71,10 @@ export class Game {
   render(assigns: Assigns): string {
     switch (this.state.name) {
       case "prompting": {
-        return this.renderPrompt(assigns)
+        return STYLE + this.renderPrompt(assigns)
       }
       case "done": {
-        return this.renderScoreboard(assigns)
+        return STYLE + this.renderScoreboard(assigns)
       }
     }
   }
@@ -58,16 +82,21 @@ export class Game {
   renderPrompt(assigns: Assigns): string {
     if (this.state.name != "prompting") throw Error("un")
 
+    const player_count = this.players.length
+    const answered_count = Object.keys(this.state.answers).length
+    const answered = `<p class="stats">${answered_count} of ${player_count} Players Answered</p>`
+
     if (this.state.answers[assigns.player_id] !== undefined)
-      return "<p>Answered. Waiting on other players</p>"
+      return "<p>Answered. Waiting on other players</p>" + answered
 
     let qObj = questions[this.state.questionIndex]
-    const question = `<h1>${qObj.prompt}</h1>`
+    const question = `<h1 class="question">${qObj.prompt}</h1>`
     const answers = qObj.options.map((opt, idx) => {
-      return `<li><button phx-click="answer-prompt" phx-value-idx=${idx}>${opt}</button></li>`
+      return `<li class="answer"><button phx-click="answer-prompt" phx-value-idx=${idx}>${opt}</button></li>`
     }).join("\n")
 
-    return [question, `<ul>${answers}</ul>`].join("\n")
+
+    return [question, `<ul class="answers">${answers}</ul>`, answered].join("\n")
   }
 
   renderScoreboard(_assigns: Assigns): string {
