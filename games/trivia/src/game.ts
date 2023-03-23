@@ -46,6 +46,10 @@ li.answer > button {
 p.stats {
   margin-top: 15px;
 }
+
+button.next_button {
+  text-decoration: underline;
+}
 </style>
 `
 
@@ -95,8 +99,12 @@ export class Game {
       return `<li class="answer"><button phx-click="answer-prompt" phx-value-idx=${idx}>${opt}</button></li>`
     }).join("\n")
 
-
-    return [question, `<ul class="answers">${answers}</ul>`, answered].join("\n")
+    let view = [question, `<ul class="answers">${answers}</ul>`, answered]
+    // Assume first player is host
+    if (assigns.player_id == this.players[0]) {
+      view.push(`<button phx-click="next-question" class="next_button">Next Question</button>`)
+    }
+    return view.join("\n")
   }
 
   renderScoreboard(_assigns: Assigns): string {
@@ -107,10 +115,18 @@ export class Game {
   }
 
   handleEvent(event: LiveEvent): Assigns {
-    if (event.event_name !== "answer-prompt") throw Error("unknown event")
-    const assigns = this.handleAnswerPrompt(event)
-    this.nextState()
-    return assigns
+    //if (event.event_name !== "answer-prompt") throw Error("unknown event")
+    switch (event.event_name) {
+      case "answer-prompt":
+        let a1 = this.handleAnswerPrompt(event)
+        this.nextState()
+        return a1
+      case "next-question":
+        let a2 = this.handleNextQuestion(event)
+        return a2
+      default:
+        throw Error("unknown event")
+    }
   }
 
   handleAnswerPrompt(event: LiveEvent): Assigns {
@@ -123,26 +139,42 @@ export class Game {
     return assigns
   }
 
+  handleNextQuestion(event: LiveEvent): Assigns {
+    const assigns: Assigns = { player_id: event.player_id }
+    if (this.state.name !== "prompting") return assigns
+
+    this.nextQuestion()
+    this.version += 1
+
+    return assigns
+  }
+
   nextState() {
     switch (this.state.name) { 
       case "prompting": {
         // if everyone has answered
         if (Object.keys(this.state.answers).length === this.players.length) {
-          this.recordScore()
-          if (this.state.questionIndex >= questions.length - 1) {
-            this.finish()
-          } else {
-            this.state = {
-              name: "prompting",
-              questionIndex: this.state.questionIndex + 1,
-              answers: {}
-            }
-          }
+          this.nextQuestion()
         }
         break
       }
       case "done": {
         break
+      }
+    }
+  }
+
+  nextQuestion() {
+    if (this.state.name !== "prompting") return
+
+    this.recordScore()
+    if (this.state.questionIndex >= questions.length - 1) {
+      this.finish()
+    } else {
+      this.state = {
+        name: "prompting",
+        questionIndex: this.state.questionIndex + 1,
+        answers: {}
       }
     }
   }
@@ -162,6 +194,5 @@ export class Game {
 
   finish() {
     this.state = { name: "done" }
-
   }
 }
