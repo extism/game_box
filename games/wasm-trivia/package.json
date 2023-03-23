@@ -1,0 +1,17 @@
+{
+  "name": "trivia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node esbuild.js && extism-js dist/index.js -o dist/plugin.wasm"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "BSD-Clause-3",
+  "devDependencies": {
+    "esbuild": "^0.17.10",
+    "tsc": "^2.0.4"
+  }
+}

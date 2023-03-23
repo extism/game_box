@@ -11,8 +11,7 @@ defmodule GameBoxWeb.AboutLive do
     ~H"""
     <.hero
       header="About Gamebox"
-      subtext="Gamebox is lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ut arcu gravida mauris hendrerit vehicula at nec lacus. Maecenas sed dolor eget nisl commodo condimentum luctus vitae risus.
-    "
+      subtext="GameBox is a platform for multi-player, turn-based games written by the community of users. Games are implemented as WebAssembly modules, and can be dynamically submitted and played by anyone."
     />
 
     <div class="flex flex-col md:flex-row">

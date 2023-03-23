@@ -1,0 +1,52 @@
+[
+  {
+    "prompt": "Which of these is NOT a WebAssembly data type?",
+    "options": [
+      "i32",
+      "f64",
+      "externref",
+      "ub40"
+    ],
+    "answerIndex": 3
+  },
+  {
+    "prompt": "What is the most popular language that targets WebAssembly?",
+    "options": [
+      "Rust",
+      "Lua",
+      "French",
+      "AssemblyScript"
+    ],
+    "answerIndex": 0
+  },
+  {
+    "prompt": "WebAssembly was first announced in which year?",
+    "options": [
+      "2016",
+      "1970",
+      "2015",
+      "2017"
+    ],
+    "answerIndex": 2
+  },
+  {
+    "prompt": "Which of the follow is NOT a WebAssembly instruction?",
+    "options": [
+      "i32.shl",
+      "local.jmp",
+      "i32.add",
+      "local.get"
+    ],
+    "answerIndex": 1
+  },
+  {
+    "prompt": "What is the file extension of the IDL of the Component Model?",
+    "options": [
+      ".wit",
+      ".witx",
+      ".wacm",
+      ".zip"
+    ],
+    "answerIndex": 0
+  }
+]
