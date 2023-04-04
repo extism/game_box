@@ -87,12 +87,23 @@ export class Game {
   renderPrompt(assigns: Assigns): string {
     if (this.state.name != "prompting") throw Error("un")
 
+    const is_playing = this.players.includes(assigns.player_id)
+    if (!is_playing) {
+      return `<p>Sorry, there were too many people that joined and you were too late.</p>`
+    }
+
     const player_count = this.players.length
     const answered_count = Object.keys(this.state.answers).length
     const answered = `<p class="stats">${answered_count} of ${player_count} Players Answered</p>`
 
+    let next_btn = ""
+    // Assume first player is host
+    if (assigns.player_id == this.players[0]) {
+      next_btn = `<button phx-click="next-question" class="next_button">Next Question</button>`
+    }
+
     if (this.state.answers[assigns.player_id] !== undefined)
-      return "<p>Answered. Waiting on other players</p>" + answered
+      return "<p>Answered. Waiting on other players</p>" + answered + next_btn
 
     let qObj = questions[this.state.questionIndex]
     const question = `<h1 class="question">${qObj.prompt}</h1>`
@@ -100,11 +111,7 @@ export class Game {
       return `<li class="answer"><button phx-click="answer-prompt" phx-value-idx=${idx}>${opt}</button></li>`
     }).join("\n")
 
-    let view = [question, `<ul class="answers">${answers}</ul>`, answered]
-    // Assume first player is host
-    if (assigns.player_id == this.players[0]) {
-      view.push(`<button phx-click="next-question" class="next_button">Next Question</button>`)
-    }
+    let view = [question, `<ul class="answers">${answers}</ul>`, answered, next_btn]
     return view.join("\n")
   }
 
@@ -144,6 +151,7 @@ export class Game {
   handleAnswerPrompt(event: LiveEvent): Assigns {
     const assigns: Assigns = { player_id: event.player_id }
     if (this.state.name !== "prompting") return assigns
+    if (!this.players.includes(event.player_id)) return assigns
 
     this.state.answers[event.player_id] = parseInt(event.value.idx, 10)
     this.version += 1

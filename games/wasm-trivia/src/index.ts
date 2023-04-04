@@ -18,7 +18,7 @@ interface GameConstraints {
 }
 
 export function get_constraints(): number {
-  const constraints: GameConstraints = { min_players: 2, max_players: 20 }
+  const constraints: GameConstraints = { min_players: 2, max_players: 50 }
   outputJson(constraints)
   return 0
 }
