@@ -3,16 +3,16 @@ function setstate(state) {
 }
 
 function getstate() {
-  // TODO going to add Var.getString instead of doing this in JS
-  return JSON.parse(String.fromCharCode.apply(null, new Uint8Array(Var.get('state'))))
+  return JSON.parse(Var.getString('state'))
 }
 
 function init_game() {
   const game_config = JSON.parse(Host.inputString())
-  const state = {}
-  state.player_ids = game_config.player_ids
-  state.events = []
-  state.version = 0
+  const state = {
+    player_ids: game_config.player_ids,
+    events: [],
+    version: 0,
+  }
   setstate(state)
   return 0
 }
