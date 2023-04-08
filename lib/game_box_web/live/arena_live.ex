@@ -512,9 +512,11 @@ defmodule GameBoxWeb.ArenaLive do
   def can_start_game?(_), do: false
 
   defp render_board(arena_id, player_id) do
-    Arena.render_game(arena_id, %{
-      player_id: player_id
-    })
+    arena_id
+    |> Arena.render_game(%{
+        player_id: player_id
+      })
+    |> StripJs.clean_html
   end
 
   defp populate_status(%{host: nil}) do
