@@ -7,7 +7,6 @@ https://extism.org/blog/extending-fly-io-distributed-game-system-part-1
 This is currently a proof of concept and we are working on making this something we can deploy.
 If you have Elixir or Phoenix knowledge, we'd love your help! Come join us in [Discord](https://discord.gg/cx3usBCWnc). Stop by the `#elixir-sdk` room.
 
-
 I've been working on a [tictactoe game in rust](games/tictactoe/) to figure out what the game API will be and how to best integrate with LiveView:
 
 <video src="https://user-images.githubusercontent.com/185919/206291522-86aed4cf-13b6-4757-a400-4e3c7dafb57f.mp4"></video>
@@ -26,7 +25,7 @@ mix do deps.get, compile
 
 I'll have some scripts for this soon. Right now run this:
 
-```
+```sh
 cd games/tictactoe
 cargo build --target wasm32-unknown-unknown
 ```
@@ -36,21 +35,20 @@ cargo build --target wasm32-unknown-unknown
 ## Running
 
 You might need to do this first
-```
+
+```sh
 cd assets
-npm instal
+npm install
 cd ..
 ```
 
 Run with iex so you can manipulate the game state in repl:
 
-
-```
+```sh
 iex -S mix phx.server
 ```
 
 Open game at: http://localhost:4000/
-
 
 ## Game API
 
@@ -66,7 +64,6 @@ render(Assigns) -> String
 #### `get_constraints(void) -> GameConstraints`
 
 Called before initializing the game. This gives GameBox some metadata about the constraints of the game. If you do not implement this function it will assume the min and max players are 2.
-
 
 ```rust
 #[derive(Serialize)]
@@ -132,8 +129,8 @@ This function can also return an error and when it does, that error will be put 
 
 #### `render(Assigns) -> String`
 
-`render` is called each time the game board needs to be rendered. It's called for each user watching or playing the game. You can render the game depending on who is viewing it by attaching metadata to the user's socket with Assigns. The assigns for the user are passed back to you here. For example, you will render the game differently based on who's turn it is and which screen it's being rendered on. You also probably want to render game for non players without the control elements.
+`render` is called each time the game board needs to be rendered. It's called for each user watching or playing the game. You can render the game depending on who is viewing it by attaching metadata to the user's socket with Assigns. The assigns for the user are passed back to you here. For example, you will render the game differently based on whose turn it is and which screen it's being rendered on. You also probably want to render game for non-players without the control elements.
 
 ### Reference
 
-Currently the [tictactoe game in rust](games/tictactoe/) is the canonical example of a game.
+Currently, the [tictactoe game in rust](games/tictactoe/) is the canonical example of a game.
